@@ -5,7 +5,7 @@
 
 ---
 
-## 🌟 Key Features
+## Key Features
 
 - **Modern Product Catalog**: Categorized showcase of Health Nutra formulations (9G Tablets, 10Q Syrup, Omega-3, Green Tea Extract).
 - **Interactive Shopping Cart**: Quantity adjustments, cart badges, and real-time total calculations.
@@ -17,7 +17,7 @@
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 - **Frontend**: React 18, Vite, React Router v6
 - **Styling**: Tailwind CSS v4 (`@tailwindcss/vite`)
@@ -27,7 +27,7 @@
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 ### 1. Clone the repository
 ```bash
@@ -68,7 +68,7 @@ npm run build
 
 ---
 
-## 📊 Google Sheets Integration (Orders & Enquiries)
+## Google Sheets Integration (Orders & Enquiries)
 
 1. Create a new Google Sheet.
 2. Go to **Extensions** → **Apps Script**.
@@ -81,5 +81,5 @@ npm run build
 
 ---
 
-## 📄 License
+## License
 This project is proprietary and confidential. © Health Nutra. All rights reserved.
