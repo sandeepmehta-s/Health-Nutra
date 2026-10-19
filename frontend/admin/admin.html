@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard - Health Nutra</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#f0fdf4',
+              100: '#dcfce7',
+              600: '#16a34a',
+              700: '#15803d',
+              800: '#166534',
+              900: '#14532d',
+              950: '#052e16',
+            },
+            accent: {
+              50: '#fff7ed',
+              500: '#f97316',
+              600: '#ea580c',
+              700: '#c2410c',
+            }
+          },
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Google Fonts: Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen flex flex-col">
+
+  <!-- Top Admin Bar -->
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-xs">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-18 flex items-center justify-between">
+      
+      <!-- Brand & Title -->
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-brand-700 flex items-center justify-center text-white shadow-sm">
+          <i data-lucide="leaf" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <span class="text-lg font-black text-slate-900 tracking-tight">HEALTH <span class="text-accent-600">NUTRA</span></span>
+          <span class="block text-[10px] font-bold tracking-wider text-slate-400 uppercase">Management Portal</span>
+        </div>
+      </div>
+
+      <!-- Action & Profile Links -->
+      <div class="flex items-center gap-3">
+        <a href="/" target="_blank" class="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-colors">
+          <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+          <span>View Public Website</span>
+        </a>
+
+        <div class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-emerald-50 border border-emerald-200 text-xs font-bold text-emerald-800">
+          <i data-lucide="shield-check" class="w-3.5 h-3.5 text-emerald-600"></i>
+          <span id="adminNameDisplay">admin</span>
+        </div>
+
+        <button id="logoutBtn" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 transition-colors cursor-pointer">
+          <i data-lucide="log-out" class="w-3.5 h-3.5"></i>
+          <span class="hidden sm:inline">Logout</span>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- Main Content Container -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow space-y-6 w-full">
+    
+    <!-- Stats Cards Grid -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+      
+      <!-- Total -->
+      <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs flex items-center justify-between">
+        <div>
+          <span class="text-xs uppercase font-bold text-slate-400 block tracking-wider">Total Formulations</span>
+          <span id="statTotal" class="text-3xl font-black text-slate-900 mt-1 block">0</span>
+        </div>
+        <div class="w-12 h-12 rounded-2xl bg-slate-100 text-slate-600 flex items-center justify-center">
+          <i data-lucide="package" class="w-6 h-6"></i>
+        </div>
+      </div>
+
+      <!-- Active -->
+      <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs flex items-center justify-between">
+        <div>
+          <span class="text-xs uppercase font-bold text-emerald-600 block tracking-wider">Active (Public)</span>
+          <span id="statActive" class="text-3xl font-black text-emerald-700 mt-1 block">0</span>
+        </div>
+        <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+          <i data-lucide="eye" class="w-6 h-6"></i>
+        </div>
+      </div>
+
+      <!-- Hidden -->
+      <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs flex items-center justify-between">
+        <div>
+          <span class="text-xs uppercase font-bold text-slate-400 block tracking-wider">Hidden (Drafts)</span>
+          <span id="statHidden" class="text-3xl font-black text-slate-500 mt-1 block">0</span>
+        </div>
+        <div class="w-12 h-12 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center">
+          <i data-lucide="eye-off" class="w-6 h-6"></i>
+        </div>
+      </div>
+
+      <!-- Categories -->
+      <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs flex items-center justify-between">
+        <div>
+          <span class="text-xs uppercase font-bold text-accent-600 block tracking-wider">Categories</span>
+          <span id="statCategories" class="text-3xl font-black text-accent-600 mt-1 block">0</span>
+        </div>
+        <div class="w-12 h-12 rounded-2xl bg-orange-50 text-orange-600 flex items-center justify-center">
+          <i data-lucide="layers" class="w-6 h-6"></i>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Controls Bar -->
+    <div class="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/80 shadow-xs flex flex-col md:flex-row gap-4 items-stretch md:items-center justify-between">
+      
+      <!-- Search & Filters -->
+      <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 flex-grow max-w-3xl">
+        
+        <!-- Search Input -->
+        <div class="relative flex-grow">
+          <i data-lucide="search" class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
+          <input 
+            type="text" 
+            id="searchInput" 
+            placeholder="Search products by title, category, description..." 
+            class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-700 text-xs font-medium placeholder:text-slate-400"
+          >
+        </div>
+
+        <!-- Category Dropdown -->
+        <select id="categoryFilter" class="px-3 py-2.5 rounded-xl border border-slate-200 bg-white text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-700">
+          <option value="all">All Categories</option>
+        </select>
+
+        <!-- Status Dropdown -->
+        <select id="statusFilter" class="px-3 py-2.5 rounded-xl border border-slate-200 bg-white text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-700">
+          <option value="all">All Visibility</option>
+          <option value="active">Active Only</option>
+          <option value="hidden">Hidden Only</option>
+        </select>
+      </div>
+
+      <!-- Add Product Button -->
+      <button 
+        id="openAddModalBtn" 
+        class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-orange-600 to-amber-500 hover:from-orange-700 hover:to-amber-600 shadow-sm shadow-orange-500/20 transition-all cursor-pointer whitespace-nowrap"
+      >
+        <i data-lucide="plus-circle" class="w-4 h-4"></i>
+        <span>Add New Product</span>
+      </button>
+
+    </div>
+
+    <!-- Data Table Card -->
+    <div class="bg-white rounded-3xl border border-slate-200/80 shadow-xs overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse text-xs">
+          <thead>
+            <tr class="bg-slate-50/80 border-b border-slate-200 text-slate-500 font-bold uppercase tracking-wider text-[11px]">
+              <th class="py-4 px-6">Product Details</th>
+              <th class="py-4 px-4">Category</th>
+              <th class="py-4 px-4">Price</th>
+              <th class="py-4 px-4">Unit</th>
+              <th class="py-4 px-4">Status</th>
+              <th class="py-4 px-4">Toggle</th>
+              <th class="py-4 px-6 text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="productsTableBody" class="divide-y divide-slate-100">
+            <tr>
+              <td colspan="7" class="py-12 text-center text-slate-400">
+                <i data-lucide="loader-2" class="w-6 h-6 animate-spin mx-auto mb-2 text-brand-700"></i>
+                <p class="font-semibold">Loading product inventory...</p>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Add / Edit Modal -->
+  <div id="productModal" class="fixed inset-0 z-50 hidden bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
+    <div class="w-full max-w-xl bg-white rounded-3xl shadow-2xl border border-slate-100 overflow-hidden my-8">
+      
+      <div class="p-6 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+        <h3 id="modalTitle" class="text-base font-black text-slate-900 flex items-center gap-2">
+          <i data-lucide="package-plus" class="w-5 h-5 text-brand-700"></i>
+          <span>Add New Product</span>
+        </h3>
+        <button id="closeModalBtn" class="p-1.5 rounded-lg hover:bg-slate-200 text-slate-400 hover:text-slate-600 transition-colors">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <form id="productForm" class="p-6 space-y-4">
+        <input type="hidden" id="productId" name="productId">
+
+        <div id="modalAlertBox" class="hidden p-3 rounded-xl text-xs font-semibold bg-rose-50 text-rose-800 border border-rose-200"></div>
+
+        <!-- Name -->
+        <div class="space-y-1">
+          <label for="prodName" class="text-xs font-bold text-slate-700">Product Name *</label>
+          <input type="text" id="prodName" name="name" required placeholder="e.g. Health Nutra 9G" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-700 text-xs font-medium">
+        </div>
+
+        <!-- Category & Unit -->
+        <div class="grid grid-cols-2 gap-3">
+          <div class="space-y-1">
+            <label for="prodCategory" class="text-xs font-bold text-slate-700">Category *</label>
+            <input type="text" id="prodCategory" name="category" required placeholder="e.g. Multivitamin" list="categorySuggestions" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-700 text-xs font-medium">
+            <datalist id="categorySuggestions">
+              <option value="Multivitamin">
+              <option value="Syrup">
+              <option value="Omega-3">
+              <option value="Green Tea">
+              <option value="Ayurvedic">
+              <option value="Immunity">
+            </datalist>
+          </div>
+
+          <div class="space-y-1">
+            <label for="prodUnit" class="text-xs font-bold text-slate-700">Unit Measure *</label>
+            <input type="text" id="prodUnit" name="unit" required placeholder="e.g. Strip, 200ml, Box" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-700 text-xs font-medium">
+          </div>
+        </div>
+
+        <!-- Price & Visibility -->
+        <div class="grid grid-cols-2 gap-3">
+          <div class="space-y-1">
+            <label for="prodPrice" class="text-xs font-bold text-slate-700">Price in ₹ *</label>
+            <input type="number" id="prodPrice" name="price" step="0.01" min="0.01" required placeholder="e.g. 235" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-700 text-xs font-medium">
+          </div>
+
+          <div class="space-y-1">
+            <label for="prodStatus" class="text-xs font-bold text-slate-700">Initial Visibility *</label>
+            <select id="prodStatus" name="status" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-700 text-xs font-semibold bg-white">
+              <option value="active">Active (Visible Publicly)</option>
+              <option value="hidden">Hidden (Internal Draft)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Short Description -->
+        <div class="space-y-1">
+          <label for="prodShortDesc" class="text-xs font-bold text-slate-700">Short Summary * (Card Highlight)</label>
+          <input type="text" id="prodShortDesc" name="shortDescription" required placeholder="Brief 1-line key benefit" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-700 text-xs font-medium">
+        </div>
+
+        <!-- Full Description -->
+        <div class="space-y-1">
+          <label for="prodFullDesc" class="text-xs font-bold text-slate-700">Full Description & Benefits</label>
+          <textarea id="prodFullDesc" name="fullDescription" rows="3" placeholder="Dosage, clinical indications, ingredients breakdown..." class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-700 text-xs font-medium"></textarea>
+        </div>
+
+        <!-- Image Upload -->
+        <div class="space-y-2 pt-2 border-t border-slate-100">
+          <label for="prodImage" class="text-xs font-bold text-slate-700 block">Product Image (Max 2MB: JPG, PNG, WebP)</label>
+          <input type="file" id="prodImage" name="image" accept="image/jpeg,image/png,image/webp" class="block w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-slate-100 file:text-slate-700 hover:file:bg-slate-200">
+          
+          <div id="imagePreviewContainer" class="hidden flex items-center gap-3 p-3 bg-slate-50 rounded-xl border border-slate-200">
+            <img id="imagePreview" class="w-12 h-12 object-contain rounded-lg border border-slate-200 bg-white" alt="Preview">
+            <span id="imagePreviewText" class="text-[11px] text-slate-500">Image loaded</span>
+          </div>
+        </div>
+
+        <!-- Modal Actions -->
+        <div class="pt-4 border-t border-slate-100 flex items-center justify-end gap-3">
+          <button type="button" id="cancelModalBtn" class="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 transition-colors">
+            Cancel
+          </button>
+          <button type="submit" id="saveProductBtn" class="px-5 py-2 rounded-xl text-xs font-bold text-white bg-brand-700 hover:bg-brand-800 transition-colors flex items-center gap-1.5 shadow-sm">
+            <i data-lucide="check" class="w-3.5 h-3.5"></i>
+            <span id="saveBtnText">Save Product</span>
+          </button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+
+  <!-- Delete Modal -->
+  <div id="deleteModal" class="fixed inset-0 z-50 hidden bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="w-full max-w-md bg-white rounded-3xl shadow-2xl border border-slate-100 p-6 text-center space-y-4">
+      <div class="w-14 h-14 rounded-2xl bg-rose-100 text-rose-600 mx-auto flex items-center justify-center">
+        <i data-lucide="alert-triangle" class="w-7 h-7"></i>
+      </div>
+      <div>
+        <h3 class="text-base font-black text-slate-900">Confirm Deletion</h3>
+        <p class="text-xs text-slate-500 mt-1">
+          Are you sure you want to permanently delete <strong id="deleteProductName" class="text-rose-600"></strong>? This cannot be undone.
+        </p>
+      </div>
+      <div class="pt-3 flex items-center justify-center gap-3">
+        <button id="cancelDeleteBtn" class="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 bg-slate-100 hover:bg-slate-200">
+          Cancel
+        </button>
+        <button id="confirmDeleteBtn" class="px-5 py-2 rounded-xl text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 flex items-center gap-1.5">
+          <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+          <span>Yes, Delete</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toastContainer" class="fixed bottom-6 right-6 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+  <!-- Client Script -->
+  <script src="/admin/admin.js"></script>
+</body>
+</html>

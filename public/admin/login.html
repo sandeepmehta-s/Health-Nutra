@@ -3,78 +3,177 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Login - Health Nutra</title>
-  <link rel="stylesheet" href="/admin/admin.css">
+  <title>Admin Sign In - Health Nutra</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#f0fdf4',
+              100: '#dcfce7',
+              600: '#16a34a',
+              700: '#15803d',
+              800: '#166534',
+              900: '#14532d',
+              950: '#052e16',
+            },
+            accent: {
+              500: '#f97316',
+              600: '#ea580c',
+              700: '#c2410c',
+            }
+          },
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Google Fonts: Plus Jakarta Sans -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 </head>
-<body class="auth-body">
-  <div class="auth-card">
-    <div class="auth-header">
-      <div class="brand-badge">
-        <svg viewBox="0 0 40 40" class="brand-icon" fill="none">
-          <circle cx="20" cy="20" r="18" stroke="rgba(255,255,255,0.3)" stroke-width="1.5" stroke-dasharray="2 2" />
-          <path d="M20 7C27 7 32 13 32 20C32 29 20 35 20 35C20 35 8 29 8 20C8 13 13 7 20 7Z" fill="white" />
-          <path d="M20 11C24 16 26 21 24 25C22 29 18 31 16 32C15 27 16 22 19 18C20 15 20 13 20 11Z" fill="#15803d" />
-          <path d="M20 12C22 17 21 22 18 25C16 22 17 17 20 12Z" fill="#f97316" />
-        </svg>
+<body class="min-h-screen bg-gradient-to-br from-brand-950 via-slate-900 to-slate-950 flex items-center justify-center p-4 sm:p-6 text-slate-800 font-sans antialiased">
+
+  <div class="w-full max-w-md bg-white rounded-3xl shadow-2xl border border-slate-100 overflow-hidden">
+    
+    <!-- Header Banner -->
+    <div class="bg-gradient-to-br from-brand-800 to-emerald-900 p-8 text-center text-white relative">
+      <div class="absolute -top-10 -right-10 w-32 h-32 bg-accent-500/20 rounded-full blur-2xl pointer-events-none"></div>
+
+      <div class="w-16 h-16 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 mx-auto flex items-center justify-center text-emerald-300 shadow-lg mb-4">
+        <i data-lucide="lock" class="w-8 h-8"></i>
       </div>
-      <h1 class="auth-title">HEALTH <span class="highlight">NUTRA</span></h1>
-      <p class="auth-subtitle">Secure Product Management Portal</p>
+
+      <h1 class="text-2xl font-black tracking-tight">HEALTH <span class="text-accent-400">NUTRA</span></h1>
+      <p class="text-xs text-emerald-200/80 mt-1 uppercase tracking-wider font-semibold">
+        Management & Inventory Control
+      </p>
     </div>
 
-    <div id="alertBox" class="alert-box hidden"></div>
+    <!-- Alert Box -->
+    <div class="px-8 pt-6">
+      <div id="alertBox" class="hidden p-4 rounded-2xl text-xs font-semibold flex items-center gap-2.5"></div>
+    </div>
 
-    <form id="loginForm" class="auth-form">
-      <div class="form-group">
-        <label for="username">Username</label>
-        <div class="input-wrapper">
-          <input type="text" id="username" name="username" placeholder="e.g. admin" required autocomplete="username">
+    <!-- Login Form -->
+    <form id="loginForm" class="p-8 space-y-5">
+      
+      <!-- Username Field -->
+      <div class="space-y-1.5">
+        <label for="username" class="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
+          <i data-lucide="user" class="w-3.5 h-3.5 text-brand-700"></i>
+          <span>Admin Username</span>
+        </label>
+        <div class="relative">
+          <input 
+            type="text" 
+            id="username" 
+            name="username" 
+            placeholder="e.g. admin" 
+            required 
+            autocomplete="username"
+            class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-700 text-sm font-medium placeholder:text-slate-400"
+          >
         </div>
       </div>
 
-      <div class="form-group">
-        <label for="password">Password</label>
-        <div class="input-wrapper">
-          <input type="password" id="password" name="password" placeholder="Enter password" required autocomplete="current-password">
-          <button type="button" id="togglePasswordBtn" class="toggle-pass-btn" aria-label="Toggle password visibility">👁️</button>
+      <!-- Password Field -->
+      <div class="space-y-1.5">
+        <label for="password" class="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center justify-between">
+          <span class="flex items-center gap-1.5">
+            <i data-lucide="key-round" class="w-3.5 h-3.5 text-brand-700"></i>
+            <span>Password</span>
+          </span>
+          <span class="text-[11px] font-normal text-slate-400 lowercase">(env: ADMIN_PASSWORD)</span>
+        </label>
+        <div class="relative">
+          <input 
+            type="password" 
+            id="password" 
+            name="password" 
+            placeholder="Enter your admin password" 
+            required 
+            autocomplete="current-password"
+            class="w-full pl-4 pr-11 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-700 text-sm font-medium placeholder:text-slate-400"
+          >
+          <button 
+            type="button" 
+            id="togglePasswordBtn" 
+            class="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors" 
+            aria-label="Toggle password"
+          >
+            <i data-lucide="eye" class="w-4 h-4"></i>
+          </button>
         </div>
       </div>
 
-      <button type="submit" id="submitBtn" class="btn btn-primary btn-block">
-        <span class="btn-text">Authenticate & Sign In</span>
-        <span class="spinner hidden"></span>
+      <!-- Submit Button -->
+      <button 
+        type="submit" 
+        id="submitBtn" 
+        class="w-full py-3.5 px-6 rounded-xl font-bold text-sm text-white bg-gradient-to-r from-brand-700 to-emerald-600 hover:from-brand-800 hover:to-emerald-700 shadow-lg shadow-brand-700/25 transition-all transform hover:-translate-y-0.5 flex items-center justify-center gap-2 cursor-pointer"
+      >
+        <i data-lucide="shield-check" class="w-4 h-4"></i>
+        <span id="btnText">Authenticate & Sign In</span>
       </button>
 
-      <div class="auth-footer">
-        <a href="/" class="back-link">← Return to Public Website</a>
+      <!-- Security / Deployment notice -->
+      <div class="pt-2 text-center">
+        <p class="text-[11px] text-slate-400 flex items-center justify-center gap-1">
+          <i data-lucide="shield" class="w-3 h-3 text-emerald-600"></i>
+          <span>Protected with bcrypt hashing & 15-min rate limiting</span>
+        </p>
       </div>
+
+      <!-- Return link -->
+      <div class="pt-4 border-t border-slate-100 text-center">
+        <a href="/" class="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-brand-700 transition-colors">
+          <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
+          <span>Return to Public Website</span>
+        </a>
+      </div>
+
     </form>
   </div>
 
   <script>
+    // Initialize Lucide Icons
+    if (window.lucide) window.lucide.createIcons();
+
     const form = document.getElementById('loginForm');
     const alertBox = document.getElementById('alertBox');
     const submitBtn = document.getElementById('submitBtn');
-    const btnText = submitBtn.querySelector('.btn-text');
-    const spinner = submitBtn.querySelector('.spinner');
+    const btnText = document.getElementById('btnText');
     const passInput = document.getElementById('password');
     const toggleBtn = document.getElementById('togglePasswordBtn');
 
     toggleBtn.addEventListener('click', () => {
-      const type = passInput.getAttribute('type') === 'password' ? 'text' : 'password';
-      passInput.setAttribute('type', type);
-      toggleBtn.textContent = type === 'password' ? '👁️' : '🙈';
+      const isPass = passInput.getAttribute('type') === 'password';
+      passInput.setAttribute('type', isPass ? 'text' : 'password');
+      const icon = toggleBtn.querySelector('i');
+      if (icon) {
+        icon.setAttribute('data-lucide', isPass ? 'eye-off' : 'eye');
+        if (window.lucide) window.lucide.createIcons();
+      }
     });
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       alertBox.classList.add('hidden');
-      alertBox.textContent = '';
+      alertBox.innerHTML = '';
       submitBtn.disabled = true;
-      btnText.textContent = 'Verifying...';
-      spinner.classList.remove('hidden');
+      btnText.textContent = 'Verifying credentials...';
 
       const username = document.getElementById('username').value.trim();
       const password = passInput.value;
@@ -89,27 +188,38 @@
         const data = await res.json();
 
         if (res.ok && data.success) {
-          alertBox.className = 'alert-box alert-success';
-          alertBox.textContent = 'Login successful! Redirecting to dashboard...';
+          alertBox.className = 'p-4 rounded-2xl text-xs font-semibold flex items-center gap-2.5 bg-emerald-50 border border-emerald-200 text-emerald-800';
+          alertBox.innerHTML = `
+            <i data-lucide="check-circle" class="w-4 h-4 text-emerald-600 shrink-0"></i>
+            <span>Authentication successful! Launching Admin Dashboard...</span>
+          `;
           alertBox.classList.remove('hidden');
+          if (window.lucide) window.lucide.createIcons();
+
           setTimeout(() => {
             window.location.href = '/admin';
           }, 600);
         } else {
-          alertBox.className = 'alert-box alert-error';
-          alertBox.textContent = data.message || 'Invalid credentials or access denied.';
+          alertBox.className = 'p-4 rounded-2xl text-xs font-semibold flex items-center gap-2.5 bg-rose-50 border border-rose-200 text-rose-800';
+          alertBox.innerHTML = `
+            <i data-lucide="alert-circle" class="w-4 h-4 text-rose-600 shrink-0"></i>
+            <span>${data.message || 'Invalid username or password.'}</span>
+          `;
           alertBox.classList.remove('hidden');
           submitBtn.disabled = false;
           btnText.textContent = 'Authenticate & Sign In';
-          spinner.classList.add('hidden');
+          if (window.lucide) window.lucide.createIcons();
         }
       } catch (err) {
-        alertBox.className = 'alert-box alert-error';
-        alertBox.textContent = 'Network or server error. Please try again.';
+        alertBox.className = 'p-4 rounded-2xl text-xs font-semibold flex items-center gap-2.5 bg-rose-50 border border-rose-200 text-rose-800';
+        alertBox.innerHTML = `
+          <i data-lucide="alert-triangle" class="w-4 h-4 text-rose-600 shrink-0"></i>
+          <span>Connection error. Please verify the server is running.</span>
+        `;
         alertBox.classList.remove('hidden');
         submitBtn.disabled = false;
         btnText.textContent = 'Authenticate & Sign In';
-        spinner.classList.add('hidden');
+        if (window.lucide) window.lucide.createIcons();
       }
     });
   </script>

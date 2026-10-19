@@ -138,12 +138,18 @@ export async function initDatabase() {
 // -------------------------------------------------------------
 async function seedMongo() {
   try {
-    const adminCount = await Admin.countDocuments();
-    if (adminCount === 0) {
-      const u = (process.env.ADMIN_USERNAME || "admin").trim().toLowerCase();
-      const p = process.env.ADMIN_PASSWORD || "admin123";
+    const u = (process.env.ADMIN_USERNAME || "admin").trim().toLowerCase();
+    const p = process.env.ADMIN_PASSWORD || "admin123";
+
+    let existingAdmin = await Admin.findOne({ username: u });
+    if (!existingAdmin) {
       await new Admin({ username: u, password: p, name: "Health Nutra Administrator" }).save();
       console.log(`[Seed] Created default MongoDB admin: "${u}"`);
+    } else {
+      // Sync password if provided in env to allow seamless access on deploy
+      existingAdmin.password = p;
+      await existingAdmin.save();
+      console.log(`[Seed] Synced MongoDB admin credentials for: "${u}"`);
     }
 
     const prodCount = await Product.countDocuments();
@@ -158,18 +164,22 @@ async function seedMongo() {
 
 async function seedSQLite() {
   try {
-    // Check admin
-    const checkAdmin = sqliteDb.prepare("SELECT count(*) as count FROM admins").get();
-    if (!checkAdmin || checkAdmin.count === 0) {
-      const u = (process.env.ADMIN_USERNAME || "admin").trim().toLowerCase();
-      const p = process.env.ADMIN_PASSWORD || "admin123";
-      const hashed = await bcrypt.hash(p, 10);
-      const now = new Date().toISOString();
+    const u = (process.env.ADMIN_USERNAME || "admin").trim().toLowerCase();
+    const p = process.env.ADMIN_PASSWORD || "admin123";
+    const hashed = await bcrypt.hash(p, 10);
+    const now = new Date().toISOString();
+
+    const existingAdmin = sqliteDb.prepare("SELECT * FROM admins WHERE username = ?").get(u);
+    if (!existingAdmin) {
       const id = "admin-1";
       sqliteDb
         .prepare("INSERT INTO admins (id, username, password, name, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?, ?)")
         .run(id, u, hashed, "Health Nutra Administrator", now, now);
       console.log(`[Seed] Created default SQLite admin: "${u}"`);
+    } else {
+      // Update password hash to allow seamless admin access on deployment
+      sqliteDb.prepare("UPDATE admins SET password = ?, updatedAt = ? WHERE username = ?").run(hashed, now, u);
+      console.log(`[Seed] Synced SQLite admin credentials for: "${u}"`);
     }
 
     // Check products

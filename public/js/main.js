@@ -1,95 +1,134 @@
-// Health Nutra - Public Storefront (Vanilla JS)
-let allActiveProducts = [];
-let currentCategory = 'All';
+import { store } from "./store.js";
+import { NavigationManager } from "./navigation.js";
 
-const productsGrid = document.getElementById('productsGrid');
-const categoryTabs = document.getElementById('categoryTabs');
-const detailModal = document.getElementById('detailModal');
-const closeDetailModalBtn = document.getElementById('closeDetailModalBtn');
+// DOM Elements
+const categoryTabsContainer = document.getElementById("categoryTabs");
+const productsGrid = document.getElementById("productsGrid");
+const productSearchInput = document.getElementById("productSearchInput");
+const productCounter = document.getElementById("productCounter");
 
 // Modal Elements
-const modalImg = document.getElementById('modalImg');
-const modalCategory = document.getElementById('modalCategory');
-const modalName = document.getElementById('modalName');
-const modalPrice = document.getElementById('modalPrice');
-const modalUnit = document.getElementById('modalUnit');
-const modalShortDesc = document.getElementById('modalShortDesc');
-const modalFullDesc = document.getElementById('modalFullDesc');
+const detailModal = document.getElementById("detailModal");
+const closeDetailModalBtn = document.getElementById("closeDetailModalBtn");
+const modalCloseActionBtn = document.getElementById("modalCloseActionBtn");
+const modalImg = document.getElementById("modalImg");
+const modalCategory = document.getElementById("modalCategory");
+const modalName = document.getElementById("modalName");
+const modalShortDesc = document.getElementById("modalShortDesc");
+const modalPrice = document.getElementById("modalPrice");
+const modalUnit = document.getElementById("modalUnit");
+const modalFullDesc = document.getElementById("modalFullDesc");
 
-// Initialize public website
-async function initStorefront() {
-  await fetchProducts();
-}
+// Initialize application
+document.addEventListener("DOMContentLoaded", async () => {
+  // Initialize Navigation
+  const navManager = new NavigationManager();
+  navManager.init();
 
-async function fetchProducts() {
-  try {
-    productsGrid.innerHTML = `
-      <div style="grid-column: 1 / -1; text-align: center; padding: 4rem 1rem;">
-        <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">🌱</div>
-        <p style="font-weight: 700; color: var(--primary-dark);">Loading Fresh Formulations...</p>
-      </div>
-    `;
+  // Subscribe UI to store state changes
+  store.subscribe(renderUI);
 
-    const res = await fetch('/api/products');
-    const result = await res.json();
-
-    if (res.ok && result.success) {
-      allActiveProducts = result.data || [];
-      buildCategoryTabs(allActiveProducts);
-      renderProducts(filterProductsByCategory(currentCategory));
-    } else {
-      productsGrid.innerHTML = `
-        <div style="grid-column: 1 / -1; text-align: center; padding: 4rem 1rem; color: #dc2626;">
-          <p>Failed to load products. Please check back shortly.</p>
-        </div>
-      `;
-    }
-  } catch (err) {
-    console.error('Fetch error:', err);
-    productsGrid.innerHTML = `
-      <div style="grid-column: 1 / -1; text-align: center; padding: 4rem 1rem; color: #dc2626;">
-        <p>Could not connect to the product API. Server might be offline.</p>
-      </div>
-    `;
+  // Bind Search Input
+  if (productSearchInput) {
+    let debounceTimer;
+    productSearchInput.addEventListener("input", (e) => {
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => {
+        store.setSearchQuery(e.target.value);
+        renderProducts(store.getFilteredProducts());
+      }, 200);
+    });
   }
+
+  // Bind Modal Close
+  if (closeDetailModalBtn) {
+    closeDetailModalBtn.addEventListener("click", () => store.closeProductModal());
+  }
+  if (modalCloseActionBtn) {
+    modalCloseActionBtn.addEventListener("click", () => store.closeProductModal());
+  }
+  if (detailModal) {
+    detailModal.addEventListener("click", (e) => {
+      if (e.target === detailModal) store.closeProductModal();
+    });
+  }
+
+  // Load store data from api.json
+  await store.init();
+});
+
+// Render complete UI from state
+function renderUI(state) {
+  renderCategoryTabs(state.categories, state.selectedCategory);
+  renderProducts(store.getFilteredProducts());
+  renderDetailModal(state.selectedProduct);
 }
 
-function buildCategoryTabs(products) {
-  const distinct = [...new Set(products.map((p) => p.category).filter(Boolean))];
-  const categories = ['All', ...distinct];
+// Render Category Filter Pills with Lucide Icons
+function renderCategoryTabs(categories, selectedCategory) {
+  if (!categoryTabsContainer) return;
 
-  categoryTabs.innerHTML = categories
-    .map(
-      (cat) => `
-      <button class="tab-btn ${cat === currentCategory ? 'active' : ''}" data-category="${escapeHtml(cat)}">
-        ${escapeHtml(cat)}
-      </button>
-    `
-    )
-    .join('');
+  const allCategories = categories.includes("All") ? categories : ["All", ...categories];
 
-  categoryTabs.querySelectorAll('.tab-btn').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      categoryTabs.querySelectorAll('.tab-btn').forEach((b) => b.classList.remove('active'));
-      btn.classList.add('active');
-      currentCategory = btn.getAttribute('data-category');
-      renderProducts(filterProductsByCategory(currentCategory));
+  categoryTabsContainer.innerHTML = allCategories
+    .map((cat) => {
+      const isSelected = cat.toLowerCase() === selectedCategory.toLowerCase();
+      const icon = store.getCategoryIcon(cat);
+
+      if (isSelected) {
+        return `
+          <button 
+            data-category="${cat}"
+            class="category-tab-btn inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-white bg-brand-700 shadow-sm shadow-brand-700/30 transition-all scale-105"
+          >
+            <i data-lucide="${icon}" class="w-3.5 h-3.5"></i>
+            <span>${cat}</span>
+          </button>
+        `;
+      }
+
+      return `
+        <button 
+          data-category="${cat}"
+          class="category-tab-btn inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 hover:text-slate-900 transition-all"
+        >
+          <i data-lucide="${icon}" class="w-3.5 h-3.5 text-slate-400"></i>
+          <span>${cat}</span>
+        </button>
+      `;
+    })
+    .join("");
+
+  // Attach tab switch events
+  categoryTabsContainer.querySelectorAll(".category-tab-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const cat = btn.getAttribute("data-category");
+      store.setCategory(cat);
     });
   });
 }
 
-function filterProductsByCategory(category) {
-  if (category === 'All') return allActiveProducts;
-  return allActiveProducts.filter((p) => p.category === category);
-}
-
+// Render Product Grid with Tailwind and Lucide Icons
 function renderProducts(products) {
+  if (!productsGrid) return;
+
+  if (productCounter) {
+    productCounter.textContent = `${products.length} Active Formulations`;
+  }
+
   if (products.length === 0) {
     productsGrid.innerHTML = `
-      <div style="grid-column: 1 / -1; text-align: center; padding: 4rem 1rem; background: #ffffff; border-radius: var(--radius-lg); border: 1px solid var(--border);">
-        <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">🔍</div>
-        <h3 style="font-size: 1.125rem; font-weight: 800; color: var(--primary-dark);">No Products in this Category</h3>
-        <p style="font-size: 0.8125rem; color: var(--text-muted); margin-top: 0.25rem;">Try selecting another category above.</p>
+      <div class="col-span-full py-16 text-center bg-white rounded-3xl border border-slate-200/80 p-8">
+        <div class="w-16 h-16 rounded-2xl bg-orange-100 text-orange-600 mx-auto flex items-center justify-center mb-4">
+          <i data-lucide="package-search" class="w-8 h-8"></i>
+        </div>
+        <h3 class="text-lg font-bold text-slate-800">No Formulations Found</h3>
+        <p class="text-sm text-slate-500 max-w-sm mx-auto mt-1">
+          No active products match your current search criteria or category filter.
+        </p>
+        <button onclick="window.resetSearch()" class="mt-4 px-4 py-2 rounded-xl text-xs font-bold text-brand-700 bg-brand-50 hover:bg-brand-100 transition-colors">
+          Clear Filters
+        </button>
       </div>
     `;
     return;
@@ -97,87 +136,96 @@ function renderProducts(products) {
 
   productsGrid.innerHTML = products
     .map((p) => {
+      const id = p.id || p._id;
+      const catIcon = store.getCategoryIcon(p.category);
+      const imgPath = p.image || "/uploads/9g.png";
+
       return `
-        <article class="product-card" data-id="${p._id}">
-          <span class="card-category-badge">${escapeHtml(p.category)}</span>
+        <article class="product-card group bg-white rounded-3xl border border-slate-200/80 hover:border-brand-500/40 p-5 shadow-sm hover:shadow-xl hover:shadow-brand-900/5 transition-all duration-300 flex flex-col justify-between">
           
-          <div class="card-image-box">
-            <img src="${p.image || '/uploads/9g.png'}" 
-                 alt="${escapeHtml(p.name)}" 
-                 loading="lazy"
-                 onerror="this.src='/uploads/9g.png'">
+          <!-- Product Thumbnail Box -->
+          <div class="relative w-full h-52 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center p-4 overflow-hidden mb-4 group-hover:bg-brand-50/30 transition-colors">
+            <img 
+              src="${imgPath}" 
+              alt="${p.name}" 
+              class="max-h-full max-w-full object-contain transition-transform duration-300 group-hover:scale-105"
+              onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\\'flex flex-col items-center justify-center text-slate-300\\'><i data-lucide=\\'pill\\' class=\\'w-12 h-12 text-emerald-600 mb-1\\'></i><span class=\\'text-xs font-bold text-slate-400\\'>Health Nutra</span></div>'; if (window.lucide) window.lucide.createIcons();"
+            >
+            <span class="absolute top-3 left-3 inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-white/95 backdrop-blur-sm text-brand-800 shadow-sm border border-slate-200/60">
+              <i data-lucide="${catIcon}" class="w-3 h-3 text-emerald-600"></i>
+              ${p.category}
+            </span>
           </div>
 
-          <div class="card-body">
-            <h3 class="card-title">${escapeHtml(p.name)}</h3>
-            <p class="card-desc">${escapeHtml(p.shortDescription)}</p>
+          <!-- Content -->
+          <div class="space-y-2 flex-grow">
+            <h3 class="text-base font-extrabold text-slate-900 line-clamp-1 group-hover:text-brand-700 transition-colors">
+              ${p.name}
+            </h3>
+            <p class="text-xs text-slate-500 line-clamp-2 leading-relaxed">
+              ${p.shortDescription || "Pure nutraceutical formulation designed for vitality."}
+            </p>
+          </div>
 
-            <div class="card-footer">
-              <div>
-                <span class="card-price">₹${p.price}</span>
-                <span class="card-unit">/ ${escapeHtml(p.unit || 'Strip')}</span>
+          <!-- Pricing & Action Bar -->
+          <div class="pt-4 mt-4 border-t border-slate-100 flex items-center justify-between">
+            <div>
+              <span class="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">Price</span>
+              <div class="flex items-baseline gap-1">
+                <span class="text-lg font-black text-brand-800">₹${p.price}</span>
+                <span class="text-xs font-semibold text-slate-400">/ ${p.unit || "Strip"}</span>
               </div>
-              <button class="btn-details view-details-btn" data-id="${p._id}">
-                View Details
-              </button>
             </div>
+
+            <button 
+              data-id="${id}" 
+              class="view-details-btn inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-slate-700 bg-slate-100 hover:bg-brand-700 hover:text-white transition-all shadow-sm group-hover:bg-brand-700 group-hover:text-white"
+            >
+              <i data-lucide="eye" class="w-3.5 h-3.5"></i>
+              <span>Details</span>
+            </button>
           </div>
+
         </article>
       `;
     })
-    .join('');
+    .join("");
 
-  // Attach click events for "View Details"
-  productsGrid.querySelectorAll('.view-details-btn').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      const id = btn.getAttribute('data-id');
-      const prod = allActiveProducts.find((x) => x._id === id);
-      if (prod) openProductModal(prod);
+  // Attach View Details Click Events
+  productsGrid.querySelectorAll(".view-details-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const id = btn.getAttribute("data-id");
+      store.openProductModal(id);
     });
   });
 }
 
-// Open Detail Modal
-function openProductModal(p) {
-  modalImg.src = p.image || '/uploads/9g.png';
-  modalImg.onerror = () => (modalImg.src = '/uploads/9g.png');
-  modalCategory.textContent = p.category;
-  modalName.textContent = p.name;
-  modalPrice.textContent = `₹${p.price}`;
-  modalUnit.textContent = `/ ${p.unit || 'Strip'}`;
-  modalShortDesc.textContent = p.shortDescription;
-  modalFullDesc.textContent = p.fullDescription || 'Scientifically formulated with pure, natural ingredients to promote everyday vitality and holistic health.';
+// Render Detail Modal
+function renderDetailModal(product) {
+  if (!detailModal) return;
 
-  detailModal.classList.remove('hidden');
-}
-
-function closeProductModal() {
-  detailModal.classList.add('hidden');
-}
-
-closeDetailModalBtn.addEventListener('click', closeProductModal);
-detailModal.addEventListener('click', (e) => {
-  if (e.target === detailModal) closeProductModal();
-});
-
-document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape' && !detailModal.classList.contains('hidden')) {
-    closeProductModal();
+  if (!product) {
+    detailModal.classList.add("hidden");
+    return;
   }
-});
 
-// Helper: Escape HTML
-function escapeHtml(text) {
-  if (!text) return '';
-  const map = {
-    '&': '&amp;',
-    '<': '&lt;',
-    '>': '&gt;',
-    '"': '&quot;',
-    "'": '&#039;',
-  };
-  return String(text).replace(/[&<>"']/g, (m) => map[m]);
+  modalImg.src = product.image || "/uploads/9g.png";
+  modalName.textContent = product.name;
+  modalShortDesc.textContent = product.shortDescription || "";
+  modalCategory.innerHTML = `
+    <i data-lucide="${store.getCategoryIcon(product.category)}" class="w-3.5 h-3.5"></i>
+    <span>${product.category}</span>
+  `;
+  modalPrice.textContent = `₹${product.price}`;
+  modalUnit.textContent = `/ ${product.unit || "Strip"}`;
+  modalFullDesc.textContent = product.fullDescription || product.shortDescription || "No detailed clinical description provided.";
+
+  detailModal.classList.remove("hidden");
 }
 
-// Start
-initStorefront();
+// Helper to reset search
+window.resetSearch = () => {
+  if (productSearchInput) productSearchInput.value = "";
+  store.setSearchQuery("");
+  store.setCategory("All");
+};

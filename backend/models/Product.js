@@ -58,3 +58,4 @@ productSchema.set("toJSON", { virtuals: true });
 productSchema.set("toObject", { virtuals: true });
 
 export const Product = mongoose.models.Product || mongoose.model("Product", productSchema);
+

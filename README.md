@@ -1,6 +1,6 @@
 # Health Nutra - Fullstack Application & Admin Management System
 
-Health Nutra is a complete nutraceutical company website featuring a public dynamic storefront, REST API, and a secure admin management portal for full product lifecycle management (add, edit, delete, show/hide).
+Health Nutra is a nutraceutical company web platform featuring a dynamic storefront, centralized frontend store, REST API, a 5-minute keep-alive cron job, and a secure admin management portal for complete product inventory control (add, edit, delete, show/hide).
 
 ---
 
@@ -24,30 +24,41 @@ health-nutra/
 │   ├── seed/
 │   │   └── seedData.js           # Database starter seeder
 │   └── services/
-│       └── dbService.js          # Unified database repository (SQLite + MongoDB fallback)
-├── public/
+│       ├── cronService.js        # Automated 5-minute keep-alive cron job
+│       └── dbService.js          # Unified repository (SQLite + MongoDB fallback & admin sync)
+├── frontend/                     # Dedicated frontend application and store package
 │   ├── admin/
-│   │   ├── admin.css             # Admin dashboard green & orange responsive stylesheet
-│   │   ├── admin.html            # Admin dashboard interface with search, filters & modals
-│   │   ├── admin.js              # Admin UI logic (AJAX CRUD, modals, live status toggling)
-│   │   └── login.html            # Admin login screen with validation & alerts
-│   ├── css/
-│   │   └── style.css             # Public storefront stylesheet
+│   │   ├── admin.html            # Tailwind CSS admin portal interface
+│   │   ├── admin.js              # Admin AJAX logic with Lucide icons
+│   │   └── login.html            # Tailwind CSS admin authentication screen
+│   ├── api.json                  # Centralized API endpoint routing & icon configuration
+│   ├── index.html                # Tailwind CSS public storefront
+│   ├── main.js                   # Storefront UI bindings and modal rendering
+│   ├── navigation.js             # Dynamic navigation, responsive drawer & scrollspy
+│   └── store.js                  # Centralized reactive frontend store (products & categories)
+├── public/                       # Statically served public assets
+│   ├── admin/
+│   │   ├── admin.html            # Admin dashboard interface (Tailwind + Lucide)
+│   │   ├── admin.js              # Admin UI logic
+│   │   └── login.html            # Admin login screen (Tailwind + Lucide)
 │   ├── js/
-│   │   └── main.js               # Public storefront vanilla JS (API fetch, category tabs, modal)
-│   ├── images/                   # Static assets & brand graphics
-│   └── index.html                # Public website homepage with dynamic product cards
+│   │   ├── main.js               # Storefront application logic
+│   │   ├── navigation.js         # Navigation manager
+│   │   └── store.js              # Reactive state store
+│   ├── api.json                  # Publicly served API configuration
+│   ├── images/                   # Brand graphics & logo assets
+│   └── index.html                # Modern storefront with Tailwind CSS & Lucide icons
 ├── uploads/                      # Static product images served at /uploads/*
-│   ├── 9g.png                    # Health Nutra 9G Tablets image
-│   ├── 10q.png                   # Health Nutra 10Q Syrup image
-│   ├── omega3.png                # Omega-3 Softgels image
-│   └── greentea.png              # Green Tea Extract image
+│   ├── 9g.png                    # Health Nutra 9G Tablets
+│   ├── 10q.png                   # Health Nutra 10Q Syrup
+│   ├── omega3.png                # Omega-3 Softgels
+│   └── greentea.png              # Green Tea Extract
 ├── src/                          # Optional React frontend application
 ├── .env                          # Local environment configuration (ignored by git)
 ├── .env.example                  # Template configuration file
-├── .gitignore                    # Git ignore file (excludes .env, *.sqlite, node_modules)
+├── .gitignore                    # Excludes .env, *.sqlite, node_modules
 ├── health_nutra.sqlite           # Embedded zero-config SQLite database (auto-generated)
-├── package.json                  # Dependencies and start scripts
+├── package.json                  # Dependencies and scripts (includes node-cron)
 ├── README.md                     # Documentation
 └── server.js                     # Express application entrypoint
 ```
@@ -63,23 +74,24 @@ health-nutra/
 ### Step 1: Open Project in VS Code
 1. Launch VS Code.
 2. Select **File** > **Open Folder...** (or press `Ctrl+K Ctrl+O`).
-3. Browse to and select the `health-nutra` folder.
-4. Open the integrated terminal by pressing `Ctrl+\`` (or **Terminal** > **New Terminal**).
+3. Select the `health-nutra` folder.
+4. Open the integrated terminal (`Ctrl+\`` or **Terminal** > **New Terminal**).
 
 ### Step 2: Install Dependencies
-Run the following command in the terminal to install all required packages:
+Run the following command:
 ```bash
 npm install
 ```
 
-This installs:
+Installed packages:
 - `express`: Web server framework
-- `express-session`: Server-side session management
+- `express-session`: Session management
 - `bcryptjs`: Password hashing
 - `multer`: File upload handling
 - `cors`: Cross-origin resource sharing
-- `dotenv`: Environment variable loader
+- `dotenv`: Environment configuration
 - `express-rate-limit`: Brute-force protection
+- `node-cron`: Scheduled keep-alive ping tasks
 - `mongoose`: MongoDB ODM
 
 ### Step 3: Create the .env File
@@ -87,22 +99,28 @@ Copy `.env.example` to create `.env`:
 ```bash
 cp .env.example .env
 ```
-*(On Windows PowerShell, you can also use `copy .env.example .env`)*
+*(On Windows PowerShell: `copy .env.example .env`)*
 
-Open `.env` in VS Code and verify the settings:
+Open `.env` and verify the settings:
 ```env
 # Server Configuration
 PORT=5000
+HOST=0.0.0.0
 SESSION_SECRET=health-nutra-secure-production-secret-key-2026
 
 # Database
-# Default uses built-in SQLite (no setup required).
+# Default uses built-in SQLite (zero external setup).
 # To use MongoDB, start mongod or paste a MongoDB Atlas connection string:
 MONGODB_URI=mongodb://127.0.0.1:27017/health_nutra
 
 # Default Admin Credentials
 ADMIN_USERNAME=admin
 ADMIN_PASSWORD=admin123
+
+# Keep-Alive Cron Configuration
+PING_INTERVAL_MINUTES=5
+# Set APP_URL to your live deployed domain (e.g. https://health-nutra.onrender.com)
+APP_URL=http://localhost:5000
 ```
 
 ### Step 4: Run the Server
@@ -115,11 +133,11 @@ or:
 node server.js
 ```
 
-Upon launch, the server automatically:
-1. Connects to MongoDB if running, or falls back to the zero-config embedded SQLite database (`health_nutra.sqlite`).
-2. Creates the necessary tables and schema.
-3. Automatically seeds the default admin account (`admin` / `admin123`).
-4. Automatically seeds the 4 starter products.
+Upon launch:
+1. Connects to MongoDB if available, or automatically uses the zero-config embedded SQLite database (`health_nutra.sqlite`).
+2. Syncs and updates the admin account with the credentials configured in `.env`.
+3. Seeds starter products if the inventory is empty.
+4. Starts the 5-minute keep-alive cron job to keep free-tier deployments awake.
 5. Listens on `http://localhost:5000`.
 
 ### Step 5: Access the Admin Panel
@@ -127,121 +145,109 @@ Upon launch, the server automatically:
    ```text
    http://localhost:5000/admin
    ```
-2. You will be redirected to the secure login page (`/admin/login`).
-3. Enter the default credentials:
+2. Enter the default credentials:
    - **Username**: `admin`
    - **Password**: `admin123`
-4. You will arrive at the Admin Dashboard where you can manage products, view inventory stats, toggle product visibility, and upload images.
+3. The Admin Dashboard allows managing inventory, toggling visibility, uploading product images, and viewing live stats.
 
 ### Step 6: View the Public Website
-Open your browser and navigate to:
+Open:
 ```text
 http://localhost:5000/
 ```
-The public product catalog dynamically loads active products from the database via `GET /api/products`. Toggling a product to hidden in the admin panel immediately updates the public storefront on refresh.
+The storefront dynamically loads active formulations from the reactive frontend store and API.
+
+---
+
+## Frontend Architecture
+
+### 1. Central API Configuration (`frontend/api.json`)
+Defines all endpoints, route contracts, keep-alive interval, category icon mappings, and brand palettes. Both the storefront and admin components read from this JSON specification.
+
+### 2. Reactive Store (`frontend/store.js`)
+Centralized state management providing:
+- Asynchronous fetching of products and categories.
+- Instant search filtering across product titles, descriptions, and active categories.
+- Modal state management for full clinical descriptions.
+- Reactive pub/sub pattern that updates the DOM and re-initializes vector icons automatically.
+
+### 3. Dynamic Navigation (`frontend/navigation.js`)
+- Renders responsive desktop navigation with Lucide vector icons.
+- Provides a mobile drawer menu with hamburger toggle animations.
+- Scrollspy listener that highlights the active section as the user scrolls.
+- Live admin session check that displays an active session pill when staff are logged in.
+
+### 4. Modern Tailwind CSS & Lucide Vector Icons
+- All frontend pages utilize Tailwind CSS utility classes instead of plain CSS.
+- Hardcoded broken images are replaced with scalable Lucide vector icons (`pill`, `droplet`, `heart-pulse`, `leaf`, `shield-check`, `flask-conical`, `sparkles`).
+- Product cards include SVG/Lucide fallback placeholders if an image is ever missing.
+
+---
+
+## 5-Minute Keep-Alive Cron Service
+
+Free-tier hosting providers (such as Render, Railway, Glitch) automatically put backend containers to sleep after 15 minutes of inactivity, causing 30-50 second cold-start delays.
+
+The backend includes a scheduled worker (`backend/services/cronService.js`) using `node-cron`:
+- Runs every 5 minutes (`*/5 * * * *`).
+- Sends a `GET` request to `/api/products` or `/health`.
+- Automatically targets `process.env.APP_URL` or `process.env.RENDER_EXTERNAL_URL` in production, and `http://localhost:5000` in development.
+- Logs heartbeat timestamps to verify container responsiveness.
+
+---
+
+## Deployment & Admin Access Guide
+
+When deploying to cloud platforms (Render, Railway, Heroku, AWS, VPS):
+
+### 1. Admin Access Configuration
+- Configure `ADMIN_USERNAME` and `ADMIN_PASSWORD` in your deployment dashboard's Environment Variables tab.
+- On boot, `backend/services/dbService.js` automatically syncs the password hash so you can always log into `/admin` with the exact credentials set in your cloud dashboard.
+
+### 2. Reverse Proxy and Cookie Support
+- `app.set("trust proxy", 1)` is enabled in `server.js`. This allows `express-rate-limit` and `express-session` to correctly identify client IPs behind Cloudflare, AWS ALB, Render, and Nginx.
+- Session cookies use `proxy: true` and `secure: "auto"` so cookies are preserved over HTTPS.
+- CORS is configured with `origin: true` and `credentials: true`.
+
+### 3. Keep-Alive Configuration on Render / Railway
+In your deployment environment variables, add:
+```env
+APP_URL=https://your-app-name.onrender.com
+PING_INTERVAL_MINUTES=5
+```
+The internal cron will ping your deployed URL every 5 minutes, keeping the service awake 24/7.
 
 ---
 
 ## Seeded Starter Products
 
-The database automatically seeds with the following 4 products:
-
-| Product Name | Category | Price | Unit | Status | Description |
+| Product Name | Category | Price | Unit | Initial Status | Image Path |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| Health Nutra 9G | Multivitamin | ₹235 | Strip | active | Complete daily nutrition with vitamins & minerals. |
-| Health Nutra 10Q Syrup | Syrup | ₹210 | 200ml | active | Energy booster syrup with CoQ10 & antioxidants for daily vitality. |
-| Omega-3 Capsules | Omega-3 | ₹499 | Strip | active | Supports heart, brain, joint, and cardiovascular wellness. |
-| Green Tea Extract | Green Tea | ₹299 | Box | active | Standardised 50% EGCG capsules for metabolism & antioxidant support. |
-
----
-
-## Admin Panel Features
-
-1. **Authentication & Session Security**:
-   - Protected routes using `express-session` with secure HTTP-only cookies.
-   - Login rate-limiting allowing a maximum of 5 attempts per 15 minutes to prevent brute-force attacks.
-   - Passwords stored as salted bcrypt hashes.
-
-2. **Dashboard & Inventory Metrics**:
-   - Real-time stat counters: Total Products, Active Products, Hidden Products, and Categories.
-   - Live search by product name, description, or category.
-   - Category filtering (All, Multivitamin, Syrup, Omega-3, Green Tea).
-   - Status filtering (All, Active, Hidden).
-
-3. **Add Product**:
-   - Form validation: Name and Price are mandatory; Price must be a positive number greater than 0.
-   - File upload supporting `.jpg`, `.jpeg`, `.png`, and `.webp` with a 2MB maximum file size limit.
-   - Live image preview before submitting.
-
-4. **Edit Product**:
-   - Modal pre-populated with existing product information.
-   - Option to keep the current image or replace it with a new upload.
-
-5. **Toggle Product Visibility**:
-   - One-click status switch between Active and Hidden without deleting the record.
-   - Hidden products are automatically excluded from the public website and public API.
-
-6. **Delete Product**:
-   - Confirmation dialog before deletion to prevent accidental data loss.
-   - Associated custom upload image is safely cleaned up from disk.
-
-7. **Logout**:
-   - Destroys the server session and clears authentication cookies.
+| Health Nutra 9G | Multivitamin | ₹235 | Strip | active | /uploads/9g.png |
+| Health Nutra 10Q Syrup | Syrup | ₹210 | 200ml | active | /uploads/10q.png |
+| Omega-3 Capsules | Omega-3 | ₹499 | Strip | active | /uploads/omega3.png |
+| Green Tea Extract | Green Tea | ₹299 | Box | active | /uploads/greentea.png |
 
 ---
 
 ## Public REST API Endpoints
 
-### 1. Get Active Products
-- **Endpoint**: `GET /api/products`
-- **Query Parameters**: `?category=Multivitamin` (optional)
-- **Description**: Returns JSON array of all products with `status = 'active'`. Hidden products are never returned.
-- **Example Response**:
-```json
-{
-  "success": true,
-  "count": 4,
-  "data": [
-    {
-      "id": "1",
-      "name": "Health Nutra 9G",
-      "category": "Multivitamin",
-      "shortDescription": "Complete daily nutrition with vitamins & minerals.",
-      "fullDescription": "Multivitamin, multimineral & antioxidant tablets...",
-      "price": 235,
-      "unit": "Strip",
-      "image": "/uploads/9g.png",
-      "status": "active"
-    }
-  ]
-}
-```
-
-### 2. Get Single Product
-- **Endpoint**: `GET /api/products/:id`
-- **Description**: Returns detail data for an active product. Returns 404 if hidden or not found.
-
-### 3. Get Active Categories
-- **Endpoint**: `GET /api/categories`
-- **Description**: Returns list of all distinct categories currently present among active products.
+- `GET /api/products`: Returns JSON array of active products. Supports `?category=...`.
+- `GET /api/products/:id`: Returns detailed clinical data for an active formulation.
+- `GET /api/categories`: Returns distinct active categories.
+- `GET /health`: Health check endpoint for uptime monitoring and load balancers.
+- `GET /api/ping`: Lightweight keep-alive response.
 
 ---
 
 ## Security Architecture
 
-- **Input Sanitization**: All string fields are trimmed and sanitized server-side.
-- **Authentication Guard**: Unauthenticated requests to `/admin` redirect to `/admin/login`. Unauthenticated API requests receive HTTP 401 Unauthorized.
-- **Brute Force Protection**: IP-based rate limiter restricts consecutive failed login attempts.
-- **File Validation**: Multer checks both MIME type and file extension, rejecting files larger than 2MB.
-- **Data Protection**: SQLite database files (`*.sqlite`) and `.env` are listed in `.gitignore` and are not exposed statically.
-
----
-
-## Database Flexibility
-
-The backend service layer (`backend/services/dbService.js`) provides dual database engine compatibility:
-1. **Embedded SQLite (Default)**: Uses Node.js's built-in `node:sqlite` engine. Requires zero installation, zero external daemons, and works out-of-the-box.
-2. **MongoDB / MongoDB Atlas**: If a local `mongod` service is running or a cloud MongoDB Atlas URI is set in `MONGODB_URI`, the application automatically connects to MongoDB. If MongoDB is unavailable, it gracefully falls back to SQLite with full feature parity.
+- **Bcrypt Hashing**: Passwords stored as salted bcrypt hashes.
+- **Session Authentication**: Server-side session management with HTTP-only cookies.
+- **Rate Limiting**: Limits login attempts to 5 tries per 15 minutes to thwart brute-force attacks.
+- **Input Sanitization**: Server-side validation and trimming on all inputs.
+- **File Upload Limits**: Strict 2MB file size cap and mime-type checks (JPEG, PNG, WebP only).
+- **Environment & Database Isolation**: `.env` and `*.sqlite` are excluded via `.gitignore`.
 
 ---
 

@@ -38,20 +38,32 @@ const deleteProductName = document.getElementById('deleteProductName');
 // Toast Notification
 function showToast(message, type = 'success') {
   const container = document.getElementById('toastContainer');
+  if (!container) return;
   const toast = document.createElement('div');
-  toast.className = `toast toast-${type}`;
-  toast.textContent = message;
+  const isSuccess = type === 'success';
+  toast.className = `pointer-events-auto flex items-center gap-2.5 px-4 py-3 rounded-2xl shadow-xl text-xs font-bold transition-all transform duration-300 translate-y-2 opacity-0 ${
+    isSuccess ? 'bg-slate-900 text-white border border-emerald-500/30' : 'bg-rose-900 text-white border border-rose-500/30'
+  }`;
+  toast.innerHTML = `
+    <i data-lucide="${isSuccess ? 'check-circle' : 'alert-circle'}" class="w-4 h-4 ${isSuccess ? 'text-emerald-400' : 'text-rose-400'} shrink-0"></i>
+    <span>${message}</span>
+  `;
   container.appendChild(toast);
+  if (window.lucide) window.lucide.createIcons();
+  requestAnimationFrame(() => {
+    toast.classList.remove('translate-y-2', 'opacity-0');
+  });
   setTimeout(() => {
-    toast.style.opacity = '0';
+    toast.classList.add('opacity-0', 'translate-y-2');
     setTimeout(() => toast.remove(), 300);
-  }, 3000);
+  }, 3500);
 }
 
 // -----------------------------------------------------------------
 // Initial Initialization
 // -----------------------------------------------------------------
 async function init() {
+  if (window.lucide) window.lucide.createIcons();
   await verifySession();
   await loadProducts();
 }
@@ -124,61 +136,78 @@ function renderTable(products) {
   if (products.length === 0) {
     productsTableBody.innerHTML = `
       <tr>
-        <td colspan="7" class="empty-state">
-          <div class="empty-icon">📦</div>
-          <h4 class="empty-title">No products found</h4>
-          <p class="empty-desc">Try clearing filters or add a new formulation.</p>
+        <td colspan="7" class="py-12 text-center text-slate-400">
+          <div class="w-12 h-12 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto mb-2 text-slate-400">
+            <i data-lucide="package-search" class="w-6 h-6"></i>
+          </div>
+          <h4 class="font-bold text-slate-700 text-sm">No formulations found</h4>
+          <p class="text-xs text-slate-400 mt-1">Try modifying your search or category filters.</p>
         </td>
       </tr>
     `;
+    if (window.lucide) window.lucide.createIcons();
     return;
   }
 
   productsTableBody.innerHTML = products
     .map((p) => {
+      const id = p.id || p._id;
       const isActive = p.status === 'active';
       return `
-        <tr data-id="${p._id}">
-          <td>
-            <div class="product-cell">
-              <img src="${p.image || '/uploads/9g.png'}" 
-                   alt="${escapeHtml(p.name)}" 
-                   class="product-thumb"
-                   onerror="this.src='/uploads/9g.png'">
-              <div class="product-info">
-                <h4>${escapeHtml(p.name)}</h4>
-                <p title="${escapeHtml(p.shortDescription)}">${escapeHtml(p.shortDescription)}</p>
+        <tr data-id="${id}" class="hover:bg-slate-50/80 transition-colors">
+          <td class="py-3.5 px-6">
+            <div class="flex items-center gap-3">
+              <div class="w-11 h-11 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center overflow-hidden shrink-0">
+                <img src="${p.image || '/uploads/9g.png'}" 
+                     alt="${escapeHtml(p.name)}" 
+                     class="max-h-full max-w-full object-contain p-1"
+                     onerror="this.onerror=null; this.parentElement.innerHTML='<i data-lucide=\\'pill\\' class=\\'w-5 h-5 text-emerald-600\\'></i>'; if(window.lucide) window.lucide.createIcons();">
+              </div>
+              <div class="min-w-0">
+                <h4 class="font-bold text-slate-900 text-xs truncate">${escapeHtml(p.name)}</h4>
+                <p class="text-[11px] text-slate-400 truncate max-w-xs" title="${escapeHtml(p.shortDescription)}">${escapeHtml(p.shortDescription)}</p>
               </div>
             </div>
           </td>
-          <td>
-            <span class="badge badge-category">${escapeHtml(p.category)}</span>
-          </td>
-          <td>
-            <strong style="color: var(--primary-dark); font-weight: 800;">₹${p.price}</strong>
-          </td>
-          <td>
-            <span style="font-size: 0.8125rem; color: var(--text-muted);">${escapeHtml(p.unit || 'Strip')}</span>
-          </td>
-          <td>
-            <span class="badge ${isActive ? 'badge-active' : 'badge-hidden'}">
-              ${isActive ? '● Active' : '○ Hidden'}
+          <td class="py-3.5 px-4">
+            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-slate-100 text-slate-700">
+              <i data-lucide="tag" class="w-3 h-3 text-slate-400"></i>
+              ${escapeHtml(p.category)}
             </span>
           </td>
-          <td>
-            <button class="btn btn-secondary btn-sm toggle-status-btn" 
-                    data-id="${p._id}" 
-                    title="Click to toggle active/hidden state">
-              ${isActive ? '👁️ Hide' : '✨ Show'}
+          <td class="py-3.5 px-4 font-black text-brand-800 text-xs">
+            ₹${p.price}
+          </td>
+          <td class="py-3.5 px-4 text-slate-500 font-semibold text-xs">
+            ${escapeHtml(p.unit || 'Strip')}
+          </td>
+          <td class="py-3.5 px-4">
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold ${
+              isActive ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-slate-100 text-slate-500 border border-slate-200'
+            }">
+              <span class="w-1.5 h-1.5 rounded-full ${isActive ? 'bg-emerald-500' : 'bg-slate-400'}"></span>
+              ${isActive ? 'Active' : 'Hidden'}
+            </span>
+          </td>
+          <td class="py-3.5 px-4">
+            <button class="toggle-status-btn inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+              isActive 
+                ? 'bg-slate-100 hover:bg-slate-200 text-slate-600' 
+                : 'bg-emerald-100 hover:bg-emerald-200 text-emerald-800'
+            }" data-id="${id}" title="Toggle active or hidden">
+              <i data-lucide="${isActive ? 'eye-off' : 'eye'}" class="w-3.5 h-3.5"></i>
+              <span>${isActive ? 'Hide' : 'Show'}</span>
             </button>
           </td>
-          <td style="text-align: right;">
-            <div class="action-buttons" style="justify-content: flex-end;">
-              <button class="btn btn-secondary btn-sm edit-btn" data-id="${p._id}">
-                ✏️ Edit
+          <td class="py-3.5 px-6 text-right">
+            <div class="inline-flex items-center gap-2">
+              <button class="edit-btn inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-colors cursor-pointer" data-id="${id}">
+                <i data-lucide="edit-2" class="w-3.5 h-3.5"></i>
+                <span>Edit</span>
               </button>
-              <button class="btn btn-danger btn-sm delete-btn" data-id="${p._id}" data-name="${escapeHtml(p.name)}">
-                🗑️ Delete
+              <button class="delete-btn inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-bold text-rose-700 bg-rose-50 hover:bg-rose-100 transition-colors cursor-pointer" data-id="${id}" data-name="${escapeHtml(p.name)}">
+                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                <span>Delete</span>
               </button>
             </div>
           </td>
@@ -186,6 +215,8 @@ function renderTable(products) {
       `;
     })
     .join('');
+
+  if (window.lucide) window.lucide.createIcons();
 }
 
 // -----------------------------------------------------------------
@@ -463,3 +494,4 @@ function escapeHtml(text) {
 
 // Start application
 init();
+

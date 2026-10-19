@@ -75,3 +75,4 @@ export async function seedDatabase() {
     console.error(`[Seed] Error seeding database: ${err.message}`);
   }
 }
+

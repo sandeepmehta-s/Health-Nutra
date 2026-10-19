@@ -302,3 +302,4 @@ router.delete("/products/:id", requireAuth, async (req, res) => {
 });
 
 export default router;
+

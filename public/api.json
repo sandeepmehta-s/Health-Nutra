@@ -1,0 +1,35 @@
+{
+  "appName": "Health Nutra",
+  "tagline": "Nurturing Health, Enriching Life",
+  "version": "1.0.0",
+  "apiBaseUrl": "/api",
+  "endpoints": {
+    "products": "/api/products",
+    "productDetail": "/api/products/:id",
+    "categories": "/api/categories",
+    "ping": "/api/ping",
+    "health": "/health",
+    "adminLogin": "/api/admin/login",
+    "adminLogout": "/api/admin/logout",
+    "adminMe": "/api/admin/me",
+    "adminProducts": "/api/admin/products",
+    "adminProductToggle": "/api/admin/products/:id/toggle-status"
+  },
+  "pingIntervalMinutes": 5,
+  "categoryIcons": {
+    "All": "layers",
+    "Multivitamin": "pill",
+    "Syrup": "droplet",
+    "Omega-3": "heart-pulse",
+    "Green Tea": "leaf",
+    "Ayurvedic": "sparkles",
+    "Immunity": "shield-check",
+    "General": "package"
+  },
+  "brand": {
+    "primary": "#166534",
+    "primaryLight": "#15803d",
+    "accent": "#ea580c",
+    "accentLight": "#f97316"
+  }
+}
