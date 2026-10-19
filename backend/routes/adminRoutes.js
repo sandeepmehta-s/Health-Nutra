@@ -157,8 +157,9 @@ router.get("/me", (req, res) => {
       },
     });
   }
-  return res.json({
+  return res.status(401).json({
     success: false,
+    message: "Authentication required. Please log in.",
     admin: null,
   });
 });
@@ -334,6 +335,7 @@ router.patch("/products/:id/toggle-status", requireAuth, async (req, res) => {
       success: true,
       message: `Product "${updated.name}" is now ${updated.status}.`,
       status: updated.status,
+      product: updated,
       data: updated,
     });
   } catch (err) {
@@ -406,8 +408,8 @@ router.get("/orders/:id", requireAuth, async (req, res) => {
   }
 });
 
-// PATCH /api/admin/orders/:id/status - Update order status, payment status, notes
-router.patch("/orders/:id/status", requireAuth, async (req, res) => {
+// PATCH / POST /api/admin/orders/:id/status - Update order status, payment status, notes
+const handleUpdateStatus = async (req, res) => {
   try {
     const { orderStatus, paymentStatus, notes } = req.body;
     const validStatuses = ["pending", "processing", "shipped", "delivered", "cancelled"];
@@ -436,7 +438,10 @@ router.patch("/orders/:id/status", requireAuth, async (req, res) => {
   } catch (err) {
     res.status(500).json({ success: false, message: "Failed to update order: " + err.message });
   }
-});
+};
+
+router.patch("/orders/:id/status", requireAuth, handleUpdateStatus);
+router.post("/orders/:id/status", requireAuth, handleUpdateStatus);
 
 // DELETE /api/admin/orders/:id - Delete order
 router.delete("/orders/:id", requireAuth, async (req, res) => {
