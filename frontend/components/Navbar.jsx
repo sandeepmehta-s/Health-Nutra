@@ -3,7 +3,7 @@
  * Navigation bar with brand identity, mobile drawer, and portal links.
  */
 
-function Navbar({ onOpenSearch, orderCount = 0 }) {
+function Navbar({ onOpenSearch, onOpenTrackOrder, orderCount = 0 }) {
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
   const [adminUser, setAdminUser] = React.useState(null);
 

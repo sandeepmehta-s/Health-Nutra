@@ -146,14 +146,20 @@ router.post("/logout", (req, res) => {
 });
 
 // GET /api/admin/me - Verify current session
-router.get("/me", requireAuth, (req, res) => {
-  res.json({
-    success: true,
-    admin: {
-      id: req.session.adminId,
-      username: req.session.adminUsername,
-      name: req.session.adminName,
-    },
+router.get("/me", (req, res) => {
+  if (req.session && req.session.adminId) {
+    return res.json({
+      success: true,
+      admin: {
+        id: req.session.adminId,
+        username: req.session.adminUsername,
+        name: req.session.adminName,
+      },
+    });
+  }
+  return res.json({
+    success: false,
+    admin: null,
   });
 });
 

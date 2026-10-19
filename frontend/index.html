@@ -5,6 +5,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Health Nutra - Nurturing Health, Enriching Life</title>
   
+  <!-- Console Filter for Third-party CDN Advisories -->
+  <script>
+    (function() {
+      const _origWarn = console.warn;
+      console.warn = function(...args) {
+        if (args[0] && typeof args[0] === 'string' && (args[0].includes('cdn.tailwindcss.com') || args[0].includes('in-browser Babel transformer'))) {
+          return;
+        }
+        _origWarn.apply(console, args);
+      };
+    })();
+  </script>
+
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
