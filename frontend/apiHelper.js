@@ -22,6 +22,7 @@ const DEFAULT_CONFIG = {
     adminProductToggle: "/api/admin/products/:id/toggle-status",
     adminOrders: "/api/admin/orders",
     adminOrderStatus: "/api/admin/orders/:id/status",
+    contact: "/api/contact",
   },
   categoryIcons: {
     All: "layers",
@@ -182,6 +183,18 @@ class ApiHelper {
   async ping() {
     const url = this.resolveUrl("ping");
     const res = await this.request(url, { method: "GET" });
+    return res.data;
+  }
+
+  /**
+   * Submit customer contact inquiry
+   */
+  async submitContact(formData) {
+    const url = this.resolveUrl("contact");
+    const res = await this.request(url, {
+      method: "POST",
+      body: JSON.stringify(formData),
+    });
     return res.data;
   }
 

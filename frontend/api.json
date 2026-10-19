@@ -17,7 +17,8 @@
     "orders": "/api/orders",
     "orderDetail": "/api/orders/:id",
     "adminOrders": "/api/admin/orders",
-    "adminOrderStatus": "/api/admin/orders/:id/status"
+    "adminOrderStatus": "/api/admin/orders/:id/status",
+    "contact": "/api/contact"
   },
   "pingIntervalMinutes": 5,
   "categoryIcons": {

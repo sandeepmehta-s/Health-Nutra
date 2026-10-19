@@ -27,14 +27,19 @@ function ContactForm() {
 
     setSubmitting(true);
     try {
-      const res = await fetch("/api/contact", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
+      let data;
+      if (window.apiHelper && typeof window.apiHelper.submitContact === "function") {
+        data = await window.apiHelper.submitContact(formData);
+      } else {
+        const res = await fetch("/api/contact", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(formData),
+        });
+        data = await res.json();
+      }
 
-      const data = await res.json();
-      if (res.ok && data.success) {
+      if (data && data.success) {
         setSuccessMsg(data.message || "Thank you! Your inquiry has been sent to our clinical support team.");
         setFormData({
           name: "",
@@ -44,7 +49,7 @@ function ContactForm() {
           message: "",
         });
       } else {
-        setErrorMsg(data.message || "Failed to submit message. Please try again.");
+        setErrorMsg(data?.message || "Failed to submit inquiry. Please try again.");
       }
     } catch (err) {
       setErrorMsg(err.message || "Network error. Please try again.");

@@ -4,16 +4,69 @@
  * dynamic formulations catalog, modal controls, Order Tracking, and Contact Us form.
  */
 
+const DEFAULT_PRODUCTS = [
+  {
+    id: "1",
+    name: "Health Nutra 9G",
+    category: "Multivitamin",
+    shortDescription: "Complete daily nutrition with vitamins & minerals.",
+    fullDescription:
+      "Multivitamin, multimineral & antioxidant tablets formulated with 9 essential vitality blends. 10 x 10 tablets. Take one tablet daily after meals or as advised by your healthcare professional.",
+    price: 235,
+    unit: "Strip",
+    image: "/images/9g.png",
+    status: "active",
+  },
+  {
+    id: "2",
+    name: "Health Nutra 10Q Syrup",
+    category: "Syrup",
+    shortDescription: "Energy booster syrup with CoQ10 & antioxidants for daily vitality.",
+    fullDescription:
+      "200ml multivitamin, CoQ10 & antioxidant syrup. Helps combat fatigue, support cardiac health, and revitalize natural stamina. Shake well before use.",
+    price: 210,
+    unit: "200ml",
+    image: "/images/10q.png",
+    status: "active",
+  },
+  {
+    id: "3",
+    name: "Omega-3 Capsules",
+    category: "Omega-3",
+    shortDescription: "Supports heart, brain, joint, and cardiovascular wellness.",
+    fullDescription:
+      "Ultra-strength molecularly distilled fish oil softgels providing 1000mg EPA/DHA. Supports clear focus, cardiovascular circulation, and joint flexibility.",
+    price: 499,
+    unit: "Strip",
+    image: "/images/omega3.png",
+    status: "active",
+  },
+  {
+    id: "4",
+    name: "Green Tea Extract",
+    category: "Green Tea",
+    shortDescription: "Standardised 50% EGCG capsules for metabolism & antioxidant support.",
+    fullDescription:
+      "Standardised green tea botanical extract rich in natural polyphenols and 50% EGCG. Promotes healthy metabolic rate, gentle weight balance, and antioxidant protection.",
+    price: 299,
+    unit: "Box",
+    image: "/images/greentea.png",
+    status: "active",
+  },
+];
+
+const DEFAULT_CATEGORIES = ["All", "Multivitamin", "Syrup", "Omega-3", "Green Tea"];
+
 function HomePage() {
-  const [products, setProducts] = React.useState([]);
-  const [categories, setCategories] = React.useState(["All"]);
+  const [products, setProducts] = React.useState(DEFAULT_PRODUCTS);
+  const [categories, setCategories] = React.useState(DEFAULT_CATEGORIES);
   const [selectedCategory, setSelectedCategory] = React.useState("All");
   const [searchQuery, setSearchQuery] = React.useState("");
   const [selectedProduct, setSelectedProduct] = React.useState(null);
   const [checkoutProduct, setCheckoutProduct] = React.useState(null);
   const [trackModalOpen, setTrackModalOpen] = React.useState(false);
   const [trackOrderId, setTrackOrderId] = React.useState("");
-  const [loading, setLoading] = React.useState(true);
+  const [loading, setLoading] = React.useState(false);
 
   const catalogRef = React.useRef(null);
 
@@ -31,22 +84,20 @@ function HomePage() {
   React.useEffect(() => {
     async function loadData() {
       try {
-        setLoading(true);
+        if (!window.apiHelper) return;
         const [prodData, catData] = await Promise.all([
           window.apiHelper.getProducts(),
           window.apiHelper.getCategories(),
         ]);
 
-        if (prodData && prodData.success && Array.isArray(prodData.data)) {
+        if (prodData && prodData.success && Array.isArray(prodData.data) && prodData.data.length > 0) {
           setProducts(prodData.data);
         }
-        if (catData && catData.success && Array.isArray(catData.data)) {
+        if (catData && catData.success && Array.isArray(catData.data) && catData.data.length > 0) {
           setCategories(catData.data.includes("All") ? catData.data : ["All", ...catData.data]);
         }
       } catch (err) {
-        console.error("Failed to load catalog:", err);
-      } finally {
-        setLoading(false);
+        console.warn("Catalog fetch notice, using fallback starter formulations:", err);
       }
     }
     loadData();
@@ -224,15 +275,20 @@ function HomePage() {
             <div>
               <h3 className="text-lg font-black text-slate-900">No Formulations Found</h3>
               <p className="text-xs text-slate-500 mt-1">
-                We couldn't find any match for "{searchQuery}". Try searching for "9G", "10Q", "Green Tea", or "Omega".
+                {searchQuery.trim()
+                  ? `We couldn't find any match for "${searchQuery}". Try searching for "9G", "10Q", "Green Tea", or "Omega".`
+                  : "No formulations currently found under this category."}
               </p>
             </div>
             <button
               type="button"
-              onClick={handleClearSearch}
+              onClick={() => {
+                setSelectedCategory("All");
+                handleClearSearch();
+              }}
               className="px-5 py-2.5 rounded-xl text-xs font-black text-white bg-brand-700 hover:bg-brand-800 transition-colors shadow-sm"
             >
-              Clear Search & Show All
+              Reset Filters & Show All
             </button>
           </div>
         ) : (

@@ -5,18 +5,6 @@
 
 function Navbar({ onOpenSearch, onOpenTrackOrder, orderCount = 0 }) {
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
-  const [adminUser, setAdminUser] = React.useState(null);
-
-  React.useEffect(() => {
-    // Check admin session
-    if (window.apiHelper) {
-      window.apiHelper.checkAdminAuth().then((data) => {
-        if (data && data.success && data.admin) {
-          setAdminUser(data.admin);
-        }
-      });
-    }
-  }, []);
 
   const navLinks = [
     { label: "Home", href: "#hero", icon: "home" },
@@ -73,18 +61,8 @@ function Navbar({ onOpenSearch, onOpenTrackOrder, orderCount = 0 }) {
               href="/admin"
               className="ml-3 inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs lg:text-sm font-bold text-white bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 shadow-md shadow-orange-600/25 transition-all transform hover:-translate-y-0.5"
             >
-              {adminUser ? (
-                <>
-                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                  <Icon name="shield-check" className="w-4 h-4" />
-                  <span>Admin ({adminUser.username})</span>
-                </>
-              ) : (
-                <>
-                  <Icon name="lock" className="w-4 h-4" />
-                  <span>Admin Portal</span>
-                </>
-              )}
+              <Icon name="lock" className="w-4 h-4" />
+              <span>Admin Portal</span>
             </a>
           </nav>
 
@@ -147,7 +125,7 @@ function Navbar({ onOpenSearch, onOpenTrackOrder, orderCount = 0 }) {
           >
             <span className="flex items-center gap-2">
               <Icon name="lock" className="w-4 h-4" />
-              <span>{adminUser ? `Admin Dashboard (${adminUser.username})` : "Admin Portal Access"}</span>
+              <span>Admin Portal Access</span>
             </span>
             <Icon name="arrow-right" className="w-4 h-4" />
           </a>
