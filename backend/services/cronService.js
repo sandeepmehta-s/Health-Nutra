@@ -11,17 +11,21 @@ export function startKeepAliveCron(port) {
 
   console.log(`[Cron] Initializing Keep-Alive Cron (Every ${intervalMinutes} minutes: "${cronExpression}").`);
 
-  // Determine target URL from .env (API_URL or APP_URL), cloud URL, or fallback host
+  // Determine target URL from cloud external URL (Render), non-local .env, or fallback host
   const getTargetUrl = () => {
-    if (process.env.API_URL) {
-      return `${process.env.API_URL.replace(/\/$/, "")}/products`;
-    }
-    if (process.env.APP_URL) {
-      return `${process.env.APP_URL.replace(/\/$/, "")}/api/products`;
-    }
+    // 1. Prioritize Render external URL for public ping to prevent free tier cold starts
     if (process.env.RENDER_EXTERNAL_URL) {
       return `${process.env.RENDER_EXTERNAL_URL.replace(/\/$/, "")}/api/products`;
     }
+    // 2. Use APP_URL if not localhost
+    if (process.env.APP_URL && !process.env.APP_URL.includes("localhost") && !process.env.APP_URL.includes("127.0.0.1")) {
+      return `${process.env.APP_URL.replace(/\/$/, "")}/api/products`;
+    }
+    // 3. Use API_URL if not localhost
+    if (process.env.API_URL && !process.env.API_URL.includes("localhost") && !process.env.API_URL.includes("127.0.0.1")) {
+      return `${process.env.API_URL.replace(/\/$/, "")}/products`;
+    }
+    // 4. Fallback for local development
     const host = process.env.HOST && process.env.HOST !== "0.0.0.0" ? process.env.HOST : "127.0.0.1";
     return `http://${host}:${port}/api/products`;
   };

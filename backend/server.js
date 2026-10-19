@@ -20,12 +20,19 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 const HOST = process.env.HOST || "0.0.0.0";
+const rawAppUrl = process.env.APP_URL;
+const isLocalAppUrl = !rawAppUrl || rawAppUrl.includes("localhost") || rawAppUrl.includes("127.0.0.1");
 const APP_URL = (
-  process.env.APP_URL ||
   process.env.RENDER_EXTERNAL_URL ||
+  (!isLocalAppUrl ? rawAppUrl : null) ||
+  rawAppUrl ||
   `http://${HOST === "0.0.0.0" ? "localhost" : HOST}:${PORT}`
 ).replace(/\/$/, "");
-const API_URL = (process.env.API_URL || `${APP_URL}/api`).replace(/\/$/, "");
+const API_URL = (
+  (process.env.RENDER_EXTERNAL_URL ? `${process.env.RENDER_EXTERNAL_URL.replace(/\/$/, "")}/api` : null) ||
+  (process.env.API_URL && !process.env.API_URL.includes("localhost") ? process.env.API_URL : null) ||
+  `${APP_URL}/api`
+).replace(/\/$/, "");
 
 // Enable trust proxy for cloud deployments (Render, Railway, Heroku, Cloudflare, Nginx)
 app.set("trust proxy", 1);
