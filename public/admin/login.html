@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Login - Health Nutra</title>
+  <link rel="stylesheet" href="/admin/admin.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body class="auth-body">
+  <div class="auth-card">
+    <div class="auth-header">
+      <div class="brand-badge">
+        <svg viewBox="0 0 40 40" class="brand-icon" fill="none">
+          <circle cx="20" cy="20" r="18" stroke="rgba(255,255,255,0.3)" stroke-width="1.5" stroke-dasharray="2 2" />
+          <path d="M20 7C27 7 32 13 32 20C32 29 20 35 20 35C20 35 8 29 8 20C8 13 13 7 20 7Z" fill="white" />
+          <path d="M20 11C24 16 26 21 24 25C22 29 18 31 16 32C15 27 16 22 19 18C20 15 20 13 20 11Z" fill="#15803d" />
+          <path d="M20 12C22 17 21 22 18 25C16 22 17 17 20 12Z" fill="#f97316" />
+        </svg>
+      </div>
+      <h1 class="auth-title">HEALTH <span class="highlight">NUTRA</span></h1>
+      <p class="auth-subtitle">Secure Product Management Portal</p>
+    </div>
+
+    <div id="alertBox" class="alert-box hidden"></div>
+
+    <form id="loginForm" class="auth-form">
+      <div class="form-group">
+        <label for="username">Username</label>
+        <div class="input-wrapper">
+          <input type="text" id="username" name="username" placeholder="e.g. admin" required autocomplete="username">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password</label>
+        <div class="input-wrapper">
+          <input type="password" id="password" name="password" placeholder="Enter password" required autocomplete="current-password">
+          <button type="button" id="togglePasswordBtn" class="toggle-pass-btn" aria-label="Toggle password visibility">👁️</button>
+        </div>
+      </div>
+
+      <button type="submit" id="submitBtn" class="btn btn-primary btn-block">
+        <span class="btn-text">Authenticate & Sign In</span>
+        <span class="spinner hidden"></span>
+      </button>
+
+      <div class="auth-footer">
+        <a href="/" class="back-link">← Return to Public Website</a>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    const form = document.getElementById('loginForm');
+    const alertBox = document.getElementById('alertBox');
+    const submitBtn = document.getElementById('submitBtn');
+    const btnText = submitBtn.querySelector('.btn-text');
+    const spinner = submitBtn.querySelector('.spinner');
+    const passInput = document.getElementById('password');
+    const toggleBtn = document.getElementById('togglePasswordBtn');
+
+    toggleBtn.addEventListener('click', () => {
+      const type = passInput.getAttribute('type') === 'password' ? 'text' : 'password';
+      passInput.setAttribute('type', type);
+      toggleBtn.textContent = type === 'password' ? '👁️' : '🙈';
+    });
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      alertBox.classList.add('hidden');
+      alertBox.textContent = '';
+      submitBtn.disabled = true;
+      btnText.textContent = 'Verifying...';
+      spinner.classList.remove('hidden');
+
+      const username = document.getElementById('username').value.trim();
+      const password = passInput.value;
+
+      try {
+        const res = await fetch('/api/admin/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+          body: JSON.stringify({ username, password })
+        });
+
+        const data = await res.json();
+
+        if (res.ok && data.success) {
+          alertBox.className = 'alert-box alert-success';
+          alertBox.textContent = 'Login successful! Redirecting to dashboard...';
+          alertBox.classList.remove('hidden');
+          setTimeout(() => {
+            window.location.href = '/admin';
+          }, 600);
+        } else {
+          alertBox.className = 'alert-box alert-error';
+          alertBox.textContent = data.message || 'Invalid credentials or access denied.';
+          alertBox.classList.remove('hidden');
+          submitBtn.disabled = false;
+          btnText.textContent = 'Authenticate & Sign In';
+          spinner.classList.add('hidden');
+        }
+      } catch (err) {
+        alertBox.className = 'alert-box alert-error';
+        alertBox.textContent = 'Network or server error. Please try again.';
+        alertBox.classList.remove('hidden');
+        submitBtn.disabled = false;
+        btnText.textContent = 'Authenticate & Sign In';
+        spinner.classList.add('hidden');
+      }
+    });
+  </script>
+</body>
+</html>

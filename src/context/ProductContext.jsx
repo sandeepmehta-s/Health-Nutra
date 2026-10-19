@@ -7,6 +7,32 @@ const load = () => { try { return JSON.parse(localStorage.getItem(KEY)) || seed;
 
 export function ProductProvider({ children }) {
   const [products, setProducts] = useState(load);
+
+  useEffect(() => {
+    // Try fetching from backend API if available
+    fetch("/api/products")
+      .then((res) => res.json())
+      .then((res) => {
+        if (res.success && Array.isArray(res.data) && res.data.length > 0) {
+          const mapped = res.data.map((p) => ({
+            id: p._id || p.id,
+            name: p.name,
+            desc: p.shortDescription || p.desc,
+            details: p.fullDescription || p.details,
+            price: p.price,
+            unit: p.unit || "Strip",
+            cat: p.category || p.cat,
+            img: p.image || p.img || "/uploads/9g.png",
+            stock: p.stock || 100,
+          }));
+          setProducts(mapped);
+        }
+      })
+      .catch(() => {
+        // Backend not running, keep local storage / seed
+      });
+  }, []);
+
   useEffect(() => localStorage.setItem(KEY, JSON.stringify(products)), [products]);
 
   const saveProduct = (p) =>

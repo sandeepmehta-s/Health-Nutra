@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard - Health Nutra</title>
+  <link rel="stylesheet" href="/admin/admin.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body class="admin-layout">
+  <!-- Top Navigation Header -->
+  <header class="admin-header">
+    <div class="admin-nav">
+      <a href="/admin" class="brand-wrapper">
+        <div class="brand-badge" style="width: 38px; height: 38px; margin-bottom: 0;">
+          <svg viewBox="0 0 40 40" class="brand-icon" style="width: 24px; height: 24px;" fill="none">
+            <path d="M20 7C27 7 32 13 32 20C32 29 20 35 20 35C20 35 8 29 8 20C8 13 13 7 20 7Z" fill="white" />
+            <path d="M20 11C24 16 26 21 24 25C22 29 18 31 16 32C15 27 16 22 19 18C20 15 20 13 20 11Z" fill="#15803d" />
+            <path d="M20 12C22 17 21 22 18 25C16 22 17 17 20 12Z" fill="#f97316" />
+          </svg>
+        </div>
+        <div>
+          <span style="font-weight: 800; font-size: 1.125rem; color: var(--primary-dark);">HEALTH <span style="color: var(--accent);">NUTRA</span></span>
+          <span style="display: block; font-size: 0.6875rem; color: var(--text-muted); font-weight: 600; letter-spacing: 0.5px;">ADMIN CONSOLE</span>
+        </div>
+      </a>
+
+      <div class="admin-user-menu">
+        <a href="/" target="_blank" class="btn btn-secondary btn-sm" title="Open public store in a new tab">
+          🌐 View Website
+        </a>
+        <span class="admin-badge">
+          👤 <span id="adminNameDisplay">Admin</span>
+        </span>
+        <button id="logoutBtn" class="btn btn-secondary btn-sm" title="Log out of session">
+          🚪 Logout
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Dashboard -->
+  <main class="admin-container">
+    <!-- Stat Summary Cards -->
+    <section class="stats-grid">
+      <div class="stat-card">
+        <span class="stat-label">Total Inventory</span>
+        <span id="statTotal" class="stat-value">0</span>
+      </div>
+      <div class="stat-card" style="border-left: 4px solid var(--primary);">
+        <span class="stat-label">Active (Public)</span>
+        <span id="statActive" class="stat-value" style="color: var(--primary);">0</span>
+      </div>
+      <div class="stat-card" style="border-left: 4px solid #94a3b8;">
+        <span class="stat-label">Hidden (Drafts)</span>
+        <span id="statHidden" class="stat-value" style="color: #64748b;">0</span>
+      </div>
+      <div class="stat-card" style="border-left: 4px solid var(--accent);">
+        <span class="stat-label">Categories</span>
+        <span id="statCategories" class="stat-value" style="color: var(--accent);">0</span>
+      </div>
+    </section>
+
+    <!-- Controls Bar -->
+    <section class="controls-bar">
+      <div class="search-filter-group">
+        <div class="search-input-wrapper">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="searchInput" placeholder="Search by name, category, or desc...">
+        </div>
+
+        <select id="categoryFilter" class="filter-select">
+          <option value="all">All Categories</option>
+        </select>
+
+        <select id="statusFilter" class="filter-select" style="min-width: 130px;">
+          <option value="all">All Status</option>
+          <option value="active">Active Only</option>
+          <option value="hidden">Hidden Only</option>
+        </select>
+      </div>
+
+      <button id="openAddModalBtn" class="btn btn-accent">
+        ➕ Add New Product
+      </button>
+    </section>
+
+    <!-- Products Data Table Card -->
+    <div class="table-card">
+      <div class="table-responsive">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Product Details</th>
+              <th>Category</th>
+              <th>Price</th>
+              <th>Unit</th>
+              <th>Status</th>
+              <th>Visibility</th>
+              <th style="text-align: right;">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="productsTableBody">
+            <!-- Rendered dynamically by admin.js -->
+            <tr>
+              <td colspan="7" class="empty-state">
+                <div class="empty-icon">⏳</div>
+                <h4 class="empty-title">Loading Products...</h4>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <!-- Product Modal (Add & Edit) -->
+  <div id="productModal" class="modal-overlay hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="modalTitle">Add New Product</h3>
+        <button id="closeModalBtn" class="close-btn" aria-label="Close modal">&times;</button>
+      </div>
+
+      <form id="productForm">
+        <input type="hidden" id="productId" name="productId">
+
+        <div class="modal-body">
+          <div id="modalAlertBox" class="alert-box hidden"></div>
+
+          <div class="form-group">
+            <label for="prodName">Product Name *</label>
+            <input type="text" id="prodName" name="name" placeholder="e.g. Health Nutra 9G" required>
+          </div>
+
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label for="prodCategory">Category *</label>
+              <input type="text" id="prodCategory" name="category" placeholder="e.g. Multivitamin, Omega-3" required list="categorySuggestions">
+              <datalist id="categorySuggestions">
+                <option value="Multivitamin">
+                <option value="Syrup">
+                <option value="Omega-3">
+                <option value="Green Tea">
+                <option value="Capsules">
+                <option value="Tablets">
+              </datalist>
+            </div>
+
+            <div class="form-group">
+              <label for="prodUnit">Unit Measure *</label>
+              <input type="text" id="prodUnit" name="unit" placeholder="e.g. Strip, 200ml, Box" required>
+            </div>
+          </div>
+
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label for="prodPrice">Price (₹) *</label>
+              <input type="number" id="prodPrice" name="price" placeholder="e.g. 235" step="0.01" min="0.01" required>
+            </div>
+
+            <div class="form-group">
+              <label for="prodStatus">Initial Visibility *</label>
+              <select id="prodStatus" name="status">
+                <option value="active">Active (Visible on public site)</option>
+                <option value="hidden">Hidden (Internal draft)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="prodShortDesc">Short Summary * (Shown on product card)</label>
+            <input type="text" id="prodShortDesc" name="shortDescription" placeholder="Brief 1-2 sentence highlight" required>
+          </div>
+
+          <div class="form-group">
+            <label for="prodFullDesc">Full Description & Benefits</label>
+            <textarea id="prodFullDesc" name="fullDescription" rows="3" placeholder="Comprehensive composition, dosage instructions, and health benefits"></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="prodImage">Product Image (Max 2MB: JPG, PNG, WebP)</label>
+            <input type="file" id="prodImage" name="image" accept="image/jpeg,image/png,image/webp">
+            <p class="file-hint">Leave blank when editing to keep existing product image.</p>
+            
+            <div id="imagePreviewContainer" class="image-preview-box hidden">
+              <img id="imagePreview" class="preview-img" alt="Preview">
+              <span id="imagePreviewText" style="font-size: 0.75rem; color: var(--text-muted);">Current Image Preview</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" id="cancelModalBtn" class="btn btn-secondary">Cancel</button>
+          <button type="submit" id="saveProductBtn" class="btn btn-primary">
+            <span id="saveBtnText">Save Product</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Delete Confirmation Modal -->
+  <div id="deleteModal" class="modal-overlay hidden">
+    <div class="modal-content" style="max-width: 440px;">
+      <div class="modal-header">
+        <h3 style="color: #dc2626;">Confirm Deletion</h3>
+        <button id="closeDeleteModalBtn" class="close-btn">&times;</button>
+      </div>
+      <div class="modal-body" style="text-align: center; padding: 1.5rem 1rem;">
+        <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">⚠️</div>
+        <p style="font-size: 0.9375rem; font-weight: 600; color: var(--text-main);">
+          Are you sure you want to delete <span id="deleteProductName" style="color: #dc2626; font-weight: 700;"></span>?
+        </p>
+        <p style="font-size: 0.8125rem; color: var(--text-muted); margin-top: 0.5rem;">
+          This action will permanently remove the product from the catalog.
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button id="cancelDeleteBtn" class="btn btn-secondary">Cancel</button>
+        <button id="confirmDeleteBtn" class="btn btn-danger">Yes, Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <!-- Scripts -->
+  <script src="/admin/admin.js"></script>
+</body>
+</html>
