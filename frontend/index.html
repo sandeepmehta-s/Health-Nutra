@@ -51,8 +51,21 @@
     }
   </script>
 
-  <!-- Lucide Icons -->
+  <!-- Lucide Icons & React DOM Safeguard -->
   <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    // Safeguard React Virtual DOM:
+    // Prevent DOM mutations inside React #root to completely eliminate NotFoundError: removeChild
+    if (window.lucide && typeof window.lucide.createIcons === 'function') {
+      const _origCreateIcons = window.lucide.createIcons;
+      window.lucide.createIcons = function(options) {
+        if (options && options.root && options.root !== document && !options.root.closest('#root')) {
+          return _origCreateIcons(options);
+        }
+        return;
+      };
+    }
+  </script>
 
   <!-- Google Fonts: Plus Jakarta Sans -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -88,6 +101,7 @@
   <script type="module" src="/utils/invoiceGenerator.js"></script>
 
   <!-- UI Components (Tailwind CSS) -->
+  <script type="text/babel" src="/components/ui/Icon.jsx"></script>
   <script type="text/babel" src="/components/ui/Badge.jsx"></script>
   <script type="text/babel" src="/components/ui/Button.jsx"></script>
   <script type="text/babel" src="/components/ui/Card.jsx"></script>

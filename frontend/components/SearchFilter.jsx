@@ -30,7 +30,7 @@ function SearchFilter({
       <div className="relative max-w-2xl mx-auto">
         <div className="relative flex items-center">
           <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none text-brand-700">
-            <i data-lucide="search" className="w-5 h-5"></i>
+            <Icon name="search" className="w-5 h-5" />
           </div>
 
           <input
@@ -49,7 +49,7 @@ function SearchFilter({
               aria-label="Clear search"
             >
               <div className="w-7 h-7 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center">
-                <i data-lucide="x" className="w-4 h-4"></i>
+                <Icon name="x" className="w-4 h-4" />
               </div>
             </button>
           )}
@@ -59,7 +59,7 @@ function SearchFilter({
         {searchQuery.trim().length > 0 && (
           <div className="mt-2.5 flex items-center justify-between px-2 text-xs">
             <div className="inline-flex items-center gap-1.5 font-bold text-brand-800 bg-brand-50 px-3 py-1 rounded-xl border border-brand-200/60">
-              <i data-lucide="sparkles" className="w-3.5 h-3.5 text-accent-600"></i>
+              <Icon name="sparkles" className="w-3.5 h-3.5 text-accent-600" />
               <span>Relevance Optimized: Top matching formulation placed at the <strong>TOP</strong></span>
             </div>
             <span className="font-extrabold text-slate-500">
@@ -86,7 +86,7 @@ function SearchFilter({
                   : "bg-white text-slate-600 hover:text-brand-800 hover:bg-brand-50 border border-slate-200"
               }`}
             >
-              <i data-lucide={iconName} className={`w-4 h-4 ${isSelected ? "text-emerald-200" : "text-brand-700"}`}></i>
+              <Icon name={iconName} className={`w-4 h-4 ${isSelected ? "text-emerald-200" : "text-brand-700"}`} />
               <span>{cat}</span>
             </button>
           );

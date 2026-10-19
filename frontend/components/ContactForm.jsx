@@ -15,12 +15,6 @@ function ContactForm() {
   const [successMsg, setSuccessMsg] = React.useState("");
   const [errorMsg, setErrorMsg] = React.useState("");
 
-  React.useEffect(() => {
-    if (window.lucide && typeof window.lucide.createIcons === "function") {
-      setTimeout(() => window.lucide.createIcons(), 20);
-    }
-  }, [successMsg, errorMsg, submitting]);
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSuccessMsg("");
@@ -63,7 +57,7 @@ function ContactForm() {
     <div className="bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-10 shadow-xl shadow-slate-200/50">
       <div className="mb-8">
         <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-brand-50 text-brand-800 border border-brand-200 mb-2">
-          <i data-lucide="message-square" className="w-3.5 h-3.5 text-brand-700"></i>
+          <Icon name="message-square" className="w-3.5 h-3.5 text-brand-700" />
           <span>DIRECT CLINICAL INQUIRY</span>
         </div>
         <h3 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
@@ -77,7 +71,7 @@ function ContactForm() {
       {successMsg ? (
         <div className="p-6 rounded-2xl bg-emerald-50 border border-emerald-200 text-center space-y-3">
           <div className="w-12 h-12 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center mx-auto">
-            <i data-lucide="check-circle" className="w-6 h-6"></i>
+            <Icon name="check-circle" className="w-6 h-6" />
           </div>
           <h4 className="text-base font-black text-emerald-900">Inquiry Submitted!</h4>
           <p className="text-xs text-emerald-800 font-medium max-w-md mx-auto">{successMsg}</p>
@@ -93,7 +87,7 @@ function ContactForm() {
         <form onSubmit={handleSubmit} className="space-y-4">
           {errorMsg && (
             <div className="p-3.5 rounded-xl bg-red-50 border border-red-200 text-xs font-bold text-red-600 flex items-center gap-2">
-              <i data-lucide="alert-circle" className="w-4 h-4 shrink-0"></i>
+              <Icon name="alert-circle" className="w-4 h-4 shrink-0" />
               <span>{errorMsg}</span>
             </div>
           )}
@@ -183,7 +177,7 @@ function ContactForm() {
               <span>Sending Message...</span>
             ) : (
               <>
-                <i data-lucide="send" className="w-4 h-4"></i>
+                <Icon name="send" className="w-4 h-4" />
                 <span>Submit Inquiry</span>
               </>
             )}

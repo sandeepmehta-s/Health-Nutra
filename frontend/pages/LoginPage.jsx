@@ -20,12 +20,6 @@ function LoginPage() {
     }
   }, []);
 
-  React.useEffect(() => {
-    if (window.lucide && typeof window.lucide.createIcons === "function") {
-      setTimeout(() => window.lucide.createIcons(), 20);
-    }
-  }, [errorMsg, loading]);
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrorMsg("");
@@ -59,7 +53,7 @@ function LoginPage() {
       <div className="sm:mx-auto sm:w-full sm:max-w-md relative z-10 text-center space-y-3">
         <a href="/" className="inline-flex items-center gap-3">
           <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-brand-500 to-emerald-700 flex items-center justify-center text-white shadow-xl shadow-brand-500/30">
-            <i data-lucide="leaf" className="w-6 h-6"></i>
+            <Icon name="leaf" className="w-6 h-6" />
           </div>
           <div className="text-left">
             <div className="text-2xl font-black text-white tracking-tight leading-none">
@@ -83,7 +77,7 @@ function LoginPage() {
           <form onSubmit={handleSubmit} className="space-y-5">
             {errorMsg && (
               <div className="p-3.5 rounded-2xl bg-red-50 border border-red-200 text-xs font-bold text-red-600 flex items-center gap-2">
-                <i data-lucide="alert-circle" className="w-4 h-4 shrink-0"></i>
+                <Icon name="alert-circle" className="w-4 h-4 shrink-0" />
                 <span>{errorMsg}</span>
               </div>
             )}
@@ -94,7 +88,7 @@ function LoginPage() {
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                  <i data-lucide="user" className="w-4 h-4"></i>
+                  <Icon name="user" className="w-4 h-4" />
                 </div>
                 <input
                   type="text"
@@ -113,7 +107,7 @@ function LoginPage() {
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                  <i data-lucide="lock" className="w-4 h-4"></i>
+                  <Icon name="lock" className="w-4 h-4" />
                 </div>
                 <input
                   type="password"
@@ -141,7 +135,7 @@ function LoginPage() {
                 </>
               ) : (
                 <>
-                  <i data-lucide="log-in" className="w-4 h-4"></i>
+                  <Icon name="log-in" className="w-4 h-4" />
                   <span>Sign In to Console</span>
                 </>
               )}
@@ -160,7 +154,7 @@ function LoginPage() {
 
           <div className="mt-6 text-center">
             <a href="/" className="text-xs font-bold text-slate-500 hover:text-brand-700 transition-colors inline-flex items-center gap-1.5">
-              <i data-lucide="arrow-left" className="w-3.5 h-3.5"></i>
+              <Icon name="arrow-left" className="w-3.5 h-3.5" />
               <span>Back to Public Storefront</span>
             </a>
           </div>

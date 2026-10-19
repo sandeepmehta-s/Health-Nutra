@@ -20,12 +20,6 @@ function TrackOrderModal({
     }
   }, [initialOrderId, isOpen]);
 
-  React.useEffect(() => {
-    if (window.lucide && typeof window.lucide.createIcons === "function") {
-      setTimeout(() => window.lucide.createIcons(), 20);
-    }
-  }, [orderData, loading, errorMsg, isOpen]);
-
   const handleTrack = async (orderIdToSearch) => {
     const id = (orderIdToSearch || searchId).trim();
     if (!id) {
@@ -79,7 +73,7 @@ function TrackOrderModal({
         <div className="px-6 py-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/70">
           <div className="flex items-center gap-3">
             <span className="w-10 h-10 rounded-2xl bg-brand-50 text-brand-700 flex items-center justify-center shadow-xs">
-              <i data-lucide="truck" className="w-5 h-5"></i>
+              <Icon name="truck" className="w-5 h-5" />
             </span>
             <div>
               <h3 className="text-base sm:text-lg font-black text-slate-900">
@@ -94,7 +88,7 @@ function TrackOrderModal({
             onClick={onClose}
             className="w-9 h-9 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 flex items-center justify-center transition-colors"
           >
-            <i data-lucide="x" className="w-5 h-5"></i>
+            <Icon name="x" className="w-5 h-5" />
           </button>
         </div>
 
@@ -111,7 +105,7 @@ function TrackOrderModal({
           >
             <div className="relative flex-1">
               <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                <i data-lucide="search" className="w-4 h-4"></i>
+                <Icon name="search" className="w-4 h-4" />
               </div>
               <input
                 type="text"
@@ -131,7 +125,7 @@ function TrackOrderModal({
                 <span>Searching...</span>
               ) : (
                 <>
-                  <i data-lucide="arrow-right" className="w-4 h-4"></i>
+                  <Icon name="arrow-right" className="w-4 h-4" />
                   <span>Track</span>
                 </>
               )}
@@ -141,7 +135,7 @@ function TrackOrderModal({
           {/* Error Message */}
           {errorMsg && (
             <div className="p-4 rounded-2xl bg-red-50 border border-red-200 text-xs font-bold text-red-600 flex items-center gap-2">
-              <i data-lucide="alert-circle" className="w-4 h-4 shrink-0"></i>
+              <Icon name="alert-circle" className="w-4 h-4 shrink-0" />
               <span>{errorMsg}</span>
             </div>
           )}
@@ -272,7 +266,7 @@ function TrackOrderModal({
                   onClick={() => window.downloadOrderInvoicePDF && window.downloadOrderInvoicePDF(orderData)}
                   className="flex-1 inline-flex items-center justify-center gap-2 px-5 py-3 rounded-2xl text-xs sm:text-sm font-black text-white bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 shadow-md shadow-orange-600/20 transition-all transform hover:-translate-y-0.5 active:scale-95"
                 >
-                  <i data-lucide="download" className="w-4 h-4"></i>
+                  <Icon name="download" className="w-4 h-4" />
                   <span>Download Official Invoice PDF</span>
                 </button>
 

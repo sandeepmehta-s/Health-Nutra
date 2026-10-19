@@ -52,7 +52,7 @@ function Modal({
           <div className="flex items-center gap-3">
             {icon && (
               <div className="w-10 h-10 rounded-2xl bg-brand-50 text-brand-700 flex items-center justify-center shadow-xs">
-                <i data-lucide={icon} className="w-5 h-5"></i>
+                <Icon name={icon} className="w-5 h-5" />
               </div>
             )}
             <div>
@@ -68,7 +68,7 @@ function Modal({
             aria-label="Close dialog"
             className="w-9 h-9 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 flex items-center justify-center transition-colors"
           >
-            <i data-lucide="x" className="w-5 h-5"></i>
+            <Icon name="x" className="w-5 h-5" />
           </button>
         </div>
 

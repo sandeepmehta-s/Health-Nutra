@@ -50,7 +50,7 @@ function Badge({
       {pulse && (
         <span className={`w-1.5 h-1.5 rounded-full animate-ping ${pulseColors[variant] || "bg-emerald-500"}`} />
       )}
-      {icon && <i data-lucide={icon} className="w-3.5 h-3.5"></i>}
+      {icon && <Icon name={icon} className="w-3.5 h-3.5" />}
       <span>{children}</span>
     </span>
   );

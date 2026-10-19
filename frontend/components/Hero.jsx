@@ -40,7 +40,7 @@ function Hero({ onExploreClick }) {
                 onClick={onExploreClick}
                 className="inline-flex items-center gap-2.5 px-7 py-4 rounded-2xl text-base font-black text-white bg-gradient-to-r from-brand-700 to-emerald-800 hover:from-brand-800 hover:to-emerald-900 shadow-xl shadow-brand-800/25 transition-all transform hover:-translate-y-0.5 active:scale-[0.98]"
               >
-                <i data-lucide="pill" className="w-5 h-5"></i>
+                <Icon name="pill" className="w-5 h-5" />
                 <span>Explore Formulations</span>
               </a>
 
@@ -48,7 +48,7 @@ function Hero({ onExploreClick }) {
                 href="#about"
                 className="inline-flex items-center gap-2 px-6 py-4 rounded-2xl text-base font-bold text-slate-700 bg-white border-2 border-slate-200 hover:border-brand-600 hover:text-brand-800 hover:bg-brand-50/50 shadow-sm transition-all"
               >
-                <i data-lucide="shield-check" className="w-5 h-5 text-emerald-600"></i>
+                <Icon name="shield-check" className="w-5 h-5 text-emerald-600" />
                 <span>Quality Standards</span>
               </a>
             </div>
@@ -124,7 +124,7 @@ function Hero({ onExploreClick }) {
               {/* Floating badges */}
               <div className="absolute -top-4 -right-4 z-20 bg-white rounded-2xl p-3 shadow-xl border border-slate-100 hidden sm:flex items-center gap-3 animate-pulse">
                 <div className="w-8 h-8 rounded-xl bg-orange-100 text-orange-600 flex items-center justify-center">
-                  <i data-lucide="award" className="w-4 h-4"></i>
+                  <Icon name="award" className="w-4 h-4" />
                 </div>
                 <div>
                   <div className="text-xs font-black text-slate-900">Lab Tested</div>

@@ -124,7 +124,7 @@ function CheckoutModal({
         <div className="px-6 py-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/70">
           <div className="flex items-center gap-3">
             <span className="w-10 h-10 rounded-2xl bg-orange-50 text-accent-600 flex items-center justify-center shadow-xs">
-              <i data-lucide="shopping-bag" className="w-5 h-5"></i>
+              <Icon name="shopping-bag" className="w-5 h-5" />
             </span>
             <div>
               <h3 className="text-base sm:text-lg font-black text-slate-900">
@@ -141,7 +141,7 @@ function CheckoutModal({
             onClick={handleResetAndClose}
             className="w-9 h-9 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 flex items-center justify-center transition-colors"
           >
-            <i data-lucide="x" className="w-5 h-5"></i>
+            <Icon name="x" className="w-5 h-5" />
           </button>
         </div>
 
@@ -151,7 +151,7 @@ function CheckoutModal({
             /* Confirmation Receipt View */
             <div className="space-y-6 text-center py-4">
               <div className="w-16 h-16 rounded-3xl bg-emerald-100 text-emerald-700 flex items-center justify-center mx-auto animate-bounce">
-                <i data-lucide="check-circle" className="w-8 h-8"></i>
+                <Icon name="check-circle" className="w-8 h-8" />
               </div>
 
               <div>
@@ -199,7 +199,7 @@ function CheckoutModal({
                   }}
                   className="w-full py-3.5 rounded-2xl text-xs sm:text-sm font-black text-white bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 shadow-md shadow-orange-600/20 transition-all flex items-center justify-center gap-2 transform hover:-translate-y-0.5 active:scale-95"
                 >
-                  <i data-lucide="download" className="w-4 h-4"></i>
+                  <Icon name="download" className="w-4 h-4" />
                   <span>Download Official PDF Invoice</span>
                 </button>
 
@@ -215,7 +215,7 @@ function CheckoutModal({
                     }}
                     className="py-3 rounded-2xl text-xs font-bold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition-colors flex items-center justify-center gap-1.5"
                   >
-                    <i data-lucide="truck" className="w-3.5 h-3.5 text-brand-700"></i>
+                    <Icon name="truck" className="w-3.5 h-3.5 text-brand-700" />
                     <span>Track Status</span>
                   </button>
 
@@ -420,7 +420,7 @@ function CheckoutModal({
                   </>
                 ) : (
                   <>
-                    <i data-lucide="check" className="w-4 h-4"></i>
+                    <Icon name="check" className="w-4 h-4" />
                     <span>Confirm Order (Pay ₹{totalPrice} on Delivery)</span>
                   </>
                 )}

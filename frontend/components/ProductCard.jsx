@@ -57,7 +57,7 @@ function ProductCard({
       {isTopMatch && (
         <div className="bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 px-4 py-1.5 flex items-center justify-between text-white text-xs font-black tracking-wide">
           <span className="flex items-center gap-1.5">
-            <i data-lucide="star" className="w-3.5 h-3.5 fill-white"></i>
+            <Icon name="star" className="w-3.5 h-3.5 fill-white text-amber-200" />
             <span>★ BEST MATCH FOR YOUR SEARCH</span>
           </span>
           <span className="text-[10px] uppercase opacity-90">Rank #1</span>
@@ -69,7 +69,7 @@ function ProductCard({
         {/* Category & Badge Header */}
         <div className="flex items-center justify-between gap-2 mb-4">
           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-brand-50 text-brand-800 border border-brand-200/60">
-            <i data-lucide={iconName} className="w-3.5 h-3.5 text-brand-700"></i>
+            <Icon name={iconName} className="w-3.5 h-3.5 text-brand-700" />
             <span>{product.category || "General"}</span>
           </span>
 
@@ -114,7 +114,7 @@ function ProductCard({
           </div>
 
           <div className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2 py-1 rounded-lg">
-            <i data-lucide="shield-check" className="w-3.5 h-3.5"></i>
+            <Icon name="shield-check" className="w-3.5 h-3.5" />
             <span>In Stock</span>
           </div>
         </div>
@@ -126,7 +126,7 @@ function ProductCard({
             onClick={() => onViewDetails(product)}
             className="w-full inline-flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl text-xs font-bold text-slate-700 bg-white border border-slate-200 hover:border-brand-600 hover:text-brand-800 hover:bg-brand-50 transition-colors"
           >
-            <i data-lucide="info" className="w-3.5 h-3.5 text-slate-400"></i>
+            <Icon name="info" className="w-3.5 h-3.5 text-slate-400" />
             <span>Details</span>
           </button>
 
@@ -135,7 +135,7 @@ function ProductCard({
             onClick={() => onOrderNow(product)}
             className="w-full inline-flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl text-xs font-black text-white bg-gradient-to-r from-brand-700 to-emerald-800 hover:from-brand-800 hover:to-emerald-900 shadow-md shadow-brand-800/20 transition-all transform active:scale-95"
           >
-            <i data-lucide="shopping-bag" className="w-3.5 h-3.5"></i>
+            <Icon name="shopping-bag" className="w-3.5 h-3.5" />
             <span>Order Now</span>
           </button>
         </div>

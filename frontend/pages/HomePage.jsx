@@ -52,12 +52,6 @@ function HomePage() {
     loadData();
   }, []);
 
-  // Refresh Lucide icons whenever state changes
-  React.useEffect(() => {
-    if (window.lucide && typeof window.lucide.createIcons === "function") {
-      setTimeout(() => window.lucide.createIcons(), 30);
-    }
-  }, [products, selectedCategory, searchQuery, selectedProduct, checkoutProduct, trackModalOpen, loading]);
 
   // -------------------------------------------------------------
   // Search Optimization & Priority Relevance Ranking Algorithm
@@ -176,7 +170,7 @@ function HomePage() {
             onClick={() => handleOpenTrackModal()}
             className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-xl font-black bg-brand-700 hover:bg-brand-600 text-white shadow-xs transition-colors shrink-0"
           >
-            <i data-lucide="truck" className="w-3.5 h-3.5"></i>
+            <Icon name="truck" className="w-3.5 h-3.5" />
             <span>Track Order & Download PDF</span>
           </button>
         </div>
@@ -188,7 +182,7 @@ function HomePage() {
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-10 space-y-3">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-black bg-brand-50 text-brand-800 border border-brand-200">
-            <i data-lucide="sparkles" className="w-3.5 h-3.5 text-accent-600"></i>
+            <Icon name="sparkles" className="w-3.5 h-3.5 text-accent-600" />
             <span>PHARMACEUTICAL EXCELLENCE</span>
           </div>
 
@@ -218,14 +212,14 @@ function HomePage() {
         {loading ? (
           <div className="py-20 text-center space-y-4">
             <div className="w-12 h-12 rounded-2xl bg-brand-700 text-white flex items-center justify-center mx-auto animate-spin">
-              <i data-lucide="refresh-cw" className="w-6 h-6"></i>
+              <Icon name="refresh-cw" className="w-6 h-6" />
             </div>
             <p className="text-sm font-bold text-slate-500">Loading formulations catalog...</p>
           </div>
         ) : filteredAndRankedProducts.length === 0 ? (
           <div className="py-16 px-6 text-center bg-white rounded-3xl border border-slate-200 max-w-md mx-auto space-y-4">
             <div className="w-16 h-16 rounded-3xl bg-orange-100 text-accent-600 flex items-center justify-center mx-auto">
-              <i data-lucide="search-x" className="w-8 h-8"></i>
+              <Icon name="search-x" className="w-8 h-8" />
             </div>
             <div>
               <h3 className="text-lg font-black text-slate-900">No Formulations Found</h3>
@@ -263,7 +257,7 @@ function HomePage() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="p-8 rounded-3xl bg-slate-50 border border-slate-200/80 space-y-3">
               <div className="w-12 h-12 rounded-2xl bg-brand-100 text-brand-800 flex items-center justify-center font-black">
-                <i data-lucide="shield-check" className="w-6 h-6"></i>
+                <Icon name="shield-check" className="w-6 h-6" />
               </div>
               <h3 className="text-lg font-black text-slate-900">WHO-GMP Quality Certified</h3>
               <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
@@ -273,7 +267,7 @@ function HomePage() {
 
             <div className="p-8 rounded-3xl bg-slate-50 border border-slate-200/80 space-y-3">
               <div className="w-12 h-12 rounded-2xl bg-orange-100 text-accent-600 flex items-center justify-center font-black">
-                <i data-lucide="check-circle" className="w-6 h-6"></i>
+                <Icon name="check-circle" className="w-6 h-6" />
               </div>
               <h3 className="text-lg font-black text-slate-900">Heavy Metal & Purity Tested</h3>
               <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
@@ -283,7 +277,7 @@ function HomePage() {
 
             <div className="p-8 rounded-3xl bg-slate-50 border border-slate-200/80 space-y-3">
               <div className="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-800 flex items-center justify-center font-black">
-                <i data-lucide="truck" className="w-6 h-6"></i>
+                <Icon name="truck" className="w-6 h-6" />
               </div>
               <h3 className="text-lg font-black text-slate-900">Direct From Warehouse</h3>
               <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">

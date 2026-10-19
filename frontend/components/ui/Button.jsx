@@ -73,13 +73,13 @@ function Button({
           ></path>
         </svg>
       ) : (
-        icon && iconPosition === "left" && <i data-lucide={icon} className="w-4 h-4"></i>
+        icon && iconPosition === "left" && <Icon name={icon} className="w-4 h-4" />
       )}
 
       <span>{children}</span>
 
       {!loading && icon && iconPosition === "right" && (
-        <i data-lucide={icon} className="w-4 h-4"></i>
+        <Icon name={icon} className="w-4 h-4" />
       )}
     </button>
   );

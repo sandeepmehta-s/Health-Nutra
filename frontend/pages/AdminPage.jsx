@@ -61,12 +61,6 @@ function AdminPage() {
     initAdmin();
   }, []);
 
-  // Refresh Lucide icons
-  React.useEffect(() => {
-    if (window.lucide && typeof window.lucide.createIcons === "function") {
-      setTimeout(() => window.lucide.createIcons(), 30);
-    }
-  }, [activeTab, products, orders, orderFilter, isProductModalOpen, sidebarOpen, imageInputMode]);
 
   const loadProducts = async () => {
     try {
@@ -297,7 +291,7 @@ function AdminPage() {
           <div className="h-20 px-6 border-b border-slate-100 flex items-center justify-between">
             <a href="/admin" className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-brand-700 to-emerald-800 flex items-center justify-center text-white shadow-md shadow-brand-700/20">
-                <i data-lucide="leaf" className="w-5 h-5"></i>
+                <Icon name="leaf" className="w-5 h-5" />
               </div>
               <div>
                 <div className="text-base font-black text-slate-900 leading-none">
@@ -311,7 +305,7 @@ function AdminPage() {
               onClick={() => setSidebarOpen(false)}
               className="md:hidden p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100"
             >
-              <i data-lucide="x" className="w-5 h-5"></i>
+              <Icon name="x" className="w-5 h-5" />
             </button>
           </div>
 
@@ -335,7 +329,7 @@ function AdminPage() {
               }`}
             >
               <span className="flex items-center gap-3">
-                <i data-lucide="package" className={`w-4 h-4 ${activeTab === "products" ? "text-brand-700" : "text-slate-400"}`}></i>
+                <Icon name="package" className={`w-4 h-4 ${activeTab === "products" ? "text-brand-700" : "text-slate-400"}`} />
                 <span>Products Catalog</span>
               </span>
               <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-brand-200/70 text-brand-900">
@@ -357,7 +351,7 @@ function AdminPage() {
               }`}
             >
               <span className="flex items-center gap-3">
-                <i data-lucide="shopping-bag" className={`w-4 h-4 ${activeTab === "orders" ? "text-brand-700" : "text-slate-400"}`}></i>
+                <Icon name="shopping-bag" className={`w-4 h-4 ${activeTab === "orders" ? "text-brand-700" : "text-slate-400"}`} />
                 <span>Orders Management</span>
               </span>
               {pendingOrdersCount > 0 && (
@@ -381,7 +375,7 @@ function AdminPage() {
               }`}
             >
               <span className="flex items-center gap-3">
-                <i data-lucide="activity" className={`w-4 h-4 ${activeTab === "system" ? "text-brand-700" : "text-slate-400"}`}></i>
+                <Icon name="activity" className={`w-4 h-4 ${activeTab === "system" ? "text-brand-700" : "text-slate-400"}`} />
                 <span>Health & Keep-Alive</span>
               </span>
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
@@ -410,7 +404,7 @@ function AdminPage() {
             href="/"
             className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-bold text-slate-600 hover:text-brand-800 hover:bg-brand-50 transition-colors"
           >
-            <i data-lucide="external-link" className="w-4 h-4"></i>
+            <Icon name="external-link" className="w-4 h-4" />
             <span>View Public Storefront</span>
           </a>
 
@@ -419,7 +413,7 @@ function AdminPage() {
             onClick={handleLogout}
             className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-bold text-red-600 hover:bg-red-50 transition-colors"
           >
-            <i data-lucide="log-out" className="w-4 h-4"></i>
+            <Icon name="log-out" className="w-4 h-4" />
             <span>Sign Out</span>
           </button>
         </div>
@@ -438,7 +432,7 @@ function AdminPage() {
               onClick={() => setSidebarOpen(true)}
               className="md:hidden p-2 rounded-xl text-slate-600 hover:bg-slate-100"
             >
-              <i data-lucide="menu" className="w-6 h-6"></i>
+              <Icon name="menu" className="w-6 h-6" />
             </button>
             <h1 className="text-base sm:text-xl font-black text-slate-900 tracking-tight">
               {activeTab === "products" && "Products Management"}
@@ -454,7 +448,7 @@ function AdminPage() {
                 onClick={handleOpenAddProduct}
                 className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-black text-white bg-gradient-to-r from-brand-700 to-emerald-800 hover:from-brand-800 hover:to-emerald-900 shadow-md shadow-brand-800/20 transition-all transform hover:-translate-y-0.5 active:scale-95"
               >
-                <i data-lucide="plus-circle" className="w-4 h-4"></i>
+                <Icon name="plus-circle" className="w-4 h-4" />
                 <span>Add Product</span>
               </button>
             )}
@@ -469,7 +463,7 @@ function AdminPage() {
               title="Refresh Data"
               className="p-2.5 rounded-xl border border-slate-200 bg-white text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-colors"
             >
-              <i data-lucide="refresh-cw" className="w-4 h-4"></i>
+              <Icon name="refresh-cw" className="w-4 h-4" />
             </button>
           </div>
         </header>
@@ -568,7 +562,7 @@ function AdminPage() {
                                   className="p-2 rounded-xl text-slate-500 hover:text-brand-700 hover:bg-brand-50 transition-colors"
                                   title="Edit Product"
                                 >
-                                  <i data-lucide="edit-3" className="w-4 h-4"></i>
+                                  <Icon name="edit-3" className="w-4 h-4" />
                                 </button>
 
                                 <button
@@ -577,7 +571,7 @@ function AdminPage() {
                                   className="p-2 rounded-xl text-slate-500 hover:text-red-600 hover:bg-red-50 transition-colors"
                                   title="Delete Product"
                                 >
-                                  <i data-lucide="trash-2" className="w-4 h-4"></i>
+                                  <Icon name="trash-2" className="w-4 h-4" />
                                 </button>
                               </div>
                             </td>
@@ -618,7 +612,7 @@ function AdminPage() {
               {filteredOrders.length === 0 ? (
                 <div className="py-16 text-center bg-white rounded-3xl border border-slate-200 p-8 space-y-3">
                   <div className="w-14 h-14 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center mx-auto">
-                    <i data-lucide="inbox" className="w-7 h-7"></i>
+                    <Icon name="inbox" className="w-7 h-7" />
                   </div>
                   <h4 className="text-base font-black text-slate-900">No Orders in "{orderFilter}" Status</h4>
                   <p className="text-xs text-slate-400">Customer orders submitted through the storefront will appear here.</p>
@@ -674,15 +668,15 @@ function AdminPage() {
                         {/* Customer Info */}
                         <div className="space-y-1 pt-1">
                           <div className="font-bold text-slate-800 flex items-center gap-1.5">
-                            <i data-lucide="user" className="w-3.5 h-3.5 text-slate-400"></i>
+                            <Icon name="user" className="w-3.5 h-3.5 text-slate-400" />
                             <span>{ord.customerName}</span>
                           </div>
                           <div className="text-slate-600 flex items-center gap-1.5">
-                            <i data-lucide="phone" className="w-3.5 h-3.5 text-slate-400"></i>
+                            <Icon name="phone" className="w-3.5 h-3.5 text-slate-400" />
                             <span>{ord.customerPhone}</span>
                           </div>
                           <div className="text-slate-500 text-[11px] flex items-start gap-1.5 pt-0.5">
-                            <i data-lucide="map-pin" className="w-3.5 h-3.5 text-slate-400 shrink-0 mt-0.5"></i>
+                            <Icon name="map-pin" className="w-3.5 h-3.5 text-slate-400 shrink-0 mt-0.5" />
                             <span className="line-clamp-2">{ord.shippingAddress}</span>
                           </div>
                         </div>
@@ -704,7 +698,7 @@ function AdminPage() {
                             title="Download / Print PDF Invoice"
                             className="text-slate-600 hover:text-brand-800 font-bold p-1.5 rounded-lg hover:bg-brand-50 flex items-center gap-1 text-[11px]"
                           >
-                            <i data-lucide="download" className="w-3.5 h-3.5 text-brand-700"></i>
+                            <Icon name="download" className="w-3.5 h-3.5 text-brand-700" />
                             <span>PDF</span>
                           </button>
                           <button
@@ -712,7 +706,7 @@ function AdminPage() {
                             onClick={() => handleDeleteOrder(ord.id)}
                             className="text-red-500 hover:text-red-700 font-bold p-1.5 rounded-lg hover:bg-red-50 flex items-center gap-1 text-[11px]"
                           >
-                            <i data-lucide="trash-2" className="w-3.5 h-3.5"></i>
+                            <Icon name="trash-2" className="w-3.5 h-3.5" />
                             <span>Delete</span>
                           </button>
                         </div>
@@ -755,7 +749,7 @@ function AdminPage() {
 
               <div className="bg-white rounded-3xl border border-slate-200/80 p-6 space-y-4 shadow-xs">
                 <h4 className="text-sm font-black text-slate-900 flex items-center gap-2">
-                  <i data-lucide="shield-check" className="w-4 h-4 text-emerald-600"></i>
+                  <Icon name="shield-check" className="w-4 h-4 text-emerald-600" />
                   <span>Architecture & Integration Standards</span>
                 </h4>
                 <div className="text-xs text-slate-600 space-y-2 leading-relaxed">
@@ -785,7 +779,7 @@ function AdminPage() {
             <div className="px-6 py-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/70">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-2xl bg-brand-50 text-brand-700 flex items-center justify-center">
-                  <i data-lucide="package" className="w-5 h-5"></i>
+                  <Icon name="package" className="w-5 h-5" />
                 </div>
                 <div>
                   <h3 className="text-base sm:text-lg font-black text-slate-900">
@@ -800,7 +794,7 @@ function AdminPage() {
                 onClick={() => setIsProductModalOpen(false)}
                 className="w-9 h-9 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 flex items-center justify-center"
               >
-                <i data-lucide="x" className="w-5 h-5"></i>
+                <Icon name="x" className="w-5 h-5" />
               </button>
             </div>
 

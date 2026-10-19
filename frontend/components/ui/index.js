@@ -2,6 +2,7 @@
  * Health Nutra - UI Components Barrel Export
  */
 
+export { Icon } from "./Icon.jsx";
 export { Badge } from "./Badge.jsx";
 export { Button } from "./Button.jsx";
 export { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "./Card.jsx";

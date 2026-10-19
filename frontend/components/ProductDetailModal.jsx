@@ -42,7 +42,7 @@ function ProductDetailModal({
         <div className="px-6 py-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/70">
           <div className="flex items-center gap-3">
             <span className="w-10 h-10 rounded-2xl bg-brand-50 text-brand-700 flex items-center justify-center shadow-xs">
-              <i data-lucide="pill" className="w-5 h-5"></i>
+              <Icon name="pill" className="w-5 h-5" />
             </span>
             <div>
               <div className="flex items-center gap-2">
@@ -62,7 +62,7 @@ function ProductDetailModal({
             onClick={onClose}
             className="w-9 h-9 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 flex items-center justify-center transition-colors"
           >
-            <i data-lucide="x" className="w-5 h-5"></i>
+            <Icon name="x" className="w-5 h-5" />
           </button>
         </div>
 
@@ -113,7 +113,7 @@ function ProductDetailModal({
           {/* Full Composition & Benefits Breakdown */}
           <div className="space-y-3 pt-4 border-t border-slate-100">
             <h4 className="text-xs font-black uppercase tracking-wider text-slate-900 flex items-center gap-2">
-              <i data-lucide="file-text" className="w-4 h-4 text-brand-700"></i>
+              <Icon name="file-text" className="w-4 h-4 text-brand-700" />
               <span>Active Composition & Clinical Benefits</span>
             </h4>
             <div className="p-5 rounded-2xl bg-slate-50 border border-slate-100 text-xs sm:text-sm text-slate-700 leading-relaxed whitespace-pre-line font-medium">
@@ -123,7 +123,7 @@ function ProductDetailModal({
 
           {/* Storage & Usage Guidelines */}
           <div className="p-4 rounded-2xl bg-amber-50/60 border border-amber-200/60 flex items-start gap-3">
-            <i data-lucide="info" className="w-5 h-5 text-amber-700 shrink-0 mt-0.5"></i>
+            <Icon name="info" className="w-5 h-5 text-amber-700 shrink-0 mt-0.5" />
             <div className="text-xs text-amber-900 space-y-0.5">
               <div className="font-bold">Usage Guidance</div>
               <p>Store in a cool, dry place away from direct sunlight. To be consumed under qualified medical or dietary supervision.</p>
@@ -150,7 +150,7 @@ function ProductDetailModal({
             }}
             className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl text-xs font-black text-white bg-gradient-to-r from-brand-700 to-emerald-800 hover:from-brand-800 hover:to-emerald-900 shadow-md shadow-brand-800/20 transition-all"
           >
-            <i data-lucide="shopping-bag" className="w-4 h-4"></i>
+            <Icon name="shopping-bag" className="w-4 h-4" />
             <span>Order This Formulation</span>
           </button>
         </div>

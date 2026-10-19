@@ -26,7 +26,7 @@ function Input({
       <div className="relative rounded-2xl">
         {icon && (
           <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-            <i data-lucide={icon} className="w-4 h-4"></i>
+            <Icon name={icon} className="w-4 h-4" />
           </div>
         )}
         <input
@@ -60,7 +60,7 @@ function SearchInput({
   return (
     <div className={`relative w-full ${className}`}>
       <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-brand-700">
-        <i data-lucide="search" className="w-5 h-5"></i>
+        <Icon name="search" className="w-5 h-5" />
       </div>
       <input
         type="text"
@@ -78,7 +78,7 @@ function SearchInput({
           className="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-slate-700 transition-colors"
         >
           <div className="w-6 h-6 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center">
-            <i data-lucide="x" className="w-3.5 h-3.5"></i>
+            <Icon name="x" className="w-3.5 h-3.5" />
           </div>
         </button>
       )}
@@ -159,7 +159,7 @@ function Select({
           ))}
         </select>
         <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none text-slate-400">
-          <i data-lucide="chevron-down" className="w-4 h-4"></i>
+          <Icon name="chevron-down" className="w-4 h-4" />
         </div>
       </div>
       {error && <p className="text-xs font-bold text-red-500 mt-1">{error}</p>}

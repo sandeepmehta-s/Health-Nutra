@@ -15,7 +15,7 @@ function Footer() {
           <div className="lg:col-span-5 space-y-4">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-2xl bg-brand-700 flex items-center justify-center text-white shadow-lg shadow-brand-700/30">
-                <i data-lucide="leaf" className="w-5 h-5"></i>
+                <Icon name="leaf" className="w-5 h-5" />
               </div>
               <span className="text-xl font-black tracking-tight">
                 HEALTH <span className="text-accent-500">NUTRA</span>
@@ -62,7 +62,7 @@ function Footer() {
               <li><a href="#hero" className="hover:text-emerald-400 transition-colors">Home Showcase</a></li>
               <li><a href="#products" className="hover:text-emerald-400 transition-colors">Product Catalog</a></li>
               <li><a href="#about" className="hover:text-emerald-400 transition-colors">Quality Standard</a></li>
-              <li><a href="/admin" className="hover:text-orange-400 transition-colors flex items-center gap-1.5"><i data-lucide="lock" className="w-3 h-3"></i> Admin Portal</a></li>
+              <li><a href="/admin" className="hover:text-orange-400 transition-colors flex items-center gap-1.5"><Icon name="lock" className="w-3 h-3" /> Admin Portal</a></li>
             </ul>
           </div>
 
@@ -73,15 +73,15 @@ function Footer() {
             </h4>
             <div className="space-y-2.5 text-xs text-slate-400 font-medium">
               <div className="flex items-center gap-2.5">
-                <i data-lucide="phone" className="w-4 h-4 text-emerald-400 shrink-0"></i>
+                <Icon name="phone" className="w-4 h-4 text-emerald-400 shrink-0" />
                 <span>+91 98765 43210</span>
               </div>
               <div className="flex items-center gap-2.5">
-                <i data-lucide="mail" className="w-4 h-4 text-emerald-400 shrink-0"></i>
+                <Icon name="mail" className="w-4 h-4 text-emerald-400 shrink-0" />
                 <span>care@healthnutra.com</span>
               </div>
               <div className="flex items-start gap-2.5">
-                <i data-lucide="map-pin" className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>
+                <Icon name="map-pin" className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
                 <span>Industrial Area Phase II, Pharmaceutical Zone, India</span>
               </div>
             </div>
