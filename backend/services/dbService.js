@@ -6,12 +6,69 @@ import { fileURLToPath } from "url";
 import { DatabaseSync } from "node:sqlite";
 import { Product } from "../models/Product.js";
 import { Admin } from "../models/Admin.js";
+import { Order } from "../models/Order.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 let useMongo = false;
 let sqliteDb = null;
+
+const STARTER_ORDERS = [
+  {
+    orderId: "HN-ORD-1001",
+    customerName: "Rahul Sharma",
+    customerPhone: "+91 98765 43210",
+    customerEmail: "rahul.sharma@example.com",
+    shippingAddress: "Flat 402, Green Valley Apartments, Sector 14",
+    city: "Gurugram",
+    pincode: "122001",
+    items: [
+      { productId: "1", name: "Health Nutra 9G", price: 235, quantity: 2, unit: "Strip", image: "/uploads/9g.png" },
+      { productId: "3", name: "Omega-3 Capsules", price: 499, quantity: 1, unit: "Strip", image: "/uploads/omega3.png" },
+    ],
+    totalAmount: 969,
+    paymentMethod: "Cash on Delivery (COD)",
+    paymentStatus: "paid",
+    orderStatus: "delivered",
+    notes: "Customer requested evening delivery",
+  },
+  {
+    orderId: "HN-ORD-1002",
+    customerName: "Priya Patel",
+    customerPhone: "+91 98111 22334",
+    customerEmail: "priya.patel@example.com",
+    shippingAddress: "12, Shanti Niketan Society, Navrangpura",
+    city: "Ahmedabad",
+    pincode: "380009",
+    items: [
+      { productId: "2", name: "Health Nutra 10Q Syrup", price: 210, quantity: 2, unit: "200ml", image: "/uploads/10q.png" },
+    ],
+    totalAmount: 420,
+    paymentMethod: "UPI / Online",
+    paymentStatus: "paid",
+    orderStatus: "shipped",
+    notes: "Dispatched via Express Courier",
+  },
+  {
+    orderId: "HN-ORD-1003",
+    customerName: "Amit Verma",
+    customerPhone: "+91 99887 76655",
+    customerEmail: "amit.verma@example.com",
+    shippingAddress: "House No. 84, Gomti Nagar",
+    city: "Lucknow",
+    pincode: "226010",
+    items: [
+      { productId: "4", name: "Green Tea Extract", price: 299, quantity: 1, unit: "Box", image: "/uploads/greentea.png" },
+      { productId: "1", name: "Health Nutra 9G", price: 235, quantity: 1, unit: "Strip", image: "/uploads/9g.png" },
+    ],
+    totalAmount: 534,
+    paymentMethod: "Cash on Delivery (COD)",
+    paymentStatus: "cod",
+    orderStatus: "pending",
+    notes: "New customer order - verification pending",
+  },
+];
 
 const STARTER_PRODUCTS = [
   {
@@ -131,6 +188,25 @@ export async function initDatabase() {
       createdAt TEXT,
       updatedAt TEXT
     );
+
+    CREATE TABLE IF NOT EXISTS orders (
+      id TEXT PRIMARY KEY,
+      orderId TEXT UNIQUE NOT NULL,
+      customerName TEXT NOT NULL,
+      customerPhone TEXT NOT NULL,
+      customerEmail TEXT,
+      shippingAddress TEXT NOT NULL,
+      city TEXT,
+      pincode TEXT,
+      items TEXT NOT NULL,
+      totalAmount REAL NOT NULL,
+      paymentMethod TEXT DEFAULT 'Cash on Delivery (COD)',
+      paymentStatus TEXT DEFAULT 'pending',
+      orderStatus TEXT DEFAULT 'pending',
+      notes TEXT,
+      createdAt TEXT,
+      updatedAt TEXT
+    );
   `);
 
   await seedSQLite();
@@ -160,6 +236,12 @@ async function seedMongo() {
     if (prodCount === 0) {
       await Product.insertMany(STARTER_PRODUCTS);
       console.log(`[Seed] Seeded ${STARTER_PRODUCTS.length} starter products into MongoDB.`);
+    }
+
+    const orderCount = await Order.countDocuments();
+    if (orderCount === 0) {
+      await Order.insertMany(STARTER_ORDERS);
+      console.log(`[Seed] Seeded ${STARTER_ORDERS.length} starter orders into MongoDB.`);
     }
   } catch (err) {
     console.error("[Seed Mongo]", err.message);
@@ -212,6 +294,39 @@ async function seedSQLite() {
         );
       }
       console.log(`[Seed] Seeded ${STARTER_PRODUCTS.length} starter products into SQLite.`);
+    }
+
+    // Check orders
+    const checkOrders = sqliteDb.prepare("SELECT count(*) as count FROM orders").get();
+    if (!checkOrders || checkOrders.count === 0) {
+      const insertOrderStmt = sqliteDb.prepare(`
+        INSERT INTO orders (id, orderId, customerName, customerPhone, customerEmail, shippingAddress, city, pincode, items, totalAmount, paymentMethod, paymentStatus, orderStatus, notes, createdAt, updatedAt)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `);
+
+      for (let i = 0; i < STARTER_ORDERS.length; i++) {
+        const o = STARTER_ORDERS[i];
+        const orderTime = new Date(Date.now() - (3 - i) * 3600 * 1000 * 8).toISOString();
+        insertOrderStmt.run(
+          `ord-${i + 1}`,
+          o.orderId,
+          o.customerName,
+          o.customerPhone,
+          o.customerEmail,
+          o.shippingAddress,
+          o.city,
+          o.pincode,
+          JSON.stringify(o.items),
+          o.totalAmount,
+          o.paymentMethod,
+          o.paymentStatus,
+          o.orderStatus,
+          o.notes,
+          orderTime,
+          orderTime
+        );
+      }
+      console.log(`[Seed] Seeded ${STARTER_ORDERS.length} starter orders into SQLite.`);
     }
   } catch (err) {
     console.error("[Seed SQLite]", err.message);
@@ -463,5 +578,229 @@ function formatProduct(p) {
     status: p.status || "active",
     createdAt: p.createdAt,
     updatedAt: p.updatedAt,
+  };
+}
+
+// -------------------------------------------------------------
+// Order Repository Methods
+// -------------------------------------------------------------
+export async function createOrder(data) {
+  const now = new Date().toISOString();
+  const randNum = Math.floor(100000 + Math.random() * 900000);
+  const orderId = data.orderId || `HN-ORD-${randNum}`;
+  const totalAmount = Number(data.totalAmount) || 0;
+  const items = Array.isArray(data.items) ? data.items : [];
+
+  if (useMongo) {
+    const newOrder = new Order({
+      orderId,
+      customerName: data.customerName,
+      customerPhone: data.customerPhone,
+      customerEmail: data.customerEmail || "",
+      shippingAddress: data.shippingAddress,
+      city: data.city || "",
+      pincode: data.pincode || "",
+      items,
+      totalAmount,
+      paymentMethod: data.paymentMethod || "Cash on Delivery (COD)",
+      paymentStatus: data.paymentStatus || "pending",
+      orderStatus: data.orderStatus || "pending",
+      notes: data.notes || "",
+    });
+    const saved = await newOrder.save();
+    return formatOrder(saved);
+  } else {
+    const id = `ord-${Date.now()}-${Math.round(Math.random() * 1000)}`;
+    sqliteDb
+      .prepare(`
+        INSERT INTO orders (id, orderId, customerName, customerPhone, customerEmail, shippingAddress, city, pincode, items, totalAmount, paymentMethod, paymentStatus, orderStatus, notes, createdAt, updatedAt)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `)
+      .run(
+        id,
+        orderId,
+        data.customerName,
+        data.customerPhone,
+        data.customerEmail || "",
+        data.shippingAddress,
+        data.city || "",
+        data.pincode || "",
+        JSON.stringify(items),
+        totalAmount,
+        data.paymentMethod || "Cash on Delivery (COD)",
+        data.paymentStatus || "pending",
+        data.orderStatus || "pending",
+        data.notes || "",
+        now,
+        now
+      );
+    return getOrderById(orderId);
+  }
+}
+
+export async function getOrderById(idOrOrderId) {
+  if (useMongo) {
+    let order = await Order.findOne({ orderId: idOrOrderId });
+    if (!order && mongoose.Types.ObjectId.isValid(idOrOrderId)) {
+      order = await Order.findById(idOrOrderId);
+    }
+    return order ? formatOrder(order) : null;
+  } else {
+    const row = sqliteDb.prepare("SELECT * FROM orders WHERE orderId = ? OR id = ?").get(idOrOrderId, idOrOrderId);
+    return row ? formatOrder(row) : null;
+  }
+}
+
+export async function getAllOrdersAdmin({ search = "", status = "" } = {}) {
+  if (useMongo) {
+    const query = {};
+    if (status && status !== "all") {
+      query.orderStatus = status;
+    }
+    if (search && search.trim()) {
+      const q = search.trim();
+      query.$or = [
+        { orderId: { $regex: q, $options: "i" } },
+        { customerName: { $regex: q, $options: "i" } },
+        { customerPhone: { $regex: q, $options: "i" } },
+        { city: { $regex: q, $options: "i" } },
+      ];
+    }
+
+    const orders = await Order.find(query).sort({ createdAt: -1 });
+    const allOrders = await Order.find();
+
+    const stats = {
+      total: allOrders.length,
+      pending: allOrders.filter((o) => o.orderStatus === "pending").length,
+      processing: allOrders.filter((o) => o.orderStatus === "processing").length,
+      shipped: allOrders.filter((o) => o.orderStatus === "shipped").length,
+      delivered: allOrders.filter((o) => o.orderStatus === "delivered").length,
+      cancelled: allOrders.filter((o) => o.orderStatus === "cancelled").length,
+      revenue: allOrders
+        .filter((o) => o.orderStatus !== "cancelled")
+        .reduce((sum, o) => sum + (Number(o.totalAmount) || 0), 0),
+    };
+
+    return {
+      orders: orders.map(formatOrder),
+      stats,
+    };
+  } else {
+    let baseSql = "SELECT * FROM orders WHERE 1=1";
+    const params = [];
+
+    if (status && status !== "all") {
+      baseSql += " AND orderStatus = ?";
+      params.push(status);
+    }
+
+    if (search && search.trim()) {
+      const term = `%${search.trim()}%`;
+      baseSql += " AND (orderId LIKE ? OR customerName LIKE ? OR customerPhone LIKE ? OR city LIKE ?)";
+      params.push(term, term, term, term);
+    }
+
+    baseSql += " ORDER BY createdAt DESC";
+    const rows = sqliteDb.prepare(baseSql).all(...params);
+    const allRows = sqliteDb.prepare("SELECT * FROM orders").all();
+
+    const stats = {
+      total: allRows.length,
+      pending: allRows.filter((o) => o.orderStatus === "pending").length,
+      processing: allRows.filter((o) => o.orderStatus === "processing").length,
+      shipped: allRows.filter((o) => o.orderStatus === "shipped").length,
+      delivered: allRows.filter((o) => o.orderStatus === "delivered").length,
+      cancelled: allRows.filter((o) => o.orderStatus === "cancelled").length,
+      revenue: allRows
+        .filter((o) => o.orderStatus !== "cancelled")
+        .reduce((sum, o) => sum + (Number(o.totalAmount) || 0), 0),
+    };
+
+    return {
+      orders: rows.map(formatOrder),
+      stats,
+    };
+  }
+}
+
+export async function updateOrderStatus(idOrOrderId, updates = {}) {
+  const now = new Date().toISOString();
+  if (useMongo) {
+    let order = await Order.findOne({ orderId: idOrOrderId });
+    if (!order && mongoose.Types.ObjectId.isValid(idOrOrderId)) {
+      order = await Order.findById(idOrOrderId);
+    }
+    if (!order) return null;
+
+    if (updates.orderStatus) order.orderStatus = updates.orderStatus;
+    if (updates.paymentStatus) order.paymentStatus = updates.paymentStatus;
+    if (updates.notes !== undefined) order.notes = updates.notes;
+    await order.save();
+    return formatOrder(order);
+  } else {
+    const existing = sqliteDb.prepare("SELECT * FROM orders WHERE orderId = ? OR id = ?").get(idOrOrderId, idOrOrderId);
+    if (!existing) return null;
+
+    const newOrderStatus = updates.orderStatus || existing.orderStatus;
+    const newPaymentStatus = updates.paymentStatus || existing.paymentStatus;
+    const newNotes = updates.notes !== undefined ? updates.notes : existing.notes;
+
+    sqliteDb
+      .prepare(`
+        UPDATE orders
+        SET orderStatus = ?, paymentStatus = ?, notes = ?, updatedAt = ?
+        WHERE orderId = ? OR id = ?
+      `)
+      .run(newOrderStatus, newPaymentStatus, newNotes, now, existing.orderId, existing.id);
+
+    return getOrderById(existing.orderId);
+  }
+}
+
+export async function deleteOrder(idOrOrderId) {
+  if (useMongo) {
+    let order = await Order.findOneAndDelete({ orderId: idOrOrderId });
+    if (!order && mongoose.Types.ObjectId.isValid(idOrOrderId)) {
+      order = await Order.findByIdAndDelete(idOrOrderId);
+    }
+    return order ? formatOrder(order) : null;
+  } else {
+    const existing = sqliteDb.prepare("SELECT * FROM orders WHERE orderId = ? OR id = ?").get(idOrOrderId, idOrOrderId);
+    if (!existing) return null;
+    sqliteDb.prepare("DELETE FROM orders WHERE orderId = ? OR id = ?").run(existing.orderId, existing.id);
+    return formatOrder(existing);
+  }
+}
+
+function formatOrder(o) {
+  if (!o) return null;
+  const id = o._id ? o._id.toString() : o.id;
+  let items = o.items;
+  if (typeof items === "string") {
+    try {
+      items = JSON.parse(items);
+    } catch {
+      items = [];
+    }
+  }
+  return {
+    _id: id,
+    id: id,
+    orderId: o.orderId || id,
+    customerName: o.customerName,
+    customerPhone: o.customerPhone,
+    customerEmail: o.customerEmail || "",
+    shippingAddress: o.shippingAddress,
+    city: o.city || "",
+    pincode: o.pincode || "",
+    items: Array.isArray(items) ? items : [],
+    totalAmount: Number(o.totalAmount || 0),
+    paymentMethod: o.paymentMethod || "Cash on Delivery (COD)",
+    paymentStatus: o.paymentStatus || "pending",
+    orderStatus: o.orderStatus || "pending",
+    notes: o.notes || "",
+    createdAt: o.createdAt,
+    updatedAt: o.updatedAt,
   };
 }

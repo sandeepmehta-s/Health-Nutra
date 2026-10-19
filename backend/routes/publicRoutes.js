@@ -1,5 +1,11 @@
 import express from "express";
-import { getActiveProducts, getProductById, getDistinctCategories } from "../services/dbService.js";
+import {
+  getActiveProducts,
+  getProductById,
+  getDistinctCategories,
+  createOrder,
+  getOrderById,
+} from "../services/dbService.js";
 
 const router = express.Router();
 
@@ -57,6 +63,106 @@ router.get("/categories", async (req, res) => {
       success: false,
       message: "Failed to fetch categories: " + err.message,
     });
+  }
+});
+
+// POST /api/orders - Customer Place Order
+router.post("/orders", async (req, res) => {
+  try {
+    const {
+      customerName,
+      customerPhone,
+      customerEmail,
+      shippingAddress,
+      city,
+      pincode,
+      items,
+      paymentMethod,
+      notes,
+    } = req.body;
+
+    if (!customerName || typeof customerName !== "string" || !customerName.trim()) {
+      return res.status(400).json({ success: false, message: "Customer full name is required." });
+    }
+
+    if (!customerPhone || typeof customerPhone !== "string" || !customerPhone.trim()) {
+      return res.status(400).json({ success: false, message: "Phone number is required for delivery coordination." });
+    }
+
+    if (!shippingAddress || typeof shippingAddress !== "string" || !shippingAddress.trim()) {
+      return res.status(400).json({ success: false, message: "Shipping address is required." });
+    }
+
+    if (!Array.isArray(items) || items.length === 0) {
+      return res.status(400).json({ success: false, message: "At least one product item is required to place an order." });
+    }
+
+    // Calculate total
+    let computedTotal = 0;
+    const cleanItems = items.map((item) => {
+      const q = Math.max(1, parseInt(item.quantity || 1, 10));
+      const p = Math.max(0, Number(item.price || 0));
+      computedTotal += p * q;
+      return {
+        productId: String(item.productId || item.id || "1"),
+        name: String(item.name || "Nutra Formulation"),
+        price: p,
+        quantity: q,
+        unit: String(item.unit || "Unit"),
+        image: String(item.image || "/uploads/9g.png"),
+      };
+    });
+
+    const newOrder = await createOrder({
+      customerName: customerName.trim(),
+      customerPhone: customerPhone.trim(),
+      customerEmail: (customerEmail || "").trim(),
+      shippingAddress: shippingAddress.trim(),
+      city: (city || "").trim(),
+      pincode: (pincode || "").trim(),
+      items: cleanItems,
+      totalAmount: computedTotal,
+      paymentMethod: paymentMethod || "Cash on Delivery (COD)",
+      paymentStatus: paymentMethod === "UPI / Online" ? "paid" : "cod",
+      orderStatus: "pending",
+      notes: (notes || "").trim(),
+    });
+
+    res.status(201).json({
+      success: true,
+      message: "Order placed successfully! Our dispatch team will contact you shortly.",
+      orderId: newOrder.orderId,
+      data: newOrder,
+    });
+  } catch (err) {
+    res.status(500).json({
+      success: false,
+      message: "Failed to place order: " + err.message,
+    });
+  }
+});
+
+// GET /api/orders/:id - Track order status by Order ID
+router.get("/orders/:id", async (req, res) => {
+  try {
+    const order = await getOrderById(req.params.id);
+    if (!order) {
+      return res.status(404).json({ success: false, message: "Order not found." });
+    }
+    res.json({
+      success: true,
+      data: {
+        orderId: order.orderId,
+        customerName: order.customerName,
+        orderStatus: order.orderStatus,
+        paymentStatus: order.paymentStatus,
+        totalAmount: order.totalAmount,
+        itemsCount: order.items.length,
+        createdAt: order.createdAt,
+      },
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: "Error tracking order: " + err.message });
   }
 });
 

@@ -1,16 +1,17 @@
 import { store } from "./store.js";
 import { NavigationManager } from "./navigation.js";
 
-// DOM Elements
+// DOM Elements - Catalog
 const categoryTabsContainer = document.getElementById("categoryTabs");
 const productsGrid = document.getElementById("productsGrid");
 const productSearchInput = document.getElementById("productSearchInput");
 const productCounter = document.getElementById("productCounter");
 
-// Modal Elements
+// DOM Elements - Detail Modal
 const detailModal = document.getElementById("detailModal");
 const closeDetailModalBtn = document.getElementById("closeDetailModalBtn");
 const modalCloseActionBtn = document.getElementById("modalCloseActionBtn");
+const modalOrderNowBtn = document.getElementById("modalOrderNowBtn");
 const modalImg = document.getElementById("modalImg");
 const modalCategory = document.getElementById("modalCategory");
 const modalName = document.getElementById("modalName");
@@ -18,6 +19,28 @@ const modalShortDesc = document.getElementById("modalShortDesc");
 const modalPrice = document.getElementById("modalPrice");
 const modalUnit = document.getElementById("modalUnit");
 const modalFullDesc = document.getElementById("modalFullDesc");
+
+// DOM Elements - Checkout Modal
+const checkoutModal = document.getElementById("checkoutModal");
+const closeCheckoutModalBtn = document.getElementById("closeCheckoutModalBtn");
+const checkoutForm = document.getElementById("checkoutForm");
+const checkoutProductImg = document.getElementById("checkoutProductImg");
+const checkoutProductName = document.getElementById("checkoutProductName");
+const checkoutProductUnit = document.getElementById("checkoutProductUnit");
+const checkoutQtyDisplay = document.getElementById("checkoutQtyDisplay");
+const checkoutTotalAmount = document.getElementById("checkoutTotalAmount");
+const checkoutPayableText = document.getElementById("checkoutPayableText");
+const qtyMinusBtn = document.getElementById("qtyMinusBtn");
+const qtyPlusBtn = document.getElementById("qtyPlusBtn");
+const checkoutAlertBox = document.getElementById("checkoutAlertBox");
+const submitOrderBtn = document.getElementById("submitOrderBtn");
+const orderSuccessBox = document.getElementById("orderSuccessBox");
+const confirmedOrderId = document.getElementById("confirmedOrderId");
+const confirmedPaymentMode = document.getElementById("confirmedPaymentMode");
+const orderSuccessDoneBtn = document.getElementById("orderSuccessDoneBtn");
+
+let activeCheckoutProduct = null;
+let activeCheckoutQty = 1;
 
 // Initialize application
 document.addEventListener("DOMContentLoaded", async () => {
@@ -40,18 +63,28 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   }
 
-  // Bind Modal Close
+  // Bind Detail Modal Close & Order
   if (closeDetailModalBtn) {
     closeDetailModalBtn.addEventListener("click", () => store.closeProductModal());
   }
   if (modalCloseActionBtn) {
     modalCloseActionBtn.addEventListener("click", () => store.closeProductModal());
   }
+  if (modalOrderNowBtn) {
+    modalOrderNowBtn.addEventListener("click", () => {
+      const selected = store.state.selectedProduct;
+      store.closeProductModal();
+      if (selected) openCheckoutModal(selected);
+    });
+  }
   if (detailModal) {
     detailModal.addEventListener("click", (e) => {
       if (e.target === detailModal) store.closeProductModal();
     });
   }
+
+  // Bind Checkout Modal
+  bindCheckoutModalEvents();
 
   // Load store data from api.json
   await store.init();
@@ -131,6 +164,7 @@ function renderProducts(products) {
         </button>
       </div>
     `;
+    if (window.lucide) window.lucide.createIcons();
     return;
   }
 
@@ -177,13 +211,24 @@ function renderProducts(products) {
               </div>
             </div>
 
-            <button 
-              data-id="${id}" 
-              class="view-details-btn inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-slate-700 bg-slate-100 hover:bg-brand-700 hover:text-white transition-all shadow-sm group-hover:bg-brand-700 group-hover:text-white"
-            >
-              <i data-lucide="eye" class="w-3.5 h-3.5"></i>
-              <span>Details</span>
-            </button>
+            <div class="flex items-center gap-2">
+              <button 
+                data-id="${id}" 
+                class="view-details-btn inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-all shadow-xs cursor-pointer"
+                title="View Clinical Details"
+              >
+                <i data-lucide="eye" class="w-3.5 h-3.5"></i>
+                <span>Details</span>
+              </button>
+              <button 
+                data-id="${id}" 
+                class="direct-order-btn inline-flex items-center gap-1 px-3.5 py-1.5 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-orange-600 to-amber-500 hover:from-orange-700 hover:to-amber-600 transition-all shadow-xs shadow-orange-500/20 cursor-pointer"
+                title="Order Now"
+              >
+                <i data-lucide="shopping-bag" class="w-3.5 h-3.5"></i>
+                <span>Order</span>
+              </button>
+            </div>
           </div>
 
         </article>
@@ -198,6 +243,17 @@ function renderProducts(products) {
       store.openProductModal(id);
     });
   });
+
+  // Attach Direct Order Click Events
+  productsGrid.querySelectorAll(".direct-order-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const id = btn.getAttribute("data-id");
+      const product = store.state.products.find((p) => (p.id || p._id) === id);
+      if (product) openCheckoutModal(product);
+    });
+  });
+
+  if (window.lucide) window.lucide.createIcons();
 }
 
 // Render Detail Modal
@@ -221,6 +277,148 @@ function renderDetailModal(product) {
   modalFullDesc.textContent = product.fullDescription || product.shortDescription || "No detailed clinical description provided.";
 
   detailModal.classList.remove("hidden");
+  if (window.lucide) window.lucide.createIcons();
+}
+
+// -----------------------------------------------------------------
+// Checkout & Order Placement Logic
+// -----------------------------------------------------------------
+function bindCheckoutModalEvents() {
+  if (closeCheckoutModalBtn) {
+    closeCheckoutModalBtn.addEventListener("click", closeCheckoutModal);
+  }
+  if (checkoutModal) {
+    checkoutModal.addEventListener("click", (e) => {
+      if (e.target === checkoutModal) closeCheckoutModal();
+    });
+  }
+
+  if (qtyMinusBtn) {
+    qtyMinusBtn.addEventListener("click", () => {
+      if (activeCheckoutQty > 1) {
+        activeCheckoutQty--;
+        updateCheckoutCalculations();
+      }
+    });
+  }
+
+  if (qtyPlusBtn) {
+    qtyPlusBtn.addEventListener("click", () => {
+      if (activeCheckoutQty < 50) {
+        activeCheckoutQty++;
+        updateCheckoutCalculations();
+      }
+    });
+  }
+
+  if (checkoutForm) {
+    checkoutForm.addEventListener("submit", handleCheckoutSubmit);
+  }
+
+  if (orderSuccessDoneBtn) {
+    orderSuccessDoneBtn.addEventListener("click", closeCheckoutModal);
+  }
+}
+
+function openCheckoutModal(product) {
+  activeCheckoutProduct = product;
+  activeCheckoutQty = 1;
+
+  if (!checkoutModal) return;
+
+  checkoutProductImg.src = product.image || "/uploads/9g.png";
+  checkoutProductName.textContent = product.name;
+  checkoutProductUnit.textContent = `${product.unit || "Strip"} &bull; ₹${product.price}`;
+
+  updateCheckoutCalculations();
+
+  // Reset display
+  checkoutForm.classList.remove("hidden");
+  orderSuccessBox.classList.add("hidden");
+  checkoutAlertBox.classList.add("hidden");
+
+  checkoutModal.classList.remove("hidden");
+  if (window.lucide) window.lucide.createIcons();
+}
+
+function updateCheckoutCalculations() {
+  if (!activeCheckoutProduct) return;
+  checkoutQtyDisplay.textContent = activeCheckoutQty;
+  const total = Number(activeCheckoutProduct.price) * activeCheckoutQty;
+  checkoutTotalAmount.textContent = `₹${total.toFixed(2)}`;
+  checkoutPayableText.textContent = `₹${total.toFixed(2)}`;
+}
+
+function closeCheckoutModal() {
+  if (checkoutModal) checkoutModal.classList.add("hidden");
+}
+
+async function handleCheckoutSubmit(e) {
+  e.preventDefault();
+  if (!activeCheckoutProduct) return;
+
+  checkoutAlertBox.classList.add("hidden");
+
+  const name = document.getElementById("custName").value.trim();
+  const phone = document.getElementById("custPhone").value.trim();
+  const email = document.getElementById("custEmail").value.trim();
+  const address = document.getElementById("custAddress").value.trim();
+  const city = document.getElementById("custCity").value.trim();
+  const pincode = document.getElementById("custPincode").value.trim();
+
+  const selectedPayment = document.querySelector('input[name="paymentOption"]:checked')?.value || "Cash on Delivery (COD)";
+
+  const orderPayload = {
+    customerName: name,
+    customerPhone: phone,
+    customerEmail: email,
+    shippingAddress: address,
+    city,
+    pincode,
+    paymentMethod: selectedPayment,
+    items: [
+      {
+        productId: activeCheckoutProduct.id || activeCheckoutProduct._id,
+        name: activeCheckoutProduct.name,
+        price: Number(activeCheckoutProduct.price),
+        quantity: activeCheckoutQty,
+        unit: activeCheckoutProduct.unit || "Strip",
+        image: activeCheckoutProduct.image || "/uploads/9g.png",
+      },
+    ],
+  };
+
+  try {
+    submitOrderBtn.disabled = true;
+    submitOrderBtn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i><span>Processing...</span>`;
+
+    const res = await fetch("/api/orders", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(orderPayload),
+    });
+
+    const result = await res.json();
+
+    if (res.ok && result.success) {
+      confirmedOrderId.textContent = `#${result.orderId}`;
+      confirmedPaymentMode.textContent = selectedPayment;
+
+      checkoutForm.classList.add("hidden");
+      orderSuccessBox.classList.remove("hidden");
+      if (window.lucide) window.lucide.createIcons();
+    } else {
+      checkoutAlertBox.textContent = result.message || "Failed to submit order. Please check inputs.";
+      checkoutAlertBox.classList.remove("hidden");
+    }
+  } catch {
+    checkoutAlertBox.textContent = "Network error while placing order. Please try again.";
+    checkoutAlertBox.classList.remove("hidden");
+  } finally {
+    submitOrderBtn.disabled = false;
+    submitOrderBtn.innerHTML = `<i data-lucide="check-circle" class="w-4 h-4"></i><span>Confirm Order</span>`;
+    if (window.lucide) window.lucide.createIcons();
+  }
 }
 
 // Helper to reset search
@@ -229,4 +427,3 @@ window.resetSearch = () => {
   store.setSearchQuery("");
   store.setCategory("All");
 };
-

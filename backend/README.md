@@ -284,8 +284,24 @@ If you prefer Infrastructure-as-Code:
 - `GET /api/products`: Returns JSON array of active products. Supports `?category=...`.
 - `GET /api/products/:id`: Returns detailed clinical data for an active formulation.
 - `GET /api/categories`: Returns distinct active categories.
+- `POST /api/orders`: Place a direct customer order with formulations, address, and payment choice.
+- `GET /api/orders/:id`: Customer tracking endpoint by Order ID.
 - `GET /health`: Health check endpoint for uptime monitoring and load balancers.
 - `GET /api/ping`: Lightweight keep-alive response.
+
+---
+
+## Admin Portal Endpoints (Protected)
+
+- `GET /api/admin/products`: Full catalog with search, filter, and pagination stats.
+- `POST /api/admin/products`: Create product formulation (supports file upload OR direct image URL).
+- `PUT /api/admin/products/:id`: Update product formulation details or replace image.
+- `PATCH /api/admin/products/:id/toggle-status`: Toggle formulation visibility (active / hidden).
+- `DELETE /api/admin/products/:id`: Permanently delete formulation and associated uploads.
+- `GET /api/admin/orders`: List orders with filtering (all, pending, processing, shipped, delivered, cancelled) and financial stats.
+- `GET /api/admin/orders/:id`: Full customer and ordered formulations breakdown.
+- `PATCH /api/admin/orders/:id/status`: Update order fulfillment status, payment status, and dispatch notes.
+- `DELETE /api/admin/orders/:id`: Remove order record.
 
 ---
 

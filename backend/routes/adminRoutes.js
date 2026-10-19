@@ -7,6 +7,10 @@ import {
   updateProduct,
   toggleProductStatus,
   deleteProduct,
+  getAllOrdersAdmin,
+  getOrderById,
+  updateOrderStatus,
+  deleteOrder,
 } from "../services/dbService.js";
 import { requireAuth } from "../middleware/auth.js";
 import { uploadProductImage } from "../middleware/upload.js";
@@ -154,7 +158,7 @@ router.post(
   },
   async (req, res) => {
     try {
-      const { name, category, shortDescription, fullDescription, price, unit, status } = req.body;
+      const { name, category, shortDescription, fullDescription, price, unit, status, imageUrl } = req.body;
 
       if (!name || !sanitize(name)) {
         return res.status(400).json({ success: false, message: "Product name is required." });
@@ -172,6 +176,8 @@ router.post(
       let imagePath = "/uploads/9g.png";
       if (req.file) {
         imagePath = `/uploads/${req.file.filename}`;
+      } else if (imageUrl && sanitize(imageUrl)) {
+        imagePath = sanitize(imageUrl);
       } else if (req.body.existingImage) {
         imagePath = req.body.existingImage;
       }
@@ -215,7 +221,7 @@ router.put(
   },
   async (req, res) => {
     try {
-      const { name, category, shortDescription, fullDescription, price, unit, status } = req.body;
+      const { name, category, shortDescription, fullDescription, price, unit, status, imageUrl } = req.body;
 
       const updateData = {};
       if (name) updateData.name = sanitize(name);
@@ -235,6 +241,10 @@ router.put(
 
       if (req.file) {
         updateData.image = `/uploads/${req.file.filename}`;
+      } else if (imageUrl && sanitize(imageUrl)) {
+        updateData.image = sanitize(imageUrl);
+      } else if (req.body.existingImage) {
+        updateData.image = req.body.existingImage;
       }
 
       const updated = await updateProduct(req.params.id, updateData);
@@ -302,6 +312,90 @@ router.delete("/products/:id", requireAuth, async (req, res) => {
       success: false,
       message: "Failed to delete product: " + err.message,
     });
+  }
+});
+
+// -------------------------------------------------------------
+// Order Management Endpoints (All Protected by requireAuth)
+// -------------------------------------------------------------
+
+// GET /api/admin/orders - List orders with search and status filter
+router.get("/orders", requireAuth, async (req, res) => {
+  try {
+    const { search, status } = req.query;
+    const result = await getAllOrdersAdmin({ search, status });
+    res.json({
+      success: true,
+      stats: result.stats,
+      data: result.orders,
+    });
+  } catch (err) {
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch orders: " + err.message,
+    });
+  }
+});
+
+// GET /api/admin/orders/:id - Single order details
+router.get("/orders/:id", requireAuth, async (req, res) => {
+  try {
+    const order = await getOrderById(req.params.id);
+    if (!order) {
+      return res.status(404).json({ success: false, message: "Order not found." });
+    }
+    res.json({ success: true, data: order });
+  } catch (err) {
+    res.status(500).json({ success: false, message: "Failed to retrieve order: " + err.message });
+  }
+});
+
+// PATCH /api/admin/orders/:id/status - Update order status, payment status, notes
+router.patch("/orders/:id/status", requireAuth, async (req, res) => {
+  try {
+    const { orderStatus, paymentStatus, notes } = req.body;
+    const validStatuses = ["pending", "processing", "shipped", "delivered", "cancelled"];
+    if (orderStatus && !validStatuses.includes(orderStatus)) {
+      return res.status(400).json({
+        success: false,
+        message: `Invalid order status. Allowed: ${validStatuses.join(", ")}`,
+      });
+    }
+
+    const updated = await updateOrderStatus(req.params.id, {
+      orderStatus,
+      paymentStatus,
+      notes: notes !== undefined ? sanitize(notes) : undefined,
+    });
+
+    if (!updated) {
+      return res.status(404).json({ success: false, message: "Order not found." });
+    }
+
+    res.json({
+      success: true,
+      message: `Order #${updated.orderId} updated successfully.`,
+      data: updated,
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: "Failed to update order: " + err.message });
+  }
+});
+
+// DELETE /api/admin/orders/:id - Delete order
+router.delete("/orders/:id", requireAuth, async (req, res) => {
+  try {
+    const deleted = await deleteOrder(req.params.id);
+    if (!deleted) {
+      return res.status(404).json({ success: false, message: "Order not found." });
+    }
+    res.json({
+      success: true,
+      message: `Order #${deleted.orderId} deleted successfully.`,
+      data: deleted,
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: "Failed to delete order: " + err.message });
   }
 });
 

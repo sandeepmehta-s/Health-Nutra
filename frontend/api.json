@@ -13,7 +13,11 @@
     "adminLogout": "/api/admin/logout",
     "adminMe": "/api/admin/me",
     "adminProducts": "/api/admin/products",
-    "adminProductToggle": "/api/admin/products/:id/toggle-status"
+    "adminProductToggle": "/api/admin/products/:id/toggle-status",
+    "orders": "/api/orders",
+    "orderDetail": "/api/orders/:id",
+    "adminOrders": "/api/admin/orders",
+    "adminOrderStatus": "/api/admin/orders/:id/status"
   },
   "pingIntervalMinutes": 5,
   "categoryIcons": {
