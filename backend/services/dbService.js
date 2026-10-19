@@ -560,6 +560,29 @@ export async function findAdminByUsername(username) {
   }
 }
 
+export async function syncAdminPassword(username, newPassword) {
+  const u = username.trim().toLowerCase();
+  const hashed = await bcrypt.hash(newPassword, 10);
+  const now = new Date().toISOString();
+
+  if (useMongo) {
+    await Admin.findOneAndUpdate(
+      { username: u },
+      { username: u, password: hashed, name: "Health Nutra Administrator" },
+      { upsert: true, new: true }
+    );
+  } else if (sqliteDb) {
+    const existing = sqliteDb.prepare("SELECT * FROM admins WHERE username = ?").get(u);
+    if (existing) {
+      sqliteDb.prepare("UPDATE admins SET password = ?, updatedAt = ? WHERE username = ?").run(hashed, now, u);
+    } else {
+      sqliteDb
+        .prepare("INSERT INTO admins (id, username, password, name, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?, ?)")
+        .run("admin-1", u, hashed, "Health Nutra Administrator", now, now);
+    }
+  }
+}
+
 // -------------------------------------------------------------
 // Utility Formatter
 // -------------------------------------------------------------
