@@ -1,0 +1,31 @@
+services:
+  # -------------------------------------------------------------
+  # Health Nutra - Fullstack Web Service on Render
+  # Hosts Storefront, Tailwind UI, Admin Portal, REST APIs & Keep-Alive Cron
+  # -------------------------------------------------------------
+  - type: web
+    name: health-nutra
+    runtime: node
+    plan: free
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: NODE_VERSION
+        value: 22.14.0
+      - key: NODE_ENV
+        value: production
+      - key: HOST
+        value: 0.0.0.0
+      - key: PORT
+        value: 5000
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: ADMIN_USERNAME
+        value: admin
+      - key: ADMIN_PASSWORD
+        value: admin123
+      - key: PING_INTERVAL_MINUTES
+        value: 5

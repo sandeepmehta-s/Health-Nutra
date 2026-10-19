@@ -186,26 +186,85 @@ The backend includes a scheduled worker (`backend/services/cronService.js`) usin
 
 ---
 
-## Deployment & Admin Access Guide
+---
 
-When deploying to cloud platforms (Render, Railway, Heroku, AWS, VPS):
+## Step-by-Step Render Deployment Guide (Backend & Frontend)
 
-### 1. Admin Access Configuration
-- Configure `ADMIN_USERNAME` and `ADMIN_PASSWORD` in your deployment dashboard's Environment Variables tab.
-- On boot, `backend/services/dbService.js` automatically syncs the password hash so you can always log into `/admin` with the exact credentials set in your cloud dashboard.
+Health Nutra is engineered as a unified, production-ready fullstack application: the Express backend serves the high-performance Tailwind CSS storefront (`frontend/`), the administrative dashboard (`frontend/admin/`), uploads, REST APIs, and a 5-minute keepalive cron job from a single Render Web Service.
 
-### 2. Reverse Proxy and Cookie Support
-- `app.set("trust proxy", 1)` is enabled in `server.js`. This allows `express-rate-limit` and `express-session` to correctly identify client IPs behind Cloudflare, AWS ALB, Render, and Nginx.
-- Session cookies use `proxy: true` and `secure: "auto"` so cookies are preserved over HTTPS.
-- CORS is configured with `origin: true` and `credentials: true`.
+This provides:
+- **Zero CORS Issues**: Storefront and backend share the identical origin.
+- **Reliable Admin Authentication**: Cookies are never blocked by modern browser third-party cookie restrictions.
+- **24/7 Keep-Alive**: The built-in 5-minute cron ping prevents Render Free Tier spun-down / cold starts.
+- **Cost Effective**: Runs completely within Render's free tier (1 service = 750 free hours/month).
 
-### 3. Keep-Alive Configuration on Render / Railway
-In your deployment environment variables, add:
-```env
-APP_URL=https://your-app-name.onrender.com
-PING_INTERVAL_MINUTES=5
-```
-The internal cron will ping your deployed URL every 5 minutes, keeping the service awake 24/7.
+### Method 1: Deploy via Render Dashboard (Recommended)
+
+1. **Log in to Render**: Visit [dashboard.render.com](https://dashboard.render.com/) and click **New +** > **Web Service**.
+2. **Connect GitHub**: Select your GitHub repository: `https://github.com/sandeepmehta-s/Health-Nutra`.
+3. **Configure the Service**:
+   - **Name**: `health-nutra` (or your preferred name)
+   - **Region**: Closest to your users (e.g., Singapore, Frankfurt, Oregon, Ohio)
+   - **Branch**: `main`
+   - **Root Directory**: `backend` *(Essential: tells Render to build inside the backend folder)*
+   - **Runtime**: `Node`
+   - **Build Command**: `npm install`
+   - **Start Command**: `npm start`
+   - **Instance Type**: `Free`
+4. **Expand "Advanced" Settings**:
+   - **Health Check Path**: `/health` *(Render pings this to confirm successful deployment before routing traffic)*
+   - **Auto-Deploy**: `Yes` *(Automatically rebuilds and deploys when you push to GitHub)*
+5. **Add Environment Variables**:
+   Click **Add Environment Variable** and enter:
+   | Key | Value | Description |
+   | :--- | :--- | :--- |
+   | `NODE_VERSION` | `22.14.0` | Uses Node.js 22 LTS with native SQLite support |
+   | `NODE_ENV` | `production` | Enables production optimizations |
+   | `HOST` | `0.0.0.0` | Binds to all network interfaces |
+   | `PORT` | `5000` | Port listened to by Express (Render maps this to port 443/80) |
+   | `SESSION_SECRET` | `generate-a-strong-secret-key-32-chars-long` | Encryption key for admin session cookies |
+   | `ADMIN_USERNAME` | `admin` | Your chosen admin username |
+   | `ADMIN_PASSWORD` | `YourSecurePassword123` | Your chosen admin password |
+   | `PING_INTERVAL_MINUTES` | `5` | Keeps your Render service awake 24/7 |
+   | `MONGODB_URI` *(Optional)* | `mongodb+srv://...` | (Optional) MongoDB Atlas URI. If omitted, built-in SQLite is used automatically. |
+6. **Click "Create Web Service"**:
+   Render will clone your repo, run `npm install`, start `node server.js`, and verify `/health`.
+
+Once deployed, your live URL will be:
+- 🌐 **Public Website & Storefront**: `https://<your-service-name>.onrender.com/`
+- 🔐 **Admin Login**: `https://<your-service-name>.onrender.com/admin/login`
+- 📊 **Admin Dashboard**: `https://<your-service-name>.onrender.com/admin`
+- 📦 **Products API**: `https://<your-service-name>.onrender.com/api/products`
+- 💓 **Health Check**: `https://<your-service-name>.onrender.com/health`
+
+---
+
+### Method 2: Deploy via Render Blueprint (One-Click IaC)
+
+If you prefer Infrastructure-as-Code:
+1. In Render Dashboard, click **New +** > **Blueprint**.
+2. Connect your GitHub repository: `https://github.com/sandeepmehta-s/Health-Nutra`.
+3. In the **Blueprint Path** field, enter:
+   ```text
+   backend/render.yaml
+   ```
+4. Render will parse the configuration file and set up all build steps, health checks, and environment variables automatically.
+5. Click **Apply**.
+
+---
+
+### Verifying Production Deployment
+
+1. Open `https://<your-service-name>.onrender.com/health` in your browser. You should see:
+   ```json
+   { "status": "healthy", "uptime": 12.34 }
+   ```
+2. Navigate to `https://<your-service-name>.onrender.com/` to view the responsive storefront with 4 starter formulations.
+3. Navigate to `https://<your-service-name>.onrender.com/admin/login` and log in with your configured `ADMIN_USERNAME` and `ADMIN_PASSWORD`.
+4. Check your Render deployment logs to observe the Keep-Alive cron heartbeat:
+   ```text
+   [Cron Keep-Alive] Pinged https://<your-service-name>.onrender.com/api/products -> Status 200 (Active Products: 4)
+   ```
 
 ---
 
