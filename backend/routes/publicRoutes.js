@@ -93,23 +93,38 @@ router.post("/orders", async (req, res) => {
       return res.status(400).json({ success: false, message: "Shipping address is required." });
     }
 
-    if (!Array.isArray(items) || items.length === 0) {
+    let orderItems = Array.isArray(items) && items.length > 0 ? items : null;
+
+    if (!orderItems && (req.body.productId || req.body.productName || req.body.name)) {
+      orderItems = [
+        {
+          productId: req.body.productId || req.body.id || "1",
+          name: req.body.productName || req.body.name || "Nutra Formulation",
+          price: Number(req.body.unitPrice || req.body.price || 0),
+          quantity: Math.max(1, parseInt(req.body.quantity || 1, 10)),
+          unit: req.body.unit || "Unit",
+          image: req.body.image || "/images/10q.png",
+        },
+      ];
+    }
+
+    if (!orderItems || orderItems.length === 0) {
       return res.status(400).json({ success: false, message: "At least one product item is required to place an order." });
     }
 
     // Calculate total
     let computedTotal = 0;
-    const cleanItems = items.map((item) => {
+    const cleanItems = orderItems.map((item) => {
       const q = Math.max(1, parseInt(item.quantity || 1, 10));
       const p = Math.max(0, Number(item.price || 0));
       computedTotal += p * q;
       return {
         productId: String(item.productId || item.id || "1"),
-        name: String(item.name || "Nutra Formulation"),
+        name: String(item.name || item.productName || "Nutra Formulation"),
         price: p,
         quantity: q,
         unit: String(item.unit || "Unit"),
-        image: String(item.image || "/uploads/9g.png"),
+        image: String(item.image || "/images/10q.png"),
       };
     });
 

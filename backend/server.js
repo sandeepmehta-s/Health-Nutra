@@ -90,6 +90,14 @@ const uploadsDir = path.join(__dirname, "uploads");
 const frontendDir = path.join(__dirname, "..", "frontend");
 const imagesDir = path.join(frontendDir, "images");
 
+// Ensure .jsx and .js are always served with application/javascript for browser ES modules
+app.use((req, res, next) => {
+  if (req.path.endsWith(".jsx") || req.path.endsWith(".js") || req.path.endsWith(".mjs")) {
+    res.type("application/javascript");
+  }
+  next();
+});
+
 // Static assets
 app.use("/uploads", express.static(uploadsDir));
 app.use("/images", express.static(imagesDir));

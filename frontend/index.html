@@ -69,8 +69,33 @@
     </div>
   </div>
 
-  <!-- React JSX Application Script -->
-  <script type="text/babel" data-presets="react" src="/App.jsx"></script>
+  <!-- API Client & Navigation Modules -->
+  <script type="module" src="/apiHelper.js"></script>
+  <script type="module" src="/navigation.js"></script>
+
+  <!-- UI Components (Tailwind CSS) -->
+  <script type="text/babel" src="/components/ui/Badge.jsx"></script>
+  <script type="text/babel" src="/components/ui/Button.jsx"></script>
+  <script type="text/babel" src="/components/ui/Card.jsx"></script>
+  <script type="text/babel" src="/components/ui/Input.jsx"></script>
+  <script type="text/babel" src="/components/ui/Modal.jsx"></script>
+
+  <!-- Feature / Domain Components -->
+  <script type="text/babel" src="/components/Navbar.jsx"></script>
+  <script type="text/babel" src="/components/Hero.jsx"></script>
+  <script type="text/babel" src="/components/SearchFilter.jsx"></script>
+  <script type="text/babel" src="/components/ProductCard.jsx"></script>
+  <script type="text/babel" src="/components/ProductDetailModal.jsx"></script>
+  <script type="text/babel" src="/components/CheckoutModal.jsx"></script>
+  <script type="text/babel" src="/components/Footer.jsx"></script>
+
+  <!-- Pages -->
+  <script type="text/babel" src="/pages/HomePage.jsx"></script>
+  <script type="text/babel" src="/pages/AdminPage.jsx"></script>
+  <script type="text/babel" src="/pages/LoginPage.jsx"></script>
+
+  <!-- Main React Mount -->
+  <script type="text/babel" src="/App.jsx"></script>
 
   <!-- Legacy Script Alias to guarantee /js/main.js never 404s -->
   <script type="module" src="/js/main.js"></script>
