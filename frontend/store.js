@@ -165,3 +165,4 @@ export class FrontendStore {
 
 // Global instance
 export const store = new FrontendStore();
+

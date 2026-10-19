@@ -11,15 +11,19 @@ export function startKeepAliveCron(port) {
 
   console.log(`[Cron] Initializing Keep-Alive Cron (Every ${intervalMinutes} minutes: "${cronExpression}").`);
 
-  // Determine target URL: cloud public URL if available, else localhost
+  // Determine target URL from .env (API_URL or APP_URL), cloud URL, or fallback host
   const getTargetUrl = () => {
+    if (process.env.API_URL) {
+      return `${process.env.API_URL.replace(/\/$/, "")}/products`;
+    }
     if (process.env.APP_URL) {
       return `${process.env.APP_URL.replace(/\/$/, "")}/api/products`;
     }
     if (process.env.RENDER_EXTERNAL_URL) {
       return `${process.env.RENDER_EXTERNAL_URL.replace(/\/$/, "")}/api/products`;
     }
-    return `http://localhost:${port}/api/products`;
+    const host = process.env.HOST && process.env.HOST !== "0.0.0.0" ? process.env.HOST : "127.0.0.1";
+    return `http://${host}:${port}/api/products`;
   };
 
   const pingApi = async () => {
@@ -43,3 +47,4 @@ export function startKeepAliveCron(port) {
   // Initial ping 8 seconds after boot
   setTimeout(pingApi, 8000);
 }
+

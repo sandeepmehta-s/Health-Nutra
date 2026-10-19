@@ -177,3 +177,4 @@ document.addEventListener("DOMContentLoaded", () => {
   window.navigationManager = new NavigationManager();
   window.navigationManager.init();
 });
+

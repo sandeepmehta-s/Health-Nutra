@@ -229,3 +229,4 @@ window.resetSearch = () => {
   store.setSearchQuery("");
   store.setCategory("All");
 };
+

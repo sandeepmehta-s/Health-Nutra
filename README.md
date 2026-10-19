@@ -11,6 +11,8 @@ health-nutra/
 ├── backend/
 │   ├── config/
 │   │   └── db.js                 # MongoDB connection handler
+│   ├── google-apps-script/
+│   │   └── Code.gs               # Optional Google Sheets sync script
 │   ├── middleware/
 │   │   ├── auth.js               # Session-based authentication middleware
 │   │   ├── rateLimiter.js        # Login rate limiter (5 requests per 15 min)
@@ -26,39 +28,27 @@ health-nutra/
 │   └── services/
 │       ├── cronService.js        # Automated 5-minute keep-alive cron job
 │       └── dbService.js          # Unified repository (SQLite + MongoDB fallback & admin sync)
-├── frontend/                     # Dedicated frontend application and store package
+├── frontend/                     # All frontend code, store, and UI assets
 │   ├── admin/
 │   │   ├── admin.html            # Tailwind CSS admin portal interface
 │   │   ├── admin.js              # Admin AJAX logic with Lucide icons
 │   │   └── login.html            # Tailwind CSS admin authentication screen
+│   ├── images/                   # Static branding & logo assets
 │   ├── api.json                  # Centralized API endpoint routing & icon configuration
 │   ├── index.html                # Tailwind CSS public storefront
 │   ├── main.js                   # Storefront UI bindings and modal rendering
 │   ├── navigation.js             # Dynamic navigation, responsive drawer & scrollspy
 │   └── store.js                  # Centralized reactive frontend store (products & categories)
-├── public/                       # Statically served public assets
-│   ├── admin/
-│   │   ├── admin.html            # Admin dashboard interface (Tailwind + Lucide)
-│   │   ├── admin.js              # Admin UI logic
-│   │   └── login.html            # Admin login screen (Tailwind + Lucide)
-│   ├── js/
-│   │   ├── main.js               # Storefront application logic
-│   │   ├── navigation.js         # Navigation manager
-│   │   └── store.js              # Reactive state store
-│   ├── api.json                  # Publicly served API configuration
-│   ├── images/                   # Brand graphics & logo assets
-│   └── index.html                # Modern storefront with Tailwind CSS & Lucide icons
 ├── uploads/                      # Static product images served at /uploads/*
 │   ├── 9g.png                    # Health Nutra 9G Tablets
 │   ├── 10q.png                   # Health Nutra 10Q Syrup
 │   ├── omega3.png                # Omega-3 Softgels
 │   └── greentea.png              # Green Tea Extract
-├── src/                          # Optional React frontend application
 ├── .env                          # Local environment configuration (ignored by git)
-├── .env.example                  # Template configuration file
+├── .env.example                  # Template configuration file with APP_URL and API_URL
 ├── .gitignore                    # Excludes .env, *.sqlite, node_modules
 ├── health_nutra.sqlite           # Embedded zero-config SQLite database (auto-generated)
-├── package.json                  # Dependencies and scripts (includes node-cron)
+├── package.json                  # Clean dependencies and scripts (Express, SQLite, Cron)
 ├── README.md                     # Documentation
 └── server.js                     # Express application entrypoint
 ```
