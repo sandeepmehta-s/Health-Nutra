@@ -4,32 +4,37 @@ import cors from "cors";
 import dotenv from "dotenv";
 import path from "path";
 import { fileURLToPath } from "url";
-import { initDatabase } from "./backend/services/dbService.js";
-import { startKeepAliveCron } from "./backend/services/cronService.js";
-import publicRoutes from "./backend/routes/publicRoutes.js";
-import adminRoutes from "./backend/routes/adminRoutes.js";
-import { requireAuth } from "./backend/middleware/auth.js";
-
-dotenv.config();
+import { initDatabase } from "./services/dbService.js";
+import { startKeepAliveCron } from "./services/cronService.js";
+import publicRoutes from "./routes/publicRoutes.js";
+import adminRoutes from "./routes/adminRoutes.js";
+import { requireAuth } from "./middleware/auth.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// Load environment variables from backend/.env or root .env
+dotenv.config({ path: path.join(__dirname, ".env") });
+dotenv.config();
+
 const app = express();
 const PORT = process.env.PORT || 5000;
 const HOST = process.env.HOST || "0.0.0.0";
-const APP_URL = (process.env.APP_URL || process.env.RENDER_EXTERNAL_URL || `http://${HOST === "0.0.0.0" ? "localhost" : HOST}:${PORT}`).replace(/\/$/, "");
+const APP_URL = (
+  process.env.APP_URL ||
+  process.env.RENDER_EXTERNAL_URL ||
+  `http://${HOST === "0.0.0.0" ? "localhost" : HOST}:${PORT}`
+).replace(/\/$/, "");
 const API_URL = (process.env.API_URL || `${APP_URL}/api`).replace(/\/$/, "");
 
 // Enable trust proxy for cloud deployments (Render, Railway, Heroku, Cloudflare, Nginx)
-// This is essential so express-rate-limit and secure session cookies work properly behind reverse proxies.
 app.set("trust proxy", 1);
 
 // Body parser
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// CORS with credentials support for deployments
+// CORS with credentials support
 app.use(
   cors({
     origin: true,
@@ -37,16 +42,16 @@ app.use(
   })
 );
 
-// Session Management (configured for both local development and HTTPS production deployments)
+// Session Management
 app.use(
   session({
     secret: process.env.SESSION_SECRET || "health-nutra-super-secret-key-987654",
     resave: false,
     saveUninitialized: false,
-    proxy: true, // required for reverse proxies
+    proxy: true,
     cookie: {
       httpOnly: true,
-      secure: "auto", // Automatically detects HTTPS via trust proxy
+      secure: "auto",
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       sameSite: "lax",
     },
@@ -62,7 +67,7 @@ app.get("/api/ping", (req, res) => {
   res.json({ success: true, message: "pong", timestamp: new Date().toISOString() });
 });
 
-// App & API Configuration Endpoint (for frontend dynamically reading environment URLs)
+// App & API Configuration Endpoint
 app.get("/api/config", (req, res) => {
   res.json({
     success: true,
@@ -72,10 +77,15 @@ app.get("/api/config", (req, res) => {
   });
 });
 
-// Serve static assets from uploads, images, and frontend
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
-app.use("/images", express.static(path.join(__dirname, "frontend", "images")));
-app.use(express.static(path.join(__dirname, "frontend")));
+// Paths to backend uploads and frontend static assets
+const uploadsDir = path.join(__dirname, "uploads");
+const frontendDir = path.join(__dirname, "..", "frontend");
+const imagesDir = path.join(frontendDir, "images");
+
+// Static assets
+app.use("/uploads", express.static(uploadsDir));
+app.use("/images", express.static(imagesDir));
+app.use(express.static(frontendDir));
 
 // API Endpoints
 app.use("/api", publicRoutes);
@@ -86,16 +96,16 @@ app.get("/admin/login", (req, res) => {
   if (req.session && req.session.adminId) {
     return res.redirect("/admin");
   }
-  res.sendFile(path.join(__dirname, "frontend", "admin", "login.html"));
+  res.sendFile(path.join(frontendDir, "admin", "login.html"));
 });
 
 app.get("/admin", requireAuth, (req, res) => {
-  res.sendFile(path.join(__dirname, "frontend", "admin", "admin.html"));
+  res.sendFile(path.join(frontendDir, "admin", "admin.html"));
 });
 
 // Root public landing page
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "frontend", "index.html"));
+  res.sendFile(path.join(frontendDir, "index.html"));
 });
 
 // Fallback 404
@@ -103,7 +113,7 @@ app.use((req, res) => {
   if (req.path.startsWith("/api/")) {
     return res.status(404).json({ success: false, message: "API endpoint not found" });
   }
-  res.status(404).sendFile(path.join(__dirname, "frontend", "index.html"));
+  res.status(404).sendFile(path.join(frontendDir, "index.html"));
 });
 
 // Start Server
@@ -114,7 +124,7 @@ async function startServer() {
     console.log(`\n==================================================`);
     console.log(`🌿 HEALTH NUTRA - Fullstack Application Started`);
     console.log(`🗄️  Active Database Engine: ${dbType.toUpperCase()}`);
-    console.log(`🚀 Public Website:         ${APP_URL}/`);
+    console.log(`📱 Public Website:         ${APP_URL}/`);
     console.log(`🔐 Admin Panel:            ${APP_URL}/admin`);
     console.log(`📦 Public API:             ${API_URL}/products`);
     console.log(`💓 Health Check:           ${APP_URL}/health`);
@@ -126,4 +136,3 @@ async function startServer() {
 }
 
 startServer();
-

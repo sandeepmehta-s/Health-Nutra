@@ -13,6 +13,10 @@ import { uploadProductImage } from "../middleware/upload.js";
 import { loginRateLimiter } from "../middleware/rateLimiter.js";
 import fs from "fs";
 import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const router = express.Router();
 
@@ -283,7 +287,7 @@ router.delete("/products/:id", requireAuth, async (req, res) => {
     }
 
     if (deleted.image && deleted.image.startsWith("/uploads/product-")) {
-      const filePath = path.resolve(process.cwd(), deleted.image.replace(/^\//, ""));
+      const filePath = path.resolve(__dirname, "..", deleted.image.replace(/^\//, ""));
       if (fs.existsSync(filePath)) {
         fs.unlink(filePath, () => {});
       }

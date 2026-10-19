@@ -2,9 +2,13 @@ import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 import path from "path";
 import fs from "fs";
+import { fileURLToPath } from "url";
 import { DatabaseSync } from "node:sqlite";
 import { Product } from "../models/Product.js";
 import { Admin } from "../models/Admin.js";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 let useMongo = false;
 let sqliteDb = null;
@@ -100,7 +104,7 @@ export async function initDatabase() {
   console.log(`[Database] Automatically utilizing zero-config embedded SQLite storage (health_nutra.sqlite).`);
   console.log(`[Database] (To switch to MongoDB, start mongod or paste your MongoDB Atlas URI in .env)`);
 
-  const dbPath = path.resolve(process.cwd(), "health_nutra.sqlite");
+  const dbPath = path.resolve(__dirname, "..", "health_nutra.sqlite");
   sqliteDb = new DatabaseSync(dbPath);
 
   // Create tables
