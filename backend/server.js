@@ -3,6 +3,7 @@ import session from "express-session";
 import cors from "cors";
 import dotenv from "dotenv";
 import path from "path";
+import fs from "fs";
 import { fileURLToPath } from "url";
 import { initDatabase } from "./services/dbService.js";
 import { startKeepAliveCron } from "./services/cronService.js";
@@ -92,7 +93,17 @@ const imagesDir = path.join(frontendDir, "images");
 // Static assets
 app.use("/uploads", express.static(uploadsDir));
 app.use("/images", express.static(imagesDir));
+app.use("/js", express.static(frontendDir)); // Alias /js to frontend folder so /js/main.js never 404s
 app.use(express.static(frontendDir));
+
+// Fallback for /js/:file in case of legacy cached requests
+app.get("/js/:filename", (req, res, next) => {
+  const filePath = path.join(frontendDir, req.params.filename);
+  if (fs.existsSync(filePath)) {
+    return res.sendFile(filePath);
+  }
+  next();
+});
 
 // API Endpoints
 app.use("/api", publicRoutes);
