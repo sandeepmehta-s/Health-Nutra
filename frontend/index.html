@@ -69,9 +69,10 @@
     </div>
   </div>
 
-  <!-- API Client & Navigation Modules -->
+  <!-- API Client, Invoice Generator & Navigation Modules -->
   <script type="module" src="/apiHelper.js"></script>
   <script type="module" src="/navigation.js"></script>
+  <script type="module" src="/utils/invoiceGenerator.js"></script>
 
   <!-- UI Components (Tailwind CSS) -->
   <script type="text/babel" src="/components/ui/Badge.jsx"></script>
@@ -87,6 +88,8 @@
   <script type="text/babel" src="/components/ProductCard.jsx"></script>
   <script type="text/babel" src="/components/ProductDetailModal.jsx"></script>
   <script type="text/babel" src="/components/CheckoutModal.jsx"></script>
+  <script type="text/babel" src="/components/TrackOrderModal.jsx"></script>
+  <script type="text/babel" src="/components/ContactForm.jsx"></script>
   <script type="text/babel" src="/components/Footer.jsx"></script>
 
   <!-- Pages -->
@@ -96,8 +99,5 @@
 
   <!-- Main React Mount -->
   <script type="text/babel" src="/App.jsx"></script>
-
-  <!-- Legacy Script Alias to guarantee /js/main.js never 404s -->
-  <script type="module" src="/js/main.js"></script>
 </body>
 </html>

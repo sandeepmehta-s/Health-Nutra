@@ -11,11 +11,21 @@ function ProductDetailModal({
 }) {
   if (!isOpen || !product) return null;
 
-  const imageSrc = product.image
+  const dummyFallback = React.useMemo(() => {
+    const n = (product?.name || "").toLowerCase();
+    const c = (product?.category || "").toLowerCase();
+    if (n.includes("9g") || c.includes("multivitamin")) return "/images/9g.png";
+    if (n.includes("10q") || c.includes("syrup")) return "/images/10q.png";
+    if (n.includes("omega") || c.includes("omega")) return "/images/omega3.png";
+    if (n.includes("tea") || c.includes("green")) return "/images/greentea.png";
+    return "/images/10q.png";
+  }, [product?.name, product?.category]);
+
+  const imageSrc = product?.image
     ? product.image.startsWith("http") || product.image.startsWith("/")
       ? product.image
       : `/${product.image}`
-    : "/images/10q.png";
+    : dummyFallback;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
@@ -158,3 +168,4 @@ if (typeof window !== "undefined") {
 if (typeof exports !== "undefined") {
   exports.ProductDetailModal = ProductDetailModal;
 }
+

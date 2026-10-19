@@ -149,3 +149,4 @@ if (typeof window !== "undefined") {
 if (typeof exports !== "undefined") {
   exports.Hero = Hero;
 }
+

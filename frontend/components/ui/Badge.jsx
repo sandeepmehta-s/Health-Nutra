@@ -64,3 +64,4 @@ if (typeof window !== "undefined") {
 if (typeof exports !== "undefined") {
   exports.Badge = Badge;
 }
+

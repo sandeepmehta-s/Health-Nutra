@@ -257,9 +257,9 @@ function AdminPage() {
   const handleLogout = async () => {
     try {
       await window.apiHelper.logoutAdmin();
-      window.location.href = "/admin/login";
+      window.location.href = "/";
     } catch {
-      window.location.href = "/admin/login";
+      window.location.href = "/";
     }
   };
 
@@ -693,14 +693,29 @@ function AdminPage() {
                         <span className="text-[10px] text-slate-400">
                           {new Date(ord.createdAt || Date.now()).toLocaleDateString()}
                         </span>
-                        <button
-                          type="button"
-                          onClick={() => handleDeleteOrder(ord.id)}
-                          className="text-red-500 hover:text-red-700 font-bold p-1 rounded-lg hover:bg-red-50 flex items-center gap-1 text-[11px]"
-                        >
-                          <i data-lucide="trash-2" className="w-3.5 h-3.5"></i>
-                          <span>Delete</span>
-                        </button>
+                        <div className="flex items-center gap-1.5">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (window.downloadOrderInvoicePDF) {
+                                window.downloadOrderInvoicePDF(ord);
+                              }
+                            }}
+                            title="Download / Print PDF Invoice"
+                            className="text-slate-600 hover:text-brand-800 font-bold p-1.5 rounded-lg hover:bg-brand-50 flex items-center gap-1 text-[11px]"
+                          >
+                            <i data-lucide="download" className="w-3.5 h-3.5 text-brand-700"></i>
+                            <span>PDF</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteOrder(ord.id)}
+                            className="text-red-500 hover:text-red-700 font-bold p-1.5 rounded-lg hover:bg-red-50 flex items-center gap-1 text-[11px]"
+                          >
+                            <i data-lucide="trash-2" className="w-3.5 h-3.5"></i>
+                            <span>Delete</span>
+                          </button>
+                        </div>
                       </div>
 
                     </div>
@@ -995,3 +1010,4 @@ if (typeof window !== "undefined") {
 if (typeof exports !== "undefined") {
   exports.AdminPage = AdminPage;
 }
+

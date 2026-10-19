@@ -23,9 +23,19 @@ function ProductCard({
 
   const iconName = categoryIcons[product.category] || "pill";
 
-  // Resolve image source (uploaded path, direct url, or fallback)
+  // Smart image resolver mapping to real available images
+  const dummyFallback = React.useMemo(() => {
+    const n = (product.name || "").toLowerCase();
+    const c = (product.category || "").toLowerCase();
+    if (n.includes("9g") || c.includes("multivitamin")) return "/images/9g.png";
+    if (n.includes("10q") || c.includes("syrup")) return "/images/10q.png";
+    if (n.includes("omega") || c.includes("omega")) return "/images/omega3.png";
+    if (n.includes("tea") || c.includes("green")) return "/images/greentea.png";
+    return "/images/10q.png";
+  }, [product.name, product.category]);
+
   const imageSrc = React.useMemo(() => {
-    if (!product.image) return "/images/10q.png";
+    if (!product.image) return dummyFallback;
     if (product.image.startsWith("http://") || product.image.startsWith("https://")) {
       return product.image;
     }
@@ -33,7 +43,7 @@ function ProductCard({
       return product.image;
     }
     return `/${product.image}`;
-  }, [product.image]);
+  }, [product.image, dummyFallback]);
 
   return (
     <div
@@ -70,22 +80,15 @@ function ProductCard({
 
         {/* Product Visual */}
         <div className="relative h-48 sm:h-52 w-full rounded-2xl bg-gradient-to-br from-slate-50 to-emerald-50/30 flex items-center justify-center p-4 overflow-hidden">
-          {!imageError ? (
-            <img
-              src={imageSrc}
-              alt={product.name}
-              onError={() => setImageError(true)}
-              className="max-h-full max-w-full object-contain transform group-hover:scale-105 transition-transform duration-300"
-              loading="lazy"
-            />
-          ) : (
-            <div className="flex flex-col items-center justify-center text-slate-400">
-              <div className="w-14 h-14 rounded-2xl bg-brand-50 text-brand-700 flex items-center justify-center mb-2">
-                <i data-lucide="pill" className="w-7 h-7"></i>
-              </div>
-              <span className="text-[11px] font-bold">Health Nutra Formulation</span>
-            </div>
-          )}
+          <img
+            src={imageError ? dummyFallback : imageSrc}
+            alt={product.name}
+            onError={() => {
+              if (!imageError) setImageError(true);
+            }}
+            className="max-h-full max-w-full object-contain transform group-hover:scale-105 transition-transform duration-300"
+            loading="lazy"
+          />
         </div>
 
         {/* Product Name & Benefits */}
@@ -149,3 +152,4 @@ if (typeof window !== "undefined") {
 if (typeof exports !== "undefined") {
   exports.ProductCard = ProductCard;
 }
+

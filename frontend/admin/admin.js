@@ -179,7 +179,7 @@ function bindSidebarEvents() {
       try {
         await fetch('/api/admin/logout', { method: 'POST' });
       } finally {
-        window.location.href = '/admin/login';
+        window.location.href = '/';
       }
     });
   }
@@ -748,6 +748,15 @@ function renderOrdersTable(orders) {
         <td class="py-3.5 px-6 text-right whitespace-nowrap space-x-2">
           <button 
             type="button" 
+            onclick="downloadOrderInvoice('${orderId}')" 
+            class="px-2.5 py-1.5 rounded-xl text-xs font-bold text-slate-700 bg-slate-100 hover:bg-brand-50 hover:text-brand-800 transition-colors inline-flex items-center gap-1"
+            title="Download / Print PDF Invoice"
+          >
+            <i data-lucide="download" class="w-3.5 h-3.5 text-brand-700"></i>
+            <span>PDF</span>
+          </button>
+          <button 
+            type="button" 
             onclick="viewOrderDetails('${orderId}')" 
             class="px-3 py-1.5 rounded-xl text-xs font-bold text-brand-700 bg-brand-50 hover:bg-brand-100 transition-colors inline-flex items-center gap-1"
           >
@@ -769,6 +778,14 @@ function renderOrdersTable(orders) {
 
   if (window.lucide) window.lucide.createIcons();
 }
+
+window.downloadOrderInvoice = function(orderId) {
+  const o = ordersList.find((item) => item.orderId === orderId || item.id === orderId);
+  if (!o) return;
+  if (window.downloadOrderInvoicePDF) {
+    window.downloadOrderInvoicePDF(o);
+  }
+};
 
 window.viewOrderDetails = function(orderId) {
   const o = ordersList.find((item) => item.orderId === orderId || item.id === orderId);

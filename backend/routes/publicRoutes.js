@@ -162,22 +162,53 @@ router.get("/orders/:id", async (req, res) => {
   try {
     const order = await getOrderById(req.params.id);
     if (!order) {
-      return res.status(404).json({ success: false, message: "Order not found." });
+      return res.status(404).json({ success: false, message: "Order not found. Please verify your Order ID." });
     }
     res.json({
       success: true,
       data: {
         orderId: order.orderId,
+        id: order.id || order.orderId,
         customerName: order.customerName,
-        orderStatus: order.orderStatus,
-        paymentStatus: order.paymentStatus,
+        customerPhone: order.customerPhone,
+        customerEmail: order.customerEmail,
+        shippingAddress: order.shippingAddress,
+        city: order.city,
+        pincode: order.pincode,
+        items: order.items || [],
+        productName: order.items && order.items[0] ? order.items[0].name : "Nutra Formulation",
+        quantity: order.items && order.items[0] ? order.items[0].quantity : 1,
+        orderStatus: order.orderStatus || order.status || "pending",
+        status: order.orderStatus || order.status || "pending",
+        paymentStatus: order.paymentStatus || "pending",
+        paymentMethod: order.paymentMethod || "Cash on Delivery",
         totalAmount: order.totalAmount,
-        itemsCount: order.items.length,
+        notes: order.notes,
         createdAt: order.createdAt,
       },
     });
   } catch (err) {
     res.status(500).json({ success: false, message: "Error tracking order: " + err.message });
+  }
+});
+
+// POST /api/contact - Customer Contact Inquiry Form
+router.post("/contact", async (req, res) => {
+  try {
+    const { name, email, phone, subject, message } = req.body;
+    if (!name || !email || !message) {
+      return res.status(400).json({
+        success: false,
+        message: "Please provide your Name, Email, and Message.",
+      });
+    }
+    console.log(`[Contact Form] Received inquiry from ${name} (${email}, ${phone || "N/A"}): [${subject || "General"}] ${message}`);
+    res.status(200).json({
+      success: true,
+      message: "Thank you! Your message has been received. Our clinical support team will contact you shortly.",
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: "Failed to submit inquiry: " + err.message });
   }
 });
 

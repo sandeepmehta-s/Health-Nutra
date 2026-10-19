@@ -93,11 +93,21 @@ function CheckoutModal({
     onClose();
   };
 
+  const dummyFallback = React.useMemo(() => {
+    const n = (product?.name || "").toLowerCase();
+    const c = (product?.category || "").toLowerCase();
+    if (n.includes("9g") || c.includes("multivitamin")) return "/images/9g.png";
+    if (n.includes("10q") || c.includes("syrup")) return "/images/10q.png";
+    if (n.includes("omega") || c.includes("omega")) return "/images/omega3.png";
+    if (n.includes("tea") || c.includes("green")) return "/images/greentea.png";
+    return "/images/10q.png";
+  }, [product?.name, product?.category]);
+
   const imageSrc = product.image
     ? product.image.startsWith("http") || product.image.startsWith("/")
       ? product.image
       : `/${product.image}`
-    : "/images/10q.png";
+    : dummyFallback;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
@@ -178,13 +188,46 @@ function CheckoutModal({
                 </div>
               </div>
 
-              <button
-                type="button"
-                onClick={handleResetAndClose}
-                className="w-full py-3.5 rounded-2xl text-xs font-black text-white bg-brand-700 hover:bg-brand-800 transition-colors shadow-md shadow-brand-700/20"
-              >
-                Continue Browsing Catalog
-              </button>
+              {/* Action Buttons: Download PDF Invoice, Track Order, and Continue */}
+              <div className="space-y-2.5 pt-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (window.downloadOrderInvoicePDF) {
+                      window.downloadOrderInvoicePDF(receipt);
+                    }
+                  }}
+                  className="w-full py-3.5 rounded-2xl text-xs sm:text-sm font-black text-white bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 shadow-md shadow-orange-600/20 transition-all flex items-center justify-center gap-2 transform hover:-translate-y-0.5 active:scale-95"
+                >
+                  <i data-lucide="download" className="w-4 h-4"></i>
+                  <span>Download Official PDF Invoice</span>
+                </button>
+
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const id = receipt.orderId || receipt.id;
+                      handleResetAndClose();
+                      if (window.onOpenTrackModalWithId) {
+                        window.onOpenTrackModalWithId(id);
+                      }
+                    }}
+                    className="py-3 rounded-2xl text-xs font-bold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition-colors flex items-center justify-center gap-1.5"
+                  >
+                    <i data-lucide="truck" className="w-3.5 h-3.5 text-brand-700"></i>
+                    <span>Track Status</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleResetAndClose}
+                    className="py-3 rounded-2xl text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-colors"
+                  >
+                    Continue Browsing
+                  </button>
+                </div>
+              </div>
             </div>
           ) : (
             /* Order Entry Form */

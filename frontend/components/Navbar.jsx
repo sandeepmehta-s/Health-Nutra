@@ -58,6 +58,16 @@ function Navbar({ onOpenSearch, orderCount = 0 }) {
               </a>
             ))}
 
+            {/* Track Order Button */}
+            <button
+              type="button"
+              onClick={onOpenTrackOrder}
+              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs lg:text-sm font-bold text-slate-700 bg-slate-100 hover:bg-brand-50 hover:text-brand-800 border border-slate-200 transition-colors"
+            >
+              <i data-lucide="truck" className="w-4 h-4 text-brand-700"></i>
+              <span>Track Order</span>
+            </button>
+
             {/* Admin Portal Pill */}
             <a
               href="/admin"
@@ -116,6 +126,20 @@ function Navbar({ onOpenSearch, orderCount = 0 }) {
             </a>
           ))}
 
+          <button
+            type="button"
+            onClick={() => {
+              setMobileMenuOpen(false);
+              if (onOpenTrackOrder) onOpenTrackOrder();
+            }}
+            className="flex items-center gap-3 w-full p-3 rounded-2xl text-sm font-bold text-slate-700 hover:text-brand-800 hover:bg-brand-50 transition-all text-left"
+          >
+            <div className="w-8 h-8 rounded-xl bg-slate-100 flex items-center justify-center text-brand-700">
+              <i data-lucide="truck" className="w-4 h-4"></i>
+            </div>
+            <span>Track Order Status</span>
+          </button>
+
           <a
             href="/admin"
             onClick={() => setMobileMenuOpen(false)}
@@ -141,3 +165,4 @@ if (typeof window !== "undefined") {
 if (typeof exports !== "undefined") {
   exports.Navbar = Navbar;
 }
+

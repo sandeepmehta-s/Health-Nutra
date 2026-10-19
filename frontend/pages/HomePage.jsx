@@ -1,7 +1,7 @@
 /**
  * Health Nutra - HomePage View
  * Complete storefront page with Search Optimization (relevance ranking & scroll-to-top),
- * dynamic formulations catalog, modal controls, and quality standards showcase.
+ * dynamic formulations catalog, modal controls, Order Tracking, and Contact Us form.
  */
 
 function HomePage() {
@@ -11,9 +11,21 @@ function HomePage() {
   const [searchQuery, setSearchQuery] = React.useState("");
   const [selectedProduct, setSelectedProduct] = React.useState(null);
   const [checkoutProduct, setCheckoutProduct] = React.useState(null);
+  const [trackModalOpen, setTrackModalOpen] = React.useState(false);
+  const [trackOrderId, setTrackOrderId] = React.useState("");
   const [loading, setLoading] = React.useState(true);
 
   const catalogRef = React.useRef(null);
+
+  const handleOpenTrackModal = (id = "") => {
+    setTrackOrderId(id);
+    setTrackModalOpen(true);
+  };
+
+  // Register on window for child modals (like CheckoutModal) to call
+  React.useEffect(() => {
+    window.onOpenTrackModalWithId = handleOpenTrackModal;
+  }, []);
 
   // Load initial products and categories from apiHelper
   React.useEffect(() => {
@@ -45,7 +57,7 @@ function HomePage() {
     if (window.lucide && typeof window.lucide.createIcons === "function") {
       setTimeout(() => window.lucide.createIcons(), 30);
     }
-  }, [products, selectedCategory, searchQuery, selectedProduct, checkoutProduct, loading]);
+  }, [products, selectedCategory, searchQuery, selectedProduct, checkoutProduct, trackModalOpen, loading]);
 
   // -------------------------------------------------------------
   // Search Optimization & Priority Relevance Ranking Algorithm
@@ -140,11 +152,35 @@ function HomePage() {
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 text-slate-800">
       
-      {/* Top Navbar */}
-      <Navbar onOpenSearch={() => catalogRef.current?.scrollIntoView({ behavior: "smooth" })} />
+      {/* Top Navbar with Track Order Button */}
+      <Navbar
+        onOpenSearch={() => catalogRef.current?.scrollIntoView({ behavior: "smooth" })}
+        onOpenTrackOrder={() => handleOpenTrackModal()}
+      />
 
       {/* Hero Showcase */}
       <Hero onExploreClick={() => catalogRef.current?.scrollIntoView({ behavior: "smooth" })} />
+
+      {/* Quick Track Order Banner */}
+      <div className="bg-brand-900 text-white py-3.5 px-4 sm:px-6">
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span className="font-semibold text-slate-200">
+              Already ordered? Enter your Order Reference number to check live courier & dispatch status.
+            </span>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => handleOpenTrackModal()}
+            className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-xl font-black bg-brand-700 hover:bg-brand-600 text-white shadow-xs transition-colors shrink-0"
+          >
+            <i data-lucide="truck" className="w-3.5 h-3.5"></i>
+            <span>Track Order & Download PDF</span>
+          </button>
+        </div>
+      </div>
 
       {/* Main Catalog Section */}
       <main id="products" ref={catalogRef} className="py-16 sm:py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full flex-grow">
@@ -258,6 +294,13 @@ function HomePage() {
         </div>
       </section>
 
+      {/* Interactive Contact Us Section */}
+      <section id="contact-inquiry" className="py-20 bg-slate-100/60 border-b border-slate-200/80">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <ContactForm />
+        </div>
+      </section>
+
       {/* Footer */}
       <Footer />
 
@@ -280,6 +323,13 @@ function HomePage() {
         onOrderCompleted={(order) => {
           console.log("Order placed:", order);
         }}
+      />
+
+      {/* Track Order Status & Download PDF Modal */}
+      <TrackOrderModal
+        isOpen={trackModalOpen}
+        onClose={() => setTrackModalOpen(false)}
+        initialOrderId={trackOrderId}
       />
 
     </div>

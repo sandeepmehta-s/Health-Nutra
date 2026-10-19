@@ -8,4 +8,6 @@ export { SearchFilter } from "./SearchFilter.jsx";
 export { ProductCard } from "./ProductCard.jsx";
 export { ProductDetailModal } from "./ProductDetailModal.jsx";
 export { CheckoutModal } from "./CheckoutModal.jsx";
+export { TrackOrderModal } from "./TrackOrderModal.jsx";
+export { ContactForm } from "./ContactForm.jsx";
 export { Footer } from "./Footer.jsx";
