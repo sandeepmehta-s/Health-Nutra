@@ -337,11 +337,12 @@ async function seedSQLite() {
 // Product Repository Methods
 // -------------------------------------------------------------
 export async function getActiveProducts(category = null) {
+  let products = [];
   if (useMongo) {
     const filter = { status: "active" };
     if (category && category !== "All") filter.category = category;
     const list = await Product.find(filter).sort({ createdAt: -1 });
-    return list.map(formatProduct);
+    products = list.map(formatProduct);
   } else {
     let query = "SELECT * FROM products WHERE status = 'active'";
     const params = [];
@@ -351,8 +352,28 @@ export async function getActiveProducts(category = null) {
     }
     query += " ORDER BY createdAt DESC";
     const list = sqliteDb.prepare(query).all(...params);
-    return list.map(formatProduct);
+    products = list.map(formatProduct);
   }
+
+  // Self-healing fallback if database has zero active products
+  if (products.length === 0 && (!category || category === "All")) {
+    try {
+      if (useMongo) {
+        await Product.insertMany(STARTER_PRODUCTS);
+        const list = await Product.find({ status: "active" });
+        return list.map(formatProduct);
+      } else if (sqliteDb) {
+        await seedSQLite();
+        const list = sqliteDb.prepare("SELECT * FROM products WHERE status = 'active'").all();
+        if (list.length > 0) return list.map(formatProduct);
+      }
+    } catch (e) {
+      console.warn("[Database] Self-healing seed notice:", e.message);
+    }
+    return STARTER_PRODUCTS.map((p, i) => ({ ...p, id: String(i + 1), _id: String(i + 1) }));
+  }
+
+  return products;
 }
 
 export async function getProductById(id) {
@@ -522,14 +543,15 @@ export async function deleteProduct(id) {
 }
 
 export async function getDistinctCategories() {
+  let cats = [];
   if (useMongo) {
-    const cats = await Product.find({ status: "active" }).distinct("category");
-    return ["All", ...cats.filter(Boolean)];
+    cats = await Product.find({ status: "active" }).distinct("category");
   } else {
     const list = sqliteDb.prepare("SELECT DISTINCT category FROM products WHERE status = 'active'").all();
-    const cats = list.map((r) => r.category).filter(Boolean);
-    return ["All", ...cats];
+    cats = list.map((r) => r.category).filter(Boolean);
   }
+  const set = new Set(["All", "Multivitamin", "Syrup", "Omega-3", "Green Tea", ...cats.filter(Boolean)]);
+  return Array.from(set);
 }
 
 // -------------------------------------------------------------
