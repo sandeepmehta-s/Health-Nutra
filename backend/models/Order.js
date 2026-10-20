@@ -81,5 +81,9 @@ const orderSchema = new mongoose.Schema(
   }
 );
 
+// Indexes for query sorting and filtering under load
+orderSchema.index({ orderStatus: 1, createdAt: -1 });
+orderSchema.index({ createdAt: -1 });
+
 export const Order = mongoose.models.Order || mongoose.model("Order", orderSchema);
 

@@ -1,4 +1,5 @@
 import express from "express";
+import rateLimit from "express-rate-limit";
 import {
   getActiveProducts,
   getProductById,
@@ -6,20 +7,52 @@ import {
   createOrder,
   getOrderById,
 } from "../services/dbService.js";
+import { cache } from "../services/cacheService.js";
+import { orderRateLimiter, contactRateLimiter } from "../middleware/rateLimiter.js";
 
 const router = express.Router();
+
+// ── Global public-API rate limiter ────────────────────────────
+// 300 requests per minute per IP — generous for real users, stops hammering.
+const publicApiLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 300,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { success: false, message: "Too many requests. Please slow down." },
+  skip: (req) => req.method === "GET" && req.path === "/ping", // never throttle keep-alive
+});
+
+router.use(publicApiLimiter);
+
+// Product & category cache TTL (seconds)
+const PRODUCT_CACHE_TTL = 300;   // 5 minutes
+const CATEGORY_CACHE_TTL = 600;  // 10 minutes
 
 // GET /api/products - Returns only active products
 router.get("/products", async (req, res) => {
   try {
     const category = req.query.category || null;
-    const products = await getActiveProducts(category);
+    const cacheKey = `products:${category || "all"}`;
 
-    res.json({
+    // Serve from cache when available
+    const cached = cache.get(cacheKey);
+    if (cached) {
+      res.set("X-Cache", "HIT");
+      return res.json(cached);
+    }
+
+    const products = await getActiveProducts(category);
+    const payload = {
       success: true,
       count: products.length,
       data: products,
-    });
+    };
+
+    cache.set(cacheKey, payload, PRODUCT_CACHE_TTL);
+    res.set("X-Cache", "MISS");
+    res.set("Cache-Control", `public, max-age=${PRODUCT_CACHE_TTL}, stale-while-revalidate=60`);
+    res.json(payload);
   } catch (err) {
     res.status(500).json({
       success: false,
@@ -53,11 +86,20 @@ router.get("/products/:id", async (req, res) => {
 // GET /api/categories - Returns distinct active categories
 router.get("/categories", async (req, res) => {
   try {
+    const cacheKey = "categories:active";
+    const cached = cache.get(cacheKey);
+    if (cached) {
+      res.set("X-Cache", "HIT");
+      return res.json(cached);
+    }
+
     const categories = await getDistinctCategories();
-    res.json({
-      success: true,
-      data: categories,
-    });
+    const payload = { success: true, data: categories };
+
+    cache.set(cacheKey, payload, CATEGORY_CACHE_TTL);
+    res.set("X-Cache", "MISS");
+    res.set("Cache-Control", `public, max-age=${CATEGORY_CACHE_TTL}, stale-while-revalidate=120`);
+    res.json(payload);
   } catch (err) {
     res.status(500).json({
       success: false,
@@ -67,7 +109,7 @@ router.get("/categories", async (req, res) => {
 });
 
 // POST /api/orders - Customer Place Order
-router.post("/orders", async (req, res) => {
+router.post("/orders", orderRateLimiter, async (req, res) => {
   try {
     const {
       customerName,
@@ -193,7 +235,7 @@ router.get("/orders/:id", async (req, res) => {
 });
 
 // POST /api/contact - Customer Contact Inquiry Form
-router.post("/contact", async (req, res) => {
+router.post("/contact", contactRateLimiter, async (req, res) => {
   try {
     const { name, email, phone, subject, message } = req.body;
     if (!name || !email || !message) {

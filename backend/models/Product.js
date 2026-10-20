@@ -57,5 +57,9 @@ productSchema.virtual("formattedPrice").get(function () {
 productSchema.set("toJSON", { virtuals: true });
 productSchema.set("toObject", { virtuals: true });
 
+// Compound indexes for optimal query sorting and filtering under load
+productSchema.index({ status: 1, createdAt: -1 });
+productSchema.index({ category: 1, status: 1, createdAt: -1 });
+
 export const Product = mongoose.models.Product || mongoose.model("Product", productSchema);
 

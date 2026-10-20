@@ -129,7 +129,13 @@ export async function initDatabase() {
   if (mongoUri && !mongoUri.includes("127.0.0.1:27017") && !mongoUri.includes("localhost:27017")) {
     // Attempt MongoDB connection (e.g. Atlas or remote)
     try {
-      await mongoose.connect(mongoUri, { serverSelectionTimeoutMS: 3000 });
+      await mongoose.connect(mongoUri, {
+        serverSelectionTimeoutMS: 5000,  // give Atlas a fair chance on cold start
+        socketTimeoutMS: 30000,
+        maxPoolSize: 5,   // conservative for 0.1 CPU / 512 MB RAM
+        minPoolSize: 1,
+        connectTimeoutMS: 10000,
+      });
       useMongo = true;
       console.log(`[Database] Connected to MongoDB at: ${mongoose.connection.host}`);
       await seedMongo();
@@ -144,6 +150,9 @@ export async function initDatabase() {
     try {
       await mongoose.connect(mongoUri || "mongodb://127.0.0.1:27017/health_nutra", {
         serverSelectionTimeoutMS: 1500,
+        socketTimeoutMS: 10000,
+        maxPoolSize: 5,
+        minPoolSize: 1,
       });
       useMongo = true;
       console.log(`[Database] Connected to MongoDB locally: ${mongoose.connection.host}`);
@@ -207,6 +216,12 @@ export async function initDatabase() {
       createdAt TEXT,
       updatedAt TEXT
     );
+
+    -- Performance indexes for fast filtering and ordering under load
+    CREATE INDEX IF NOT EXISTS idx_products_status ON products(status, createdAt);
+    CREATE INDEX IF NOT EXISTS idx_products_cat ON products(category);
+    CREATE INDEX IF NOT EXISTS idx_orders_status ON orders(orderStatus, createdAt);
+    CREATE INDEX IF NOT EXISTS idx_orders_orderid ON orders(orderId);
   `);
 
   await seedSQLite();
@@ -395,11 +410,13 @@ export async function getAllProductsAdmin({ search, category, status }) {
       const reg = new RegExp(search.trim(), "i");
       filter.$or = [{ name: reg }, { shortDescription: reg }, { category: reg }];
     }
-    const products = await Product.find(filter).sort({ createdAt: -1 });
-    const total = await Product.countDocuments();
-    const active = await Product.countDocuments({ status: "active" });
-    const hidden = await Product.countDocuments({ status: "hidden" });
-    const categories = await Product.distinct("category");
+    const [products, total, active, hidden, categories] = await Promise.all([
+      Product.find(filter).sort({ createdAt: -1 }),
+      Product.countDocuments(),
+      Product.countDocuments({ status: "active" }),
+      Product.countDocuments({ status: "hidden" }),
+      Product.distinct("category"),
+    ]);
 
     return {
       products: products.map(formatProduct),
@@ -429,15 +446,29 @@ export async function getAllProductsAdmin({ search, category, status }) {
     query += " ORDER BY createdAt DESC";
     const products = sqliteDb.prepare(query).all(...params);
 
-    const total = sqliteDb.prepare("SELECT count(*) as c FROM products").get().c;
-    const active = sqliteDb.prepare("SELECT count(*) as c FROM products WHERE status = 'active'").get().c;
-    const hidden = sqliteDb.prepare("SELECT count(*) as c FROM products WHERE status = 'hidden'").get().c;
+    // Single pass aggregation for product stats
+    const statsRow =
+      sqliteDb
+        .prepare(`
+          SELECT 
+            COUNT(*) as total,
+            SUM(CASE WHEN status = 'active' THEN 1 ELSE 0 END) as active,
+            SUM(CASE WHEN status = 'hidden' THEN 1 ELSE 0 END) as hidden
+          FROM products
+        `)
+        .get() || {};
+
     const categoriesList = sqliteDb.prepare("SELECT DISTINCT category FROM products").all();
     const categories = categoriesList.map((r) => r.category).filter(Boolean);
 
     return {
       products: products.map(formatProduct),
-      stats: { total, active, hidden, categoriesCount: categories.length },
+      stats: {
+        total: Number(statsRow.total || 0),
+        active: Number(statsRow.active || 0),
+        hidden: Number(statsRow.hidden || 0),
+        categoriesCount: categories.length,
+      },
       categories,
     };
   }
@@ -713,18 +744,34 @@ export async function getAllOrdersAdmin({ search = "", status = "" } = {}) {
     }
 
     const orders = await Order.find(query).sort({ createdAt: -1 });
-    const allOrders = await Order.find();
 
+    // O(1) memory aggregation instead of pulling all documents into RAM
+    const statsAgg = await Order.aggregate([
+      {
+        $group: {
+          _id: null,
+          total: { $sum: 1 },
+          pending: { $sum: { $cond: [{ $eq: ["$orderStatus", "pending"] }, 1, 0] } },
+          processing: { $sum: { $cond: [{ $eq: ["$orderStatus", "processing"] }, 1, 0] } },
+          shipped: { $sum: { $cond: [{ $eq: ["$orderStatus", "shipped"] }, 1, 0] } },
+          delivered: { $sum: { $cond: [{ $eq: ["$orderStatus", "delivered"] }, 1, 0] } },
+          cancelled: { $sum: { $cond: [{ $eq: ["$orderStatus", "cancelled"] }, 1, 0] } },
+          revenue: {
+            $sum: { $cond: [{ $ne: ["$orderStatus", "cancelled"] }, "$totalAmount", 0] },
+          },
+        },
+      },
+    ]);
+
+    const s = statsAgg[0] || {};
     const stats = {
-      total: allOrders.length,
-      pending: allOrders.filter((o) => o.orderStatus === "pending").length,
-      processing: allOrders.filter((o) => o.orderStatus === "processing").length,
-      shipped: allOrders.filter((o) => o.orderStatus === "shipped").length,
-      delivered: allOrders.filter((o) => o.orderStatus === "delivered").length,
-      cancelled: allOrders.filter((o) => o.orderStatus === "cancelled").length,
-      revenue: allOrders
-        .filter((o) => o.orderStatus !== "cancelled")
-        .reduce((sum, o) => sum + (Number(o.totalAmount) || 0), 0),
+      total: s.total || 0,
+      pending: s.pending || 0,
+      processing: s.processing || 0,
+      shipped: s.shipped || 0,
+      delivered: s.delivered || 0,
+      cancelled: s.cancelled || 0,
+      revenue: s.revenue || 0,
     };
 
     return {
@@ -748,18 +795,31 @@ export async function getAllOrdersAdmin({ search = "", status = "" } = {}) {
 
     baseSql += " ORDER BY createdAt DESC";
     const rows = sqliteDb.prepare(baseSql).all(...params);
-    const allRows = sqliteDb.prepare("SELECT * FROM orders").all();
+
+    // O(1) database aggregation instead of pulling all rows into Node memory
+    const statsRow =
+      sqliteDb
+        .prepare(`
+          SELECT 
+            COUNT(*) as total,
+            SUM(CASE WHEN orderStatus = 'pending' THEN 1 ELSE 0 END) as pending,
+            SUM(CASE WHEN orderStatus = 'processing' THEN 1 ELSE 0 END) as processing,
+            SUM(CASE WHEN orderStatus = 'shipped' THEN 1 ELSE 0 END) as shipped,
+            SUM(CASE WHEN orderStatus = 'delivered' THEN 1 ELSE 0 END) as delivered,
+            SUM(CASE WHEN orderStatus = 'cancelled' THEN 1 ELSE 0 END) as cancelled,
+            SUM(CASE WHEN orderStatus != 'cancelled' THEN totalAmount ELSE 0 END) as revenue
+          FROM orders
+        `)
+        .get() || {};
 
     const stats = {
-      total: allRows.length,
-      pending: allRows.filter((o) => o.orderStatus === "pending").length,
-      processing: allRows.filter((o) => o.orderStatus === "processing").length,
-      shipped: allRows.filter((o) => o.orderStatus === "shipped").length,
-      delivered: allRows.filter((o) => o.orderStatus === "delivered").length,
-      cancelled: allRows.filter((o) => o.orderStatus === "cancelled").length,
-      revenue: allRows
-        .filter((o) => o.orderStatus !== "cancelled")
-        .reduce((sum, o) => sum + (Number(o.totalAmount) || 0), 0),
+      total: Number(statsRow.total || 0),
+      pending: Number(statsRow.pending || 0),
+      processing: Number(statsRow.processing || 0),
+      shipped: Number(statsRow.shipped || 0),
+      delivered: Number(statsRow.delivered || 0),
+      cancelled: Number(statsRow.cancelled || 0),
+      revenue: Number(statsRow.revenue || 0),
     };
 
     return {

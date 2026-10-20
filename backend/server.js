@@ -1,6 +1,8 @@
 import express from "express";
 import session from "express-session";
 import cors from "cors";
+import compression from "compression";
+import helmet from "helmet";
 import dotenv from "dotenv";
 import path from "path";
 import fs from "fs";
@@ -38,9 +40,23 @@ const API_URL = (
 // Enable trust proxy for cloud deployments (Render, Railway, Heroku, Cloudflare, Nginx)
 app.set("trust proxy", 1);
 
+// ── Security headers (helmet) ─────────────────────────────────
+// Relaxed CSP so the single-file React frontend (inline scripts + CDN)
+// can still load.  Tighten per-script when migrating to bundled build.
+app.use(
+  helmet({
+    contentSecurityPolicy: false, // frontend uses inline JSX/Babel — enable after build step
+    crossOriginEmbedderPolicy: false,
+  })
+);
+
+// ── HTTP response compression ─────────────────────────────────
+// Skips already-compressed assets (images) and short responses (<1 KB)
+app.use(compression());
+
 // Body parser
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: "256kb" }));
+app.use(express.urlencoded({ extended: true, limit: "256kb" }));
 
 // CORS with credentials support
 app.use(
@@ -98,11 +114,11 @@ app.use((req, res, next) => {
   next();
 });
 
-// Static assets
-app.use("/uploads", express.static(uploadsDir));
-app.use("/images", express.static(imagesDir));
-app.use("/js", express.static(frontendDir)); // Alias /js to frontend folder so /js/main.js never 404s
-app.use(express.static(frontendDir));
+// Static assets — long-lived cache for images/uploads, short for HTML
+app.use("/uploads", express.static(uploadsDir, { maxAge: "7d", etag: true }));
+app.use("/images", express.static(imagesDir, { maxAge: "7d", etag: true }));
+app.use("/js", express.static(frontendDir, { maxAge: "1h", etag: true })); // Alias /js to frontend folder so /js/main.js never 404s
+app.use(express.static(frontendDir, { maxAge: "10m", etag: true }));
 
 // Fallback for /js/:file in case of legacy cached requests
 app.get("/js/:filename", (req, res, next) => {

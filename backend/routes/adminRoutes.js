@@ -16,6 +16,7 @@ import {
 import { requireAuth } from "../middleware/auth.js";
 import { uploadProductImage } from "../middleware/upload.js";
 import { loginRateLimiter } from "../middleware/rateLimiter.js";
+import { cache } from "../services/cacheService.js";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -250,6 +251,10 @@ router.post(
         status: status === "hidden" ? "hidden" : "active",
       });
 
+      // Bust product/category caches so storefront reflects change immediately
+      cache.invalidate("products:");
+      cache.invalidate("categories:");
+
       res.status(201).json({
         success: true,
         message: `Product "${saved.name}" created successfully.`,
@@ -309,6 +314,9 @@ router.put(
         return res.status(404).json({ success: false, message: "Product not found." });
       }
 
+      cache.invalidate("products:");
+      cache.invalidate("categories:");
+
       res.json({
         success: true,
         message: `Product "${updated.name}" updated successfully.`,
@@ -330,6 +338,9 @@ router.patch("/products/:id/toggle-status", requireAuth, async (req, res) => {
     if (!updated) {
       return res.status(404).json({ success: false, message: "Product not found." });
     }
+
+    cache.invalidate("products:");
+    cache.invalidate("categories:");
 
     res.json({
       success: true,
@@ -360,6 +371,9 @@ router.delete("/products/:id", requireAuth, async (req, res) => {
         fs.unlink(filePath, () => {});
       }
     }
+
+    cache.invalidate("products:");
+    cache.invalidate("categories:");
 
     res.json({
       success: true,
