@@ -1,5 +1,6 @@
 import express from "express";
 import session from "express-session";
+import MongoStore from "connect-mongo";
 import cors from "cors";
 import compression from "compression";
 import helmet from "helmet";
@@ -106,14 +107,29 @@ app.use(
   })
 );
 
-// Session Management with secure production cookies
+// Session Management with secure production cookies and persistent MongoDB store
 const isProduction = process.env.NODE_ENV === "production";
 if (isProduction && !process.env.SESSION_SECRET) {
   console.warn("[Security Notice] SESSION_SECRET not set in environment! Set a strong secret in production.");
 }
 
+const mongoUri = process.env.MONGODB_URI;
+const sessionStore =
+  mongoUri && !mongoUri.includes("127.0.0.1:27017") && !mongoUri.includes("localhost:27017")
+    ? MongoStore.create({
+        mongoUrl: mongoUri,
+        ttl: 7 * 24 * 60 * 60, // 7 days
+        autoRemove: "native",
+        touchAfter: 24 * 3600, // lazy session update once per 24 hours unless data changed
+        crypto: {
+          secret: process.env.SESSION_SECRET || "health-nutra-super-secret-key-987654",
+        },
+      })
+    : undefined;
+
 app.use(
   session({
+    store: sessionStore,
     secret: process.env.SESSION_SECRET || "health-nutra-super-secret-key-987654",
     resave: false,
     saveUninitialized: false,
