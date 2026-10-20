@@ -41,11 +41,34 @@ const API_URL = (
 app.set("trust proxy", 1);
 
 // ── Security headers (helmet) ─────────────────────────────────
-// Relaxed CSP so the single-file React frontend (inline scripts + CDN)
-// can still load.  Tighten per-script when migrating to bundled build.
+// CSP configured to allow necessary frontend assets, CDNs, and Google Fonts
+// while strictly disallowing unauthorized object embeds and frame-ancestors
 app.use(
   helmet({
-    contentSecurityPolicy: false, // frontend uses inline JSX/Babel — enable after build step
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: [
+          "'self'",
+          "'unsafe-inline'",
+          "'unsafe-eval'",
+          "https://unpkg.com",
+          "https://cdn.tailwindcss.com",
+          "https://cdnjs.cloudflare.com",
+        ],
+        styleSrc: [
+          "'self'",
+          "'unsafe-inline'",
+          "https://fonts.googleapis.com",
+          "https://cdn.tailwindcss.com",
+        ],
+        fontSrc: ["'self'", "https://fonts.gstatic.com", "data:"],
+        imgSrc: ["'self'", "data:", "blob:", "https:"],
+        connectSrc: ["'self'", APP_URL, API_URL, "https://health-nutra.onrender.com"],
+        objectSrc: ["'none'"],
+        upgradeInsecureRequests: process.env.NODE_ENV === "production" ? [] : null,
+      },
+    },
     crossOriginEmbedderPolicy: false,
   })
 );
@@ -54,19 +77,41 @@ app.use(
 // Skips already-compressed assets (images) and short responses (<1 KB)
 app.use(compression());
 
-// Body parser
+// Body parser with strict size limit to prevent memory-exhaustion DoS
 app.use(express.json({ limit: "256kb" }));
 app.use(express.urlencoded({ extended: true, limit: "256kb" }));
 
-// CORS with credentials support
+// ── Approved CORS Origin Policy ───────────────────────────────
+const allowedOrigins = process.env.ALLOWED_ORIGINS
+  ? process.env.ALLOWED_ORIGINS.split(",").map((s) => s.trim().replace(/\/$/, ""))
+  : [APP_URL, "https://health-nutra.onrender.com", "http://localhost:5000", "http://127.0.0.1:5000"];
+
 app.use(
   cors({
-    origin: true,
+    origin: function (origin, callback) {
+      if (!origin) return callback(null, true);
+      const cleanOrigin = origin.replace(/\/$/, "");
+      if (
+        allowedOrigins.includes(cleanOrigin) ||
+        cleanOrigin.startsWith("http://localhost:") ||
+        cleanOrigin.startsWith("http://127.0.0.1:")
+      ) {
+        return callback(null, true);
+      }
+      return callback(new Error("CORS policy does not allow access from the specified origin."), false);
+    },
     credentials: true,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "Idempotency-Key"],
   })
 );
 
-// Session Management
+// Session Management with secure production cookies
+const isProduction = process.env.NODE_ENV === "production";
+if (isProduction && !process.env.SESSION_SECRET) {
+  console.warn("[Security Notice] SESSION_SECRET not set in environment! Set a strong secret in production.");
+}
+
 app.use(
   session({
     secret: process.env.SESSION_SECRET || "health-nutra-super-secret-key-987654",
@@ -75,7 +120,7 @@ app.use(
     proxy: true,
     cookie: {
       httpOnly: true,
-      secure: "auto",
+      secure: isProduction ? true : "auto",
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       sameSite: "lax",
     },

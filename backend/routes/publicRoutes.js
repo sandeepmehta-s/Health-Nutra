@@ -1,4 +1,5 @@
 import express from "express";
+import crypto from "crypto";
 import rateLimit from "express-rate-limit";
 import {
   getActiveProducts,
@@ -8,7 +9,7 @@ import {
   getOrderById,
 } from "../services/dbService.js";
 import { cache } from "../services/cacheService.js";
-import { orderRateLimiter, contactRateLimiter } from "../middleware/rateLimiter.js";
+import { orderRateLimiter, contactRateLimiter, trackingRateLimiter } from "../middleware/rateLimiter.js";
 
 const router = express.Router();
 
@@ -20,7 +21,7 @@ const publicApiLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   message: { success: false, message: "Too many requests. Please slow down." },
-  skip: (req) => req.method === "GET" && req.path === "/ping", // never throttle keep-alive
+  skip: (req) => process.env.NODE_ENV === "test" || (req.method === "GET" && req.path === "/ping"),
 });
 
 router.use(publicApiLimiter);
@@ -108,7 +109,7 @@ router.get("/categories", async (req, res) => {
   }
 });
 
-// POST /api/orders - Customer Place Order
+// POST /api/orders - Customer Place Order (Server-Side Price Lookup & Payment Verification)
 router.post("/orders", orderRateLimiter, async (req, res) => {
   try {
     const {
@@ -135,42 +136,88 @@ router.post("/orders", orderRateLimiter, async (req, res) => {
       return res.status(400).json({ success: false, message: "Shipping address is required." });
     }
 
-    let orderItems = Array.isArray(items) && items.length > 0 ? items : null;
+    // Idempotency check: prevent duplicate order creation on network retries
+    const idempotencyKey = req.headers["idempotency-key"] || req.body.idempotencyKey;
+    if (idempotencyKey && typeof idempotencyKey === "string") {
+      const existing = cache.get(`idempotency:${idempotencyKey.trim()}`);
+      if (existing) {
+        return res.status(200).json({
+          success: true,
+          message: "Order already placed (idempotent submission).",
+          orderId: existing.orderId,
+          data: existing,
+        });
+      }
+    }
 
-    if (!orderItems && (req.body.productId || req.body.productName || req.body.name)) {
-      orderItems = [
+    // Parse items array
+    let rawItems = Array.isArray(items) && items.length > 0 ? items : null;
+    if (!rawItems && (req.body.productId || req.body.productName || req.body.name)) {
+      rawItems = [
         {
           productId: req.body.productId || req.body.id || "1",
-          name: req.body.productName || req.body.name || "Nutra Formulation",
-          price: Number(req.body.unitPrice || req.body.price || 0),
-          quantity: Math.max(1, parseInt(req.body.quantity || 1, 10)),
-          unit: req.body.unit || "Unit",
-          image: req.body.image || "/images/10q.png",
+          quantity: req.body.quantity || 1,
         },
       ];
     }
 
-    if (!orderItems || orderItems.length === 0) {
+    if (!rawItems || rawItems.length === 0) {
       return res.status(400).json({ success: false, message: "At least one product item is required to place an order." });
     }
 
-    // Calculate total
+    // Server-Side Pricing & Availability Validation: Never trust client-supplied prices!
     let computedTotal = 0;
-    const cleanItems = orderItems.map((item) => {
-      const q = Math.max(1, parseInt(item.quantity || 1, 10));
-      const p = Math.max(0, Number(item.price || 0));
-      computedTotal += p * q;
-      return {
-        productId: String(item.productId || item.id || "1"),
-        name: String(item.name || item.productName || "Nutra Formulation"),
-        price: p,
-        quantity: q,
-        unit: String(item.unit || "Unit"),
-        image: String(item.image || "/images/10q.png"),
-      };
-    });
+    const cleanItems = [];
+
+    for (const item of rawItems) {
+      const pid = String(item.productId || item.id || "");
+      let dbProduct = pid ? await getProductById(pid) : null;
+
+      // Fallback search by name if ID was not matched
+      if (!dbProduct && (item.name || item.productName)) {
+        const allActive = await getActiveProducts();
+        dbProduct = allActive.find(
+          (p) => p.name.toLowerCase() === String(item.name || item.productName).toLowerCase()
+        );
+      }
+
+      if (!dbProduct || dbProduct.status !== "active") {
+        return res.status(400).json({
+          success: false,
+          message: `Formulation "${item.name || pid}" is currently unavailable or invalid.`,
+        });
+      }
+
+      const verifiedPrice = Number(dbProduct.price);
+      const verifiedQty = Math.max(1, Math.min(100, Math.floor(Number(item.quantity) || 1)));
+      computedTotal += verifiedPrice * verifiedQty;
+
+      cleanItems.push({
+        productId: String(dbProduct.id || dbProduct._id),
+        name: dbProduct.name,
+        price: verifiedPrice, // Always server-calculated
+        quantity: verifiedQty,
+        unit: dbProduct.unit || "Unit",
+        image: dbProduct.image || "/uploads/9g.png",
+      });
+    }
+
+    // Validate payment method and initialize status safely
+    const validPaymentMethods = ["Cash on Delivery (COD)", "UPI / Online"];
+    const chosenPayment = validPaymentMethods.includes(paymentMethod)
+      ? paymentMethod
+      : "Cash on Delivery (COD)";
+
+    // Online/UPI payments require external payment verification and start as "pending"
+    const paymentStatus = chosenPayment === "Cash on Delivery (COD)" ? "cod" : "pending";
+
+    // Generate collision-resistant order ID: HN-ORD-<timestamp36>-<hex>
+    const randSuffix = crypto.randomBytes(3).toString("hex").toUpperCase();
+    const timePart = Date.now().toString(36).toUpperCase();
+    const orderId = `HN-ORD-${timePart}-${randSuffix}`;
 
     const newOrder = await createOrder({
+      orderId,
       customerName: customerName.trim(),
       customerPhone: customerPhone.trim(),
       customerEmail: (customerEmail || "").trim(),
@@ -179,11 +226,16 @@ router.post("/orders", orderRateLimiter, async (req, res) => {
       pincode: (pincode || "").trim(),
       items: cleanItems,
       totalAmount: computedTotal,
-      paymentMethod: paymentMethod || "Cash on Delivery (COD)",
-      paymentStatus: paymentMethod === "UPI / Online" ? "paid" : "cod",
+      paymentMethod: chosenPayment,
+      paymentStatus,
       orderStatus: "pending",
       notes: (notes || "").trim(),
     });
+
+    // Cache idempotency key if provided
+    if (idempotencyKey && typeof idempotencyKey === "string") {
+      cache.set(`idempotency:${idempotencyKey.trim()}`, newOrder, 600); // 10 minutes
+    }
 
     res.status(201).json({
       success: true,
@@ -199,25 +251,42 @@ router.post("/orders", orderRateLimiter, async (req, res) => {
   }
 });
 
-// GET /api/orders/:id - Track order status by Order ID
-router.get("/orders/:id", async (req, res) => {
+// GET /api/orders/:id - Track order status with strict customer privacy protection
+router.get("/orders/:id", trackingRateLimiter, async (req, res) => {
   try {
-    const order = await getOrderById(req.params.id);
+    const rawId = (req.params.id || "").trim();
+    if (!rawId) {
+      return res.status(400).json({ success: false, message: "Order ID is required." });
+    }
+
+    const order = await getOrderById(rawId);
     if (!order) {
       return res.status(404).json({ success: false, message: "Order not found. Please verify your Order ID." });
     }
+
+    // Mask street address for public tracking privacy — show only city and pincode
+    const maskedAddress = [order.city, order.pincode ? `PIN: ${order.pincode}` : ""]
+      .filter(Boolean)
+      .join(", ") || "Delivery Area Verified";
+
     res.json({
       success: true,
       data: {
         orderId: order.orderId,
         id: order.id || order.orderId,
         customerName: order.customerName,
-        customerPhone: order.customerPhone,
-        customerEmail: order.customerEmail,
-        shippingAddress: order.shippingAddress,
-        city: order.city,
-        pincode: order.pincode,
-        items: order.items || [],
+        // PRIVACY ENFORCEMENT: Never expose customerPhone, customerEmail, or internal notes publicly
+        shippingAddress: maskedAddress,
+        city: order.city || "",
+        pincode: order.pincode || "",
+        items: (order.items || []).map((it) => ({
+          productId: it.productId,
+          name: it.name,
+          quantity: it.quantity,
+          unit: it.unit,
+          price: it.price,
+          image: it.image,
+        })),
         productName: order.items && order.items[0] ? order.items[0].name : "Nutra Formulation",
         quantity: order.items && order.items[0] ? order.items[0].quantity : 1,
         orderStatus: order.orderStatus || order.status || "pending",
@@ -225,7 +294,6 @@ router.get("/orders/:id", async (req, res) => {
         paymentStatus: order.paymentStatus || "pending",
         paymentMethod: order.paymentMethod || "Cash on Delivery",
         totalAmount: order.totalAmount,
-        notes: order.notes,
         createdAt: order.createdAt,
       },
     });
@@ -234,17 +302,34 @@ router.get("/orders/:id", async (req, res) => {
   }
 });
 
-// POST /api/contact - Customer Contact Inquiry Form
+// POST /api/contact - Customer Contact Inquiry Form with Input Validation
 router.post("/contact", contactRateLimiter, async (req, res) => {
   try {
     const { name, email, phone, subject, message } = req.body;
-    if (!name || !email || !message) {
+    if (!name || typeof name !== "string" || !name.trim()) {
       return res.status(400).json({
         success: false,
         message: "Please provide your Name, Email, and Message.",
       });
     }
-    console.log(`[Contact Form] Received inquiry from ${name} (${email}, ${phone || "N/A"}): [${subject || "General"}] ${message}`);
+    if (!email || typeof email !== "string" || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+      return res.status(400).json({
+        success: false,
+        message: "Please provide your Name, Email, and Message with a valid email address.",
+      });
+    }
+    if (!message || typeof message !== "string" || !message.trim()) {
+      return res.status(400).json({
+        success: false,
+        message: "Please provide your Name, Email, and Message.",
+      });
+    }
+
+    // Safe structured logging without dumping full customer records
+    const safeName = name.trim().slice(0, 30);
+    const safeSubject = String(subject || "General").slice(0, 40);
+    console.log(`[Contact Form] Received inquiry from "${safeName}" - Subject: "${safeSubject}"`);
+
     res.status(200).json({
       success: true,
       message: "Thank you! Your message has been received. Our clinical support team will contact you shortly.",

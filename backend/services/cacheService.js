@@ -13,11 +13,13 @@
  */
 
 const DEFAULT_TTL_SECONDS = 60;
+const MAX_ENTRIES = 500; // Strict upper bound to protect 512MB RAM ceiling
 
 class TtlCache {
-  constructor() {
+  constructor(maxEntries = MAX_ENTRIES) {
     /** @type {Map<string, { value: unknown; expiresAt: number }>} */
     this._store = new Map();
+    this._maxEntries = maxEntries;
   }
 
   /**
@@ -32,16 +34,32 @@ class TtlCache {
       this._store.delete(key);
       return null;
     }
+    // Refresh insertion order for LRU behavior
+    this._store.delete(key);
+    this._store.set(key, entry);
     return entry.value;
   }
 
   /**
-   * Store a value with a TTL.
+   * Store a value with a TTL, enforcing bounded memory limits.
    * @param {string} key
    * @param {unknown} value
    * @param {number} [ttlSeconds]
    */
   set(key, value, ttlSeconds = DEFAULT_TTL_SECONDS) {
+    // If key exists, delete first to refresh order
+    if (this._store.has(key)) {
+      this._store.delete(key);
+    } else if (this._store.size >= this._maxEntries) {
+      // First try evicting expired entries
+      this._evictExpired();
+      // If still at or over limit, evict oldest entry (FIFO / LRU)
+      if (this._store.size >= this._maxEntries) {
+        const oldestKey = this._store.keys().next().value;
+        if (oldestKey) this._store.delete(oldestKey);
+      }
+    }
+
     this._store.set(key, {
       value,
       expiresAt: Date.now() + ttlSeconds * 1000,

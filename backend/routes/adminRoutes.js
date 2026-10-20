@@ -14,7 +14,7 @@ import {
   syncAdminPassword,
 } from "../services/dbService.js";
 import { requireAuth } from "../middleware/auth.js";
-import { uploadProductImage } from "../middleware/upload.js";
+import { uploadProductImage, verifyImageMagicBytes } from "../middleware/upload.js";
 import { loginRateLimiter } from "../middleware/rateLimiter.js";
 import { cache } from "../services/cacheService.js";
 import fs from "fs";
@@ -35,7 +35,7 @@ function sanitize(str) {
 // Authentication Endpoints
 // -------------------------------------------------------------
 
-// POST /api/admin/login (Rate limited)
+// POST /api/admin/login (Rate limited, strictly authenticated via bcrypt, session regenerated)
 router.post("/login", loginRateLimiter, async (req, res) => {
   try {
     const { username, password } = req.body;
@@ -47,84 +47,59 @@ router.post("/login", loginRateLimiter, async (req, res) => {
     }
 
     const cleanUsername = sanitize(username).toLowerCase();
-    const rawPassword = String(password);
-    const cleanPassword = rawPassword.trim();
+    const cleanPassword = String(password).trim();
 
-    let admin = await findAdminByUsername(cleanUsername);
+    // Look up administrator exclusively in database
+    const admin = await findAdminByUsername(cleanUsername);
 
-    // Configured admin credentials from environment or defaults
-    const envUsername = (process.env.ADMIN_USERNAME || "admin").trim().toLowerCase();
-    const envPassword = (process.env.ADMIN_PASSWORD || "admin123").trim();
-
-    let isMatch = false;
-
-    if (admin) {
-      // 1. Try bcrypt compare with raw and trimmed password
-      try {
-        isMatch = await admin.comparePassword(rawPassword);
-        if (!isMatch && cleanPassword !== rawPassword) {
-          isMatch = await admin.comparePassword(cleanPassword);
-        }
-      } catch (e) {
-        isMatch = false;
-      }
-
-      // 2. Direct equality match fallback (in case password was stored plaintext)
-      if (!isMatch && (admin.password === rawPassword || admin.password === cleanPassword)) {
-        isMatch = true;
-      }
-    }
-
-    // 3. Fail-safe master credentials check (handles any cloud restart / SQLite re-seed hash mismatch)
-    const isMasterUser = cleanUsername === envUsername || cleanUsername === "admin";
-    const isMasterPass =
-      cleanPassword === envPassword ||
-      rawPassword === envPassword ||
-      cleanPassword === "admin123" ||
-      cleanPassword === "admin";
-
-    if (!isMatch && isMasterUser && isMasterPass) {
-      isMatch = true;
-      // Resync password in database immediately
-      try {
-        await syncAdminPassword(cleanUsername, cleanPassword);
-      } catch (e) {
-        console.warn("[Auth] Resync notice:", e.message);
-      }
-
-      if (!admin) {
-        admin = {
-          id: "admin-1",
-          username: cleanUsername,
-          name: "Health Nutra Administrator",
-        };
-      }
-    }
-
-    if (!isMatch || !admin) {
+    if (!admin) {
       return res.status(401).json({
         success: false,
         message: "Invalid username or password.",
       });
     }
 
-    // Explicitly set session and save before sending response
-    req.session.adminId = admin.id || "admin-1";
-    req.session.adminUsername = admin.username;
-    req.session.adminName = admin.name || "Administrator";
+    // Verify hashed password via bcrypt
+    const isMatch = await admin.comparePassword(cleanPassword);
+    if (!isMatch) {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid username or password.",
+      });
+    }
 
-    req.session.save((err) => {
+    // Regenerate session to eliminate session fixation vulnerabilities
+    req.session.regenerate((err) => {
       if (err) {
-        console.error("[Auth] Session save error:", err);
+        console.error("[Auth] Session regeneration error:", err.message);
+        return res.status(500).json({
+          success: false,
+          message: "Internal server error during session creation.",
+        });
       }
-      res.json({
-        success: true,
-        message: "Authentication successful.",
-        admin: {
-          id: req.session.adminId,
-          username: req.session.adminUsername,
-          name: req.session.adminName,
-        },
+
+      req.session.adminId = admin.id;
+      req.session.adminUsername = admin.username;
+      req.session.adminName = admin.name || "Administrator";
+
+      req.session.save((saveErr) => {
+        if (saveErr) {
+          console.error("[Auth] Session save error:", saveErr.message);
+          return res.status(500).json({
+            success: false,
+            message: "Internal server error during session save.",
+          });
+        }
+
+        res.json({
+          success: true,
+          message: "Authentication successful.",
+          admin: {
+            id: req.session.adminId,
+            username: req.session.adminUsername,
+            name: req.session.adminName,
+          },
+        });
       });
     });
   } catch (err) {
@@ -169,14 +144,15 @@ router.get("/me", (req, res) => {
 // Product Management Endpoints (All Protected by requireAuth)
 // -------------------------------------------------------------
 
-// GET /api/admin/products - List all products with optional search & filters
+// GET /api/admin/products - List all products with optional search, filters & pagination
 router.get("/products", requireAuth, async (req, res) => {
   try {
-    const { search, category, status } = req.query;
-    const result = await getAllProductsAdmin({ search, category, status });
+    const { search, category, status, page, limit } = req.query;
+    const result = await getAllProductsAdmin({ search, category, status, page, limit });
 
     res.json({
       success: true,
+      pagination: result.pagination,
       stats: result.stats,
       categories: result.categories,
       data: result.products,
@@ -233,6 +209,14 @@ router.post(
 
       let imagePath = "/uploads/9g.png";
       if (req.file) {
+        // Enforce binary magic numbers validation to prevent MIME-spoofing
+        if (!verifyImageMagicBytes(req.file.path)) {
+          fs.unlink(req.file.path, () => {});
+          return res.status(400).json({
+            success: false,
+            message: "Uploaded file failed binary signature check. Only valid JPEG, PNG, or WebP images are allowed.",
+          });
+        }
         imagePath = `/uploads/${req.file.filename}`;
       } else if (imageUrl && sanitize(imageUrl)) {
         imagePath = sanitize(imageUrl);
@@ -302,6 +286,13 @@ router.put(
       }
 
       if (req.file) {
+        if (!verifyImageMagicBytes(req.file.path)) {
+          fs.unlink(req.file.path, () => {});
+          return res.status(400).json({
+            success: false,
+            message: "Uploaded file failed binary signature check. Only valid JPEG, PNG, or WebP images are allowed.",
+          });
+        }
         updateData.image = `/uploads/${req.file.filename}`;
       } else if (imageUrl && sanitize(imageUrl)) {
         updateData.image = sanitize(imageUrl);
@@ -366,8 +357,10 @@ router.delete("/products/:id", requireAuth, async (req, res) => {
     }
 
     if (deleted.image && deleted.image.startsWith("/uploads/product-")) {
-      const filePath = path.resolve(__dirname, "..", deleted.image.replace(/^\//, ""));
-      if (fs.existsSync(filePath)) {
+      const filename = path.basename(deleted.image);
+      const uploadsDir = path.resolve(__dirname, "..", "uploads");
+      const filePath = path.join(uploadsDir, filename);
+      if (filePath.startsWith(uploadsDir) && fs.existsSync(filePath)) {
         fs.unlink(filePath, () => {});
       }
     }
@@ -391,13 +384,14 @@ router.delete("/products/:id", requireAuth, async (req, res) => {
 // Order Management Endpoints (All Protected by requireAuth)
 // -------------------------------------------------------------
 
-// GET /api/admin/orders - List orders with search and status filter
+// GET /api/admin/orders - List orders with search, status filter & pagination
 router.get("/orders", requireAuth, async (req, res) => {
   try {
-    const { search, status } = req.query;
-    const result = await getAllOrdersAdmin({ search, status });
+    const { search, status, page, limit } = req.query;
+    const result = await getAllOrdersAdmin({ search, status, page, limit });
     res.json({
       success: true,
+      pagination: result.pagination,
       stats: result.stats,
       data: result.orders,
     });
@@ -426,11 +420,20 @@ router.get("/orders/:id", requireAuth, async (req, res) => {
 const handleUpdateStatus = async (req, res) => {
   try {
     const { orderStatus, paymentStatus, notes } = req.body;
-    const validStatuses = ["pending", "processing", "shipped", "delivered", "cancelled"];
-    if (orderStatus && !validStatuses.includes(orderStatus)) {
+    const validOrderStatuses = ["pending", "processing", "shipped", "delivered", "cancelled"];
+    const validPaymentStatuses = ["pending", "paid", "cod", "failed", "refunded"];
+
+    if (orderStatus && !validOrderStatuses.includes(orderStatus)) {
       return res.status(400).json({
         success: false,
-        message: `Invalid order status. Allowed: ${validStatuses.join(", ")}`,
+        message: `Invalid order status. Allowed: ${validOrderStatuses.join(", ")}`,
+      });
+    }
+
+    if (paymentStatus && !validPaymentStatuses.includes(paymentStatus)) {
+      return res.status(400).json({
+        success: false,
+        message: `Invalid payment status. Allowed: ${validPaymentStatuses.join(", ")}`,
       });
     }
 

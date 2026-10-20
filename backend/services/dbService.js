@@ -122,6 +122,8 @@ const STARTER_PRODUCTS = [
 // -------------------------------------------------------------
 export async function initDatabase() {
   const mongoUri = process.env.MONGODB_URI;
+  const isProduction = process.env.NODE_ENV === "production";
+  const explicitEngine = (process.env.DATABASE_TYPE || "").toLowerCase();
 
   // Disable command buffering so queries don't hang if Mongo isn't connected
   mongoose.set("bufferCommands", false);
@@ -144,6 +146,10 @@ export async function initDatabase() {
       console.warn(`[Database] Could not connect to remote MongoDB: ${err.message}`);
       await mongoose.disconnect().catch(() => {});
       useMongo = false;
+      // In production, if explicitly configured for MongoDB, fail fast instead of silently losing data in ephemeral SQLite
+      if (isProduction && (explicitEngine === "mongodb" || mongoUri)) {
+        throw new Error(`[Database] FATAL: Production MongoDB connection failed (${err.message}). Ephemeral fallback prohibited in production.`);
+      }
     }
   } else {
     // Attempt local MongoDB with quick timeout
@@ -159,13 +165,13 @@ export async function initDatabase() {
       await seedMongo();
       return "mongodb";
     } catch {
-      // Local MongoDB service not active, fallback smoothly to SQLite
+      // Local MongoDB service not active, fallback smoothly to SQLite for local development
       await mongoose.disconnect().catch(() => {});
       useMongo = false;
     }
   }
 
-  // SQLite Initialization
+  // SQLite Initialization (Development / Zero-Config fallback)
   console.log(`[Database] Notice: MongoDB local service not active.`);
   console.log(`[Database] Automatically utilizing zero-config embedded SQLite storage (health_nutra.sqlite).`);
   console.log(`[Database] (To switch to MongoDB, start mongod or paste your MongoDB Atlas URI in .env)`);
@@ -229,7 +235,7 @@ export async function initDatabase() {
 }
 
 // -------------------------------------------------------------
-// Seeders
+// Seeders (Idempotent, Safe Against Overwrites, No Fake Orders in Prod)
 // -------------------------------------------------------------
 async function seedMongo() {
   try {
@@ -240,11 +246,10 @@ async function seedMongo() {
     if (!existingAdmin) {
       await new Admin({ username: u, password: p, name: "Health Nutra Administrator" }).save();
       console.log(`[Seed] Created default MongoDB admin: "${u}"`);
-    } else {
-      // Sync password if provided in env to allow seamless access on deploy
+    } else if (process.env.FORCE_ADMIN_SYNC === "true") {
       existingAdmin.password = p;
       await existingAdmin.save();
-      console.log(`[Seed] Synced MongoDB admin credentials for: "${u}"`);
+      console.log(`[Seed] Synced MongoDB admin credentials via FORCE_ADMIN_SYNC for: "${u}"`);
     }
 
     const prodCount = await Product.countDocuments();
@@ -253,10 +258,13 @@ async function seedMongo() {
       console.log(`[Seed] Seeded ${STARTER_PRODUCTS.length} starter products into MongoDB.`);
     }
 
-    const orderCount = await Order.countDocuments();
-    if (orderCount === 0) {
-      await Order.insertMany(STARTER_ORDERS);
-      console.log(`[Seed] Seeded ${STARTER_ORDERS.length} starter orders into MongoDB.`);
+    // Only seed mock orders in development / test environments
+    if (process.env.NODE_ENV !== "production") {
+      const orderCount = await Order.countDocuments();
+      if (orderCount === 0) {
+        await Order.insertMany(STARTER_ORDERS);
+        console.log(`[Seed] Seeded ${STARTER_ORDERS.length} starter orders into MongoDB (Dev mode).`);
+      }
     }
   } catch (err) {
     console.error("[Seed Mongo]", err.message);
@@ -277,10 +285,9 @@ async function seedSQLite() {
         .prepare("INSERT INTO admins (id, username, password, name, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?, ?)")
         .run(id, u, hashed, "Health Nutra Administrator", now, now);
       console.log(`[Seed] Created default SQLite admin: "${u}"`);
-    } else {
-      // Update password hash to allow seamless admin access on deployment
+    } else if (process.env.FORCE_ADMIN_SYNC === "true") {
       sqliteDb.prepare("UPDATE admins SET password = ?, updatedAt = ? WHERE username = ?").run(hashed, now, u);
-      console.log(`[Seed] Synced SQLite admin credentials for: "${u}"`);
+      console.log(`[Seed] Synced SQLite admin credentials via FORCE_ADMIN_SYNC for: "${u}"`);
     }
 
     // Check products
@@ -311,37 +318,39 @@ async function seedSQLite() {
       console.log(`[Seed] Seeded ${STARTER_PRODUCTS.length} starter products into SQLite.`);
     }
 
-    // Check orders
-    const checkOrders = sqliteDb.prepare("SELECT count(*) as count FROM orders").get();
-    if (!checkOrders || checkOrders.count === 0) {
-      const insertOrderStmt = sqliteDb.prepare(`
-        INSERT INTO orders (id, orderId, customerName, customerPhone, customerEmail, shippingAddress, city, pincode, items, totalAmount, paymentMethod, paymentStatus, orderStatus, notes, createdAt, updatedAt)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-      `);
+    // Only seed mock orders in development / test environments
+    if (process.env.NODE_ENV !== "production") {
+      const checkOrders = sqliteDb.prepare("SELECT count(*) as count FROM orders").get();
+      if (!checkOrders || checkOrders.count === 0) {
+        const insertOrderStmt = sqliteDb.prepare(`
+          INSERT INTO orders (id, orderId, customerName, customerPhone, customerEmail, shippingAddress, city, pincode, items, totalAmount, paymentMethod, paymentStatus, orderStatus, notes, createdAt, updatedAt)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `);
 
-      for (let i = 0; i < STARTER_ORDERS.length; i++) {
-        const o = STARTER_ORDERS[i];
-        const orderTime = new Date(Date.now() - (3 - i) * 3600 * 1000 * 8).toISOString();
-        insertOrderStmt.run(
-          `ord-${i + 1}`,
-          o.orderId,
-          o.customerName,
-          o.customerPhone,
-          o.customerEmail,
-          o.shippingAddress,
-          o.city,
-          o.pincode,
-          JSON.stringify(o.items),
-          o.totalAmount,
-          o.paymentMethod,
-          o.paymentStatus,
-          o.orderStatus,
-          o.notes,
-          orderTime,
-          orderTime
-        );
+        for (let i = 0; i < STARTER_ORDERS.length; i++) {
+          const o = STARTER_ORDERS[i];
+          const orderTime = new Date(Date.now() - (3 - i) * 3600 * 1000 * 8).toISOString();
+          insertOrderStmt.run(
+            `ord-${i + 1}`,
+            o.orderId,
+            o.customerName,
+            o.customerPhone,
+            o.customerEmail,
+            o.shippingAddress,
+            o.city,
+            o.pincode,
+            JSON.stringify(o.items),
+            o.totalAmount,
+            o.paymentMethod,
+            o.paymentStatus,
+            o.orderStatus,
+            o.notes,
+            orderTime,
+            orderTime
+          );
+        }
+        console.log(`[Seed] Seeded ${STARTER_ORDERS.length} starter orders into SQLite (Dev mode).`);
       }
-      console.log(`[Seed] Seeded ${STARTER_ORDERS.length} starter orders into SQLite.`);
     }
   } catch (err) {
     console.error("[Seed SQLite]", err.message);
@@ -401,7 +410,11 @@ export async function getProductById(id) {
   }
 }
 
-export async function getAllProductsAdmin({ search, category, status }) {
+export async function getAllProductsAdmin({ search, category, status, page, limit } = {}) {
+  const pageNum = page ? Math.max(1, parseInt(page, 10)) : 1;
+  const limitNum = limit ? Math.min(100, Math.max(1, parseInt(limit, 10))) : 50;
+  const skip = (pageNum - 1) * limitNum;
+
   if (useMongo) {
     const filter = {};
     if (status && status !== "all") filter.status = status;
@@ -410,8 +423,9 @@ export async function getAllProductsAdmin({ search, category, status }) {
       const reg = new RegExp(search.trim(), "i");
       filter.$or = [{ name: reg }, { shortDescription: reg }, { category: reg }];
     }
-    const [products, total, active, hidden, categories] = await Promise.all([
-      Product.find(filter).sort({ createdAt: -1 }),
+    const [products, filteredTotal, total, active, hidden, categories] = await Promise.all([
+      Product.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limitNum),
+      Product.countDocuments(filter),
       Product.countDocuments(),
       Product.countDocuments({ status: "active" }),
       Product.countDocuments({ status: "hidden" }),
@@ -420,6 +434,12 @@ export async function getAllProductsAdmin({ search, category, status }) {
 
     return {
       products: products.map(formatProduct),
+      pagination: {
+        page: pageNum,
+        limit: limitNum,
+        total: filteredTotal,
+        totalPages: Math.ceil(filteredTotal / limitNum) || 1,
+      },
       stats: { total, active, hidden, categoriesCount: categories.length },
       categories,
     };
@@ -443,8 +463,12 @@ export async function getAllProductsAdmin({ search, category, status }) {
       params.push(s, s, s);
     }
 
-    query += " ORDER BY createdAt DESC";
-    const products = sqliteDb.prepare(query).all(...params);
+    const countSql = query.replace("SELECT *", "SELECT count(*) as c");
+    const filteredCount = sqliteDb.prepare(countSql).get(...params).c;
+
+    query += " ORDER BY createdAt DESC LIMIT ? OFFSET ?";
+    const pagedParams = [...params, limitNum, skip];
+    const products = sqliteDb.prepare(query).all(...pagedParams);
 
     // Single pass aggregation for product stats
     const statsRow =
@@ -463,6 +487,12 @@ export async function getAllProductsAdmin({ search, category, status }) {
 
     return {
       products: products.map(formatProduct),
+      pagination: {
+        page: pageNum,
+        limit: limitNum,
+        total: filteredCount,
+        totalPages: Math.ceil(filteredCount / limitNum) || 1,
+      },
       stats: {
         total: Number(statsRow.total || 0),
         active: Number(statsRow.active || 0),
@@ -727,7 +757,11 @@ export async function getOrderById(idOrOrderId) {
   }
 }
 
-export async function getAllOrdersAdmin({ search = "", status = "" } = {}) {
+export async function getAllOrdersAdmin({ search = "", status = "", page, limit } = {}) {
+  const pageNum = page ? Math.max(1, parseInt(page, 10)) : 1;
+  const limitNum = limit ? Math.min(100, Math.max(1, parseInt(limit, 10))) : 50;
+  const skip = (pageNum - 1) * limitNum;
+
   if (useMongo) {
     const query = {};
     if (status && status !== "all") {
@@ -743,24 +777,25 @@ export async function getAllOrdersAdmin({ search = "", status = "" } = {}) {
       ];
     }
 
-    const orders = await Order.find(query).sort({ createdAt: -1 });
-
-    // O(1) memory aggregation instead of pulling all documents into RAM
-    const statsAgg = await Order.aggregate([
-      {
-        $group: {
-          _id: null,
-          total: { $sum: 1 },
-          pending: { $sum: { $cond: [{ $eq: ["$orderStatus", "pending"] }, 1, 0] } },
-          processing: { $sum: { $cond: [{ $eq: ["$orderStatus", "processing"] }, 1, 0] } },
-          shipped: { $sum: { $cond: [{ $eq: ["$orderStatus", "shipped"] }, 1, 0] } },
-          delivered: { $sum: { $cond: [{ $eq: ["$orderStatus", "delivered"] }, 1, 0] } },
-          cancelled: { $sum: { $cond: [{ $eq: ["$orderStatus", "cancelled"] }, 1, 0] } },
-          revenue: {
-            $sum: { $cond: [{ $ne: ["$orderStatus", "cancelled"] }, "$totalAmount", 0] },
+    const [orders, filteredTotal, statsAgg] = await Promise.all([
+      Order.find(query).sort({ createdAt: -1 }).skip(skip).limit(limitNum),
+      Order.countDocuments(query),
+      Order.aggregate([
+        {
+          $group: {
+            _id: null,
+            total: { $sum: 1 },
+            pending: { $sum: { $cond: [{ $eq: ["$orderStatus", "pending"] }, 1, 0] } },
+            processing: { $sum: { $cond: [{ $eq: ["$orderStatus", "processing"] }, 1, 0] } },
+            shipped: { $sum: { $cond: [{ $eq: ["$orderStatus", "shipped"] }, 1, 0] } },
+            delivered: { $sum: { $cond: [{ $eq: ["$orderStatus", "delivered"] }, 1, 0] } },
+            cancelled: { $sum: { $cond: [{ $eq: ["$orderStatus", "cancelled"] }, 1, 0] } },
+            revenue: {
+              $sum: { $cond: [{ $ne: ["$orderStatus", "cancelled"] }, "$totalAmount", 0] },
+            },
           },
         },
-      },
+      ]),
     ]);
 
     const s = statsAgg[0] || {};
@@ -776,6 +811,12 @@ export async function getAllOrdersAdmin({ search = "", status = "" } = {}) {
 
     return {
       orders: orders.map(formatOrder),
+      pagination: {
+        page: pageNum,
+        limit: limitNum,
+        total: filteredTotal,
+        totalPages: Math.ceil(filteredTotal / limitNum) || 1,
+      },
       stats,
     };
   } else {
@@ -793,8 +834,12 @@ export async function getAllOrdersAdmin({ search = "", status = "" } = {}) {
       params.push(term, term, term, term);
     }
 
-    baseSql += " ORDER BY createdAt DESC";
-    const rows = sqliteDb.prepare(baseSql).all(...params);
+    const countSql = baseSql.replace("SELECT *", "SELECT count(*) as c");
+    const filteredTotal = sqliteDb.prepare(countSql).get(...params).c;
+
+    baseSql += " ORDER BY createdAt DESC LIMIT ? OFFSET ?";
+    const pagedParams = [...params, limitNum, skip];
+    const rows = sqliteDb.prepare(baseSql).all(...pagedParams);
 
     // O(1) database aggregation instead of pulling all rows into Node memory
     const statsRow =
@@ -824,6 +869,12 @@ export async function getAllOrdersAdmin({ search = "", status = "" } = {}) {
 
     return {
       orders: rows.map(formatOrder),
+      pagination: {
+        page: pageNum,
+        limit: limitNum,
+        total: filteredTotal,
+        totalPages: Math.ceil(filteredTotal / limitNum) || 1,
+      },
       stats,
     };
   }
