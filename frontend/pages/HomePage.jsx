@@ -307,9 +307,24 @@ function HomePage() {
 
       </main>
 
-      {/* Quality Standards & Trust Banner */}
-      <section id="about" className="py-16 bg-white border-y border-slate-200/80">
+      {/* Quality Standards & About Us Banner */}
+      <section id="about" className="py-16 sm:py-20 bg-white border-y border-slate-200/80 scroll-mt-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          
+          {/* Section Header */}
+          <div className="text-center max-w-3xl mx-auto mb-12 space-y-3">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-black bg-brand-50 text-brand-800 border border-brand-200">
+              <Icon name="shield-check" className="w-3.5 h-3.5 text-brand-700" />
+              <span>ABOUT HEALTH NUTRA</span>
+            </div>
+            <h2 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">
+              Certified Pharmaceutical Excellence & Clinical Purity
+            </h2>
+            <p className="text-sm sm:text-base text-slate-600 font-medium leading-relaxed">
+              Health Nutra is dedicated to elevating human wellness through scientifically validated formulations, stringent WHO-GMP manufacturing standards, and direct batch integrity verification.
+            </p>
+          </div>
+
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="p-8 rounded-3xl bg-slate-50 border border-slate-200/80 space-y-3">
               <div className="w-12 h-12 rounded-2xl bg-brand-100 text-brand-800 flex items-center justify-center font-black">
