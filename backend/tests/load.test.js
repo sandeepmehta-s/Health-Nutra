@@ -196,3 +196,4 @@ describe("Load Testing: Memory & Stability Profiling", () => {
     assert.ok(mem.heapUsed < 250 * 1024 * 1024, "Heap used should remain well within healthy limits");
   });
 });
+

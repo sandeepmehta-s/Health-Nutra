@@ -99,8 +99,8 @@ function Footer() {
             <span>•</span>
             <span className="hover:text-slate-400 transition-colors">Terms of Supply</span>
             <span>•</span>
-            <a href="/admin" className="text-orange-400 hover:text-orange-300 transition-colors font-bold">
-              Authorized Admin
+            <a href="#about" className="hover:text-slate-400 transition-colors">
+              About Us
             </a>
           </div>
         </div>
