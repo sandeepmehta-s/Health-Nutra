@@ -7,6 +7,7 @@ import {
   getDistinctCategories,
   createOrder,
   getOrderById,
+  createEnquiry,
 } from "../services/dbService.js";
 import { cache } from "../services/cacheService.js";
 import { orderRateLimiter, contactRateLimiter, trackingRateLimiter } from "../middleware/rateLimiter.js";
@@ -325,14 +326,24 @@ router.post("/contact", contactRateLimiter, async (req, res) => {
       });
     }
 
+    // Store customer inquiry securely in MongoDB
+    const saved = await createEnquiry({
+      name,
+      email,
+      phone: phone || "",
+      subject: subject || "General",
+      message,
+    });
+
     // Safe structured logging without dumping full customer records
     const safeName = name.trim().slice(0, 30);
     const safeSubject = String(subject || "General").slice(0, 40);
-    console.log(`[Contact Form] Received inquiry from "${safeName}" - Subject: "${safeSubject}"`);
+    console.log(`[Contact Form] Stored inquiry #${saved.id} from "${safeName}" - Subject: "${safeSubject}"`);
 
     res.status(200).json({
       success: true,
       message: "Thank you! Your message has been received. Our clinical support team will contact you shortly.",
+      data: saved,
     });
   } catch (err) {
     res.status(500).json({ success: false, message: "Failed to submit inquiry: " + err.message });

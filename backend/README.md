@@ -27,7 +27,7 @@ health-nutra/
 │   │   └── seedData.js           # Database starter seeder
 │   └── services/
 │       ├── cronService.js        # Automated 5-minute keep-alive cron job
-│       └── dbService.js          # Unified repository (SQLite + MongoDB fallback & admin sync)
+│       └── dbService.js          # MongoDB repository & admin synchronization service
 ├── frontend/                     # All frontend code, store, and UI assets
 │   ├── admin/
 │   │   ├── admin.html            # Tailwind CSS admin portal interface
@@ -46,9 +46,8 @@ health-nutra/
 │   └── greentea.png              # Green Tea Extract
 ├── .env                          # Local environment configuration (ignored by git)
 ├── .env.example                  # Template configuration file with APP_URL and API_URL
-├── .gitignore                    # Excludes .env, *.sqlite, node_modules
-├── health_nutra.sqlite           # Embedded zero-config SQLite database (auto-generated)
-├── package.json                  # Clean dependencies and scripts (Express, SQLite, Cron)
+├── .gitignore                    # Excludes .env, credentials, node_modules
+├── package.json                  # Dependencies and scripts (Express, Mongoose, Cron)
 ├── README.md                     # Documentation
 └── server.js                     # Express application entrypoint
 ```
@@ -99,9 +98,8 @@ HOST=0.0.0.0
 SESSION_SECRET=health-nutra-secure-production-secret-key-2026
 
 # Database
-# Default uses built-in SQLite (zero external setup).
-# To use MongoDB, start mongod or paste a MongoDB Atlas connection string:
-MONGODB_URI=mongodb://127.0.0.1:27017/health_nutra
+# Provide your MongoDB Atlas connection string:
+MONGODB_URI=mongodb+srv://<username>:<password>@cluster.mongodb.net/health_nutra?retryWrites=true&w=majority
 
 # Admin Credentials (Set strong custom credentials)
 ADMIN_USERNAME=your_admin_username
@@ -124,7 +122,7 @@ node server.js
 ```
 
 Upon launch:
-1. Connects to MongoDB if available, or automatically uses the zero-config embedded SQLite database (`health_nutra.sqlite`).
+1. Connects to MongoDB Atlas via Mongoose.
 2. Syncs and updates the admin account with the credentials configured in `.env`.
 3. Seeds starter products if the inventory is empty.
 4. Starts the 5-minute keep-alive cron job to keep free-tier deployments awake.
@@ -216,7 +214,7 @@ This provides:
    Click **Add Environment Variable** and enter:
    | Key | Value | Description |
    | :--- | :--- | :--- |
-   | `NODE_VERSION` | `22.14.0` | Uses Node.js 22 LTS with native SQLite support |
+   | `NODE_VERSION` | `22.14.0` | Uses Node.js 22 LTS |
    | `NODE_ENV` | `production` | Enables production optimizations |
    | `HOST` | `0.0.0.0` | Binds to all network interfaces |
    | `PORT` | `5000` | Port listened to by Express (Render maps this to port 443/80) |
@@ -224,7 +222,7 @@ This provides:
    | `ADMIN_USERNAME` | `admin` | Your chosen admin username |
    | `ADMIN_PASSWORD` | `YourSecurePassword123` | Your chosen admin password |
    | `PING_INTERVAL_MINUTES` | `5` | Keeps your Render service awake 24/7 |
-   | `MONGODB_URI` *(Optional)* | `mongodb+srv://...` | (Optional) MongoDB Atlas URI. If omitted, built-in SQLite is used automatically. |
+   | `MONGODB_URI` | `mongodb+srv://...` | MongoDB Atlas cluster connection string. |
 6. **Click "Create Web Service"**:
    Render will clone your repo, run `npm install`, start `node server.js`, and verify `/health`.
 
@@ -310,7 +308,7 @@ If you prefer Infrastructure-as-Code:
 - **Rate Limiting**: Limits login attempts to 5 tries per 15 minutes to thwart brute-force attacks.
 - **Input Sanitization**: Server-side validation and trimming on all inputs.
 - **File Upload Limits**: Strict 2MB file size cap and mime-type checks (JPEG, PNG, WebP only).
-- **Environment & Database Isolation**: `.env` and `*.sqlite` are excluded via `.gitignore`.
+- **Environment & Database Isolation**: `.env` and sensitive files are excluded via `.gitignore`.
 
 ---
 

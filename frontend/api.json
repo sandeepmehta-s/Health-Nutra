@@ -19,6 +19,9 @@
     "adminOrders": "/api/admin/orders",
     "adminOrderStatus": "/api/admin/orders/:id/status",
     "adminBrandLogo": "/api/admin/brand/logo",
+    "adminEnquiries": "/api/admin/enquiries",
+    "adminEnquiryStatus": "/api/admin/enquiries/:id/status",
+    "adminEnquiryExport": "/api/admin/enquiries/export",
     "config": "/api/config",
     "contact": "/api/contact"
   },

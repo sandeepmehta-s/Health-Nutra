@@ -1,8 +1,10 @@
 // Health Nutra - Comprehensive Admin Portal Client Logic
 let productsList = [];
 let ordersList = [];
+let enquiriesList = [];
 let productToDeleteId = null;
 let orderToDeleteId = null;
+let enquiryToDeleteId = null;
 let activeTab = 'products';
 let imageInputMode = 'upload'; // 'upload' or 'url'
 
@@ -13,6 +15,7 @@ const mobileSidebarToggleBtn = document.getElementById('mobileSidebarToggleBtn')
 const closeSidebarBtn = document.getElementById('closeSidebarBtn');
 const navTabProducts = document.getElementById('navTabProducts');
 const navTabOrders = document.getElementById('navTabOrders');
+const navTabEnquiries = document.getElementById('navTabEnquiries');
 const navTabAnalytics = document.getElementById('navTabAnalytics');
 const pageHeading = document.getElementById('pageHeading');
 const pageSubheading = document.getElementById('pageSubheading');
@@ -20,11 +23,24 @@ const adminNameDisplay = document.getElementById('adminNameDisplay');
 const logoutBtn = document.getElementById('logoutBtn');
 const sidebarProductsCount = document.getElementById('sidebarProductsCount');
 const sidebarOrdersPending = document.getElementById('sidebarOrdersPending');
+const sidebarEnquiriesNew = document.getElementById('sidebarEnquiriesNew');
 
 // DOM Elements - Views
 const viewProducts = document.getElementById('viewProducts');
 const viewOrders = document.getElementById('viewOrders');
+const viewEnquiries = document.getElementById('viewEnquiries');
 const viewAnalytics = document.getElementById('viewAnalytics');
+
+// DOM Elements - Enquiries View
+const enquiriesTableBody = document.getElementById('enquiriesTableBody');
+const enquiriesEmptyState = document.getElementById('enquiriesEmptyState');
+const searchEnquiryInput = document.getElementById('searchEnquiryInput');
+const filterEnquiryStatus = document.getElementById('filterEnquiryStatus');
+const refreshEnquiriesBtn = document.getElementById('refreshEnquiriesBtn');
+const statEnquiriesTotal = document.getElementById('statEnquiriesTotal');
+const statEnquiriesNew = document.getElementById('statEnquiriesNew');
+const statEnquiriesContacted = document.getElementById('statEnquiriesContacted');
+const statEnquiriesResolved = document.getElementById('statEnquiriesResolved');
 
 // DOM Elements - Products View
 const productsTableBody = document.getElementById('productsTableBody');
@@ -129,7 +145,8 @@ async function init() {
   bindSidebarEvents();
   bindProductEvents();
   bindOrderEvents();
-  await Promise.all([loadProducts(), loadOrders()]);
+  bindEnquiryEvents();
+  await Promise.all([loadProducts(), loadOrders(), loadEnquiries()]);
 }
 
 async function verifySession() {
@@ -171,6 +188,7 @@ function bindSidebarEvents() {
   // Tab switching
   navTabProducts.addEventListener('click', () => switchTab('products'));
   navTabOrders.addEventListener('click', () => switchTab('orders'));
+  if (navTabEnquiries) navTabEnquiries.addEventListener('click', () => switchTab('enquiries'));
   navTabAnalytics.addEventListener('click', () => switchTab('analytics'));
 
   // Logout
@@ -189,29 +207,45 @@ function switchTab(tab) {
   activeTab = tab;
 
   // Update nav buttons styling
-  [navTabProducts, navTabOrders, navTabAnalytics].forEach((btn) => {
+  [navTabProducts, navTabOrders, navTabEnquiries, navTabAnalytics].filter(Boolean).forEach((btn) => {
     btn.className = 'nav-tab-btn w-full flex items-center justify-between px-3.5 py-3 rounded-2xl text-xs font-bold text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-all';
   });
 
   // Hide all views
-  viewProducts.classList.add('hidden');
-  viewOrders.classList.add('hidden');
-  viewAnalytics.classList.add('hidden');
+  if (viewProducts) viewProducts.classList.add('hidden');
+  if (viewOrders) viewOrders.classList.add('hidden');
+  if (viewEnquiries) viewEnquiries.classList.add('hidden');
+  if (viewAnalytics) viewAnalytics.classList.add('hidden');
+
+  // Toggle Add Product button in top header based on active tab
+  if (openAddModalBtn) {
+    if (tab === 'products') {
+      openAddModalBtn.classList.remove('hidden');
+    } else {
+      openAddModalBtn.classList.add('hidden');
+    }
+  }
 
   if (tab === 'products') {
     navTabProducts.className = 'nav-tab-btn active w-full flex items-center justify-between px-3.5 py-3 rounded-2xl text-xs font-bold transition-all bg-brand-50 text-brand-800';
-    viewProducts.classList.remove('hidden');
+    if (viewProducts) viewProducts.classList.remove('hidden');
     pageHeading.textContent = 'Formulations Catalog';
     pageSubheading.textContent = 'Manage active vitamins, syrups & botanical supplements';
   } else if (tab === 'orders') {
     navTabOrders.className = 'nav-tab-btn active w-full flex items-center justify-between px-3.5 py-3 rounded-2xl text-xs font-bold transition-all bg-brand-50 text-brand-800';
-    viewOrders.classList.remove('hidden');
+    if (viewOrders) viewOrders.classList.remove('hidden');
     pageHeading.textContent = 'Orders Management';
     pageSubheading.textContent = 'Track and process customer orders, shipments, and fulfillment';
     loadOrders();
+  } else if (tab === 'enquiries') {
+    if (navTabEnquiries) navTabEnquiries.className = 'nav-tab-btn active w-full flex items-center justify-between px-3.5 py-3 rounded-2xl text-xs font-bold transition-all bg-brand-50 text-brand-800';
+    if (viewEnquiries) viewEnquiries.classList.remove('hidden');
+    pageHeading.textContent = 'Customer Enquiries';
+    pageSubheading.textContent = 'Direct inquiries, clinic communications & dealership leads';
+    loadEnquiries();
   } else if (tab === 'analytics') {
     navTabAnalytics.className = 'nav-tab-btn active w-full flex items-center justify-between px-3.5 py-3 rounded-2xl text-xs font-bold transition-all bg-brand-50 text-brand-800';
-    viewAnalytics.classList.remove('hidden');
+    if (viewAnalytics) viewAnalytics.classList.remove('hidden');
     pageHeading.textContent = 'Sales & Overview';
     pageSubheading.textContent = 'Real-time performance metrics and formulation distribution';
     updateOverviewStats();
@@ -914,6 +948,180 @@ function debounce(fn, delay = 250) {
     timer = setTimeout(() => fn(...args), delay);
   };
 }
+
+// HTML escape helper for XSS prevention
+function escapeHtml(str) {
+  if (typeof str !== 'string') return String(str || '');
+  return str.replace(/[&<>"']/g, (m) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
+}
+
+// -----------------------------------------------------------------
+// Enquiries Management Logic
+// -----------------------------------------------------------------
+function bindEnquiryEvents() {
+  if (searchEnquiryInput) {
+    searchEnquiryInput.addEventListener('input', debounce(loadEnquiries, 300));
+  }
+  if (filterEnquiryStatus) {
+    filterEnquiryStatus.addEventListener('change', loadEnquiries);
+  }
+  if (refreshEnquiriesBtn) {
+    refreshEnquiriesBtn.addEventListener('click', loadEnquiries);
+  }
+}
+
+async function loadEnquiries() {
+  try {
+    const search = searchEnquiryInput ? searchEnquiryInput.value.trim() : '';
+    const status = filterEnquiryStatus ? filterEnquiryStatus.value : 'All';
+    let url = `/api/admin/enquiries?page=1&limit=100`;
+    if (search) url += `&search=${encodeURIComponent(search)}`;
+    if (status && status !== 'All') url += `&status=${encodeURIComponent(status)}`;
+
+    const res = await fetch(url);
+    if (!res.ok) return;
+    const result = await res.json();
+    if (result.success) {
+      enquiriesList = result.data || [];
+      if (result.counts) {
+        if (statEnquiriesTotal) statEnquiriesTotal.textContent = result.counts.total ?? 0;
+        if (statEnquiriesNew) statEnquiriesNew.textContent = result.counts.new ?? 0;
+        if (statEnquiriesContacted) statEnquiriesContacted.textContent = result.counts.contacted ?? 0;
+        if (statEnquiriesResolved) statEnquiriesResolved.textContent = result.counts.resolved ?? 0;
+        if (sidebarEnquiriesNew) {
+          sidebarEnquiriesNew.textContent = result.counts.new ?? 0;
+        }
+      }
+      renderEnquiries(enquiriesList);
+    }
+  } catch (err) {
+    console.error('Failed to load enquiries:', err);
+  }
+}
+
+function renderEnquiries(list) {
+  if (!enquiriesTableBody) return;
+  enquiriesTableBody.innerHTML = '';
+
+  if (!list || list.length === 0) {
+    if (enquiriesEmptyState) enquiriesEmptyState.classList.remove('hidden');
+    return;
+  }
+  if (enquiriesEmptyState) enquiriesEmptyState.classList.add('hidden');
+
+  list.forEach((item) => {
+    const tr = document.createElement('tr');
+    tr.className = 'hover:bg-slate-50 transition-colors';
+
+    const dateFormatted = item.createdAt
+      ? new Date(item.createdAt).toLocaleDateString('en-IN', {
+          day: '2-digit',
+          month: 'short',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+        })
+      : '—';
+
+    const safeName = escapeHtml(item.name || 'Anonymous');
+    const safeEmail = escapeHtml(item.email || '');
+    const safePhone = escapeHtml(item.phone || '');
+    const safeSubject = escapeHtml(item.subject || 'General');
+    const safeMsg = escapeHtml(item.message || '');
+    const initial = (safeName[0] || 'U').toUpperCase();
+
+    tr.innerHTML = `
+      <td class="py-4 px-4 whitespace-nowrap text-slate-500 font-medium">${dateFormatted}</td>
+      <td class="py-4 px-4">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-800 font-black text-xs flex items-center justify-center shrink-0">
+            ${initial}
+          </div>
+          <div>
+            <div class="font-bold text-slate-900">${safeName}</div>
+          </div>
+        </div>
+      </td>
+      <td class="py-4 px-4 whitespace-nowrap">
+        <div class="space-y-0.5">
+          ${safeEmail ? `<a href="mailto:${safeEmail}" class="text-brand-700 hover:underline font-semibold flex items-center gap-1.5"><i data-lucide="mail" class="w-3.5 h-3.5 text-slate-400"></i>${safeEmail}</a>` : ''}
+          ${safePhone ? `<a href="tel:${safePhone}" class="text-slate-600 hover:text-slate-900 font-medium flex items-center gap-1.5"><i data-lucide="phone" class="w-3.5 h-3.5 text-slate-400"></i>${safePhone}</a>` : ''}
+        </div>
+      </td>
+      <td class="py-4 px-4 whitespace-nowrap">
+        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold bg-slate-100 text-slate-700 border border-slate-200">
+          ${safeSubject}
+        </span>
+      </td>
+      <td class="py-4 px-4 max-w-xs sm:max-w-md">
+        <p class="text-xs text-slate-700 font-normal leading-relaxed break-words whitespace-pre-line">${safeMsg}</p>
+      </td>
+      <td class="py-4 px-4 text-center whitespace-nowrap">
+        <select
+          onchange="updateEnquiryStatus('${item.id}', this.value)"
+          class="text-xs font-bold rounded-xl px-2.5 py-1.5 border focus:outline-none cursor-pointer ${
+            item.status === 'resolved'
+              ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
+              : item.status === 'contacted'
+              ? 'bg-amber-50 text-amber-800 border-amber-200'
+              : 'bg-blue-50 text-blue-800 border-blue-200'
+          }"
+        >
+          <option value="new" ${item.status === 'new' ? 'selected' : ''}>New</option>
+          <option value="contacted" ${item.status === 'contacted' ? 'selected' : ''}>Contacted</option>
+          <option value="resolved" ${item.status === 'resolved' ? 'selected' : ''}>Resolved</option>
+        </select>
+      </td>
+      <td class="py-4 px-4 text-right whitespace-nowrap">
+        <button
+          onclick="promptDeleteEnquiry('${item.id}', '${safeName}')"
+          class="p-2 rounded-xl text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+          title="Delete Enquiry"
+        >
+          <i data-lucide="trash-2" class="w-4 h-4"></i>
+        </button>
+      </td>
+    `;
+    enquiriesTableBody.appendChild(tr);
+  });
+
+  if (window.lucide) window.lucide.createIcons();
+}
+
+window.updateEnquiryStatus = async function(id, newStatus) {
+  try {
+    const res = await fetch(`/api/admin/enquiries/${id}/status`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: newStatus }),
+    });
+    const result = await res.json();
+    if (res.ok && result.success) {
+      showToast(result.message || 'Status updated');
+      await loadEnquiries();
+    } else {
+      showToast(result.message || 'Failed to update status', 'error');
+    }
+  } catch {
+    showToast('Network error while updating status', 'error');
+  }
+};
+
+window.promptDeleteEnquiry = async function(id, name) {
+  if (!confirm(`Are you sure you want to delete inquiry from "${name}"?`)) return;
+  try {
+    const res = await fetch(`/api/admin/enquiries/${id}`, { method: 'DELETE' });
+    const result = await res.json();
+    if (res.ok && result.success) {
+      showToast(result.message || 'Enquiry deleted');
+      await loadEnquiries();
+    } else {
+      showToast(result.message || 'Failed to delete enquiry', 'error');
+    }
+  } catch {
+    showToast('Network error while deleting enquiry', 'error');
+  }
+};
 
 // Run
 document.addEventListener('DOMContentLoaded', init);

@@ -4,9 +4,10 @@
  * icon name resolution, and API URL resolver.
  */
 
-import { test, describe, before } from "node:test";
+import { test, describe, before, after } from "node:test";
 import assert from "node:assert/strict";
 import bcrypt from "bcryptjs";
+import mongoose from "mongoose";
 import {
   initDatabase,
   getActiveProducts,
@@ -21,6 +22,12 @@ import {
 describe("Unit Tests: Database Service & Core Logic", () => {
   before(async () => {
     await initDatabase();
+  });
+
+  after(async () => {
+    if (mongoose.connection && mongoose.connection.readyState !== 0) {
+      await mongoose.connection.close();
+    }
   });
 
   test("DB Service - getActiveProducts returns populated list of active products", async () => {

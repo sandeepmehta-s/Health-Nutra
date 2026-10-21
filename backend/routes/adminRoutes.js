@@ -12,6 +12,11 @@ import {
   updateOrderStatus,
   deleteOrder,
   syncAdminPassword,
+  getAllEnquiriesAdmin,
+  getEnquiryById,
+  updateEnquiryStatus,
+  deleteEnquiry,
+  getAllEnquiriesForExport,
 } from "../services/dbService.js";
 import { requireAuth } from "../middleware/auth.js";
 import { uploadProductImage, verifyImageMagicBytes } from "../middleware/upload.js";
@@ -578,6 +583,101 @@ router.post(
     }
   }
 );
+
+// -------------------------------------------------------------
+// Admin Customer Enquiries Endpoints
+// -------------------------------------------------------------
+
+// GET /api/admin/enquiries/export - Export all enquiries to CSV
+router.get("/enquiries/export", requireAuth, async (req, res) => {
+  try {
+    const list = await getAllEnquiriesForExport();
+
+    const headers = ["ID", "Date", "Name", "Email", "Phone", "Subject", "Status", "Message"];
+    const rows = list.map((e) => [
+      e.id,
+      new Date(e.createdAt).toISOString(),
+      `"${(e.name || "").replace(/"/g, '""')}"`,
+      `"${(e.email || "").replace(/"/g, '""')}"`,
+      `"${(e.phone || "").replace(/"/g, '""')}"`,
+      `"${(e.subject || "").replace(/"/g, '""')}"`,
+      e.status,
+      `"${(e.message || "").replace(/"/g, '""').replace(/\r?\n/g, " ")}"`,
+    ]);
+
+    const csvContent = [headers.join(","), ...rows.map((r) => r.join(","))].join("\r\n");
+    const filename = `health-nutra-enquiries-${new Date().toISOString().slice(0, 10)}.csv`;
+
+    res.setHeader("Content-Type", "text/csv; charset=utf-8");
+    res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
+    res.send(csvContent);
+  } catch (err) {
+    res.status(500).json({ success: false, message: "Failed to export enquiries: " + err.message });
+  }
+});
+
+// GET /api/admin/enquiries - List all enquiries with pagination & search
+router.get("/enquiries", requireAuth, async (req, res) => {
+  try {
+    const { search, status, page, limit } = req.query;
+    const result = await getAllEnquiriesAdmin({
+      search: sanitize(search),
+      status: sanitize(status),
+      page,
+      limit,
+    });
+    res.json({
+      success: true,
+      data: result.enquiries,
+      pagination: result.pagination,
+      stats: result.stats,
+      counts: result.stats,
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: "Failed to fetch enquiries: " + err.message });
+  }
+});
+
+// PATCH /api/admin/enquiries/:id/status - Update enquiry status
+router.patch("/enquiries/:id/status", requireAuth, async (req, res) => {
+  try {
+    const { status } = req.body;
+    if (!status || !["new", "contacted", "resolved"].includes(status)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Status must be one of: "new", "contacted", "resolved".',
+      });
+    }
+    const updated = await updateEnquiryStatus(req.params.id, status);
+    if (!updated) {
+      return res.status(404).json({ success: false, message: "Enquiry not found." });
+    }
+    res.json({
+      success: true,
+      message: `Enquiry marked as "${status}".`,
+      data: updated,
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: "Failed to update enquiry: " + err.message });
+  }
+});
+
+// DELETE /api/admin/enquiries/:id - Delete enquiry
+router.delete("/enquiries/:id", requireAuth, async (req, res) => {
+  try {
+    const deleted = await deleteEnquiry(req.params.id);
+    if (!deleted) {
+      return res.status(404).json({ success: false, message: "Enquiry not found." });
+    }
+    res.json({
+      success: true,
+      message: "Enquiry deleted successfully.",
+      data: deleted,
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: "Failed to delete enquiry: " + err.message });
+  }
+});
 
 export default router;
 

@@ -23,6 +23,9 @@ const DEFAULT_CONFIG = {
     adminOrders: "/api/admin/orders",
     adminOrderStatus: "/api/admin/orders/:id/status",
     adminBrandLogo: "/api/admin/brand/logo",
+    adminEnquiries: "/api/admin/enquiries",
+    adminEnquiryStatus: "/api/admin/enquiries/:id/status",
+    adminEnquiryExport: "/api/admin/enquiries/export",
     config: "/api/config",
     contact: "/api/contact",
   },
@@ -325,6 +328,55 @@ class ApiHelper {
     const url = `${this.resolveUrl("adminOrders")}/${orderId}`;
     const res = await this.request(url, { method: "DELETE" });
     return res.data;
+  }
+
+  // ==========================================
+  // ADMIN ENQUIRIES & LEAD MANAGEMENT APIS
+  // ==========================================
+
+  /**
+   * Get enquiries with optional search, status filter, and pagination
+   */
+  async getAdminEnquiries({ search = "", status = "", page = 1, limit = 50 } = {}) {
+    let url = this.resolveUrl("adminEnquiries");
+    const params = new URLSearchParams();
+    if (search) params.append("search", search);
+    if (status && status !== "All") params.append("status", status);
+    if (page) params.append("page", page);
+    if (limit) params.append("limit", limit);
+    const queryString = params.toString();
+    if (queryString) url += `?${queryString}`;
+
+    const res = await this.request(url, { method: "GET" });
+    return res.data;
+  }
+
+  /**
+   * Update enquiry status ('new', 'contacted', 'resolved')
+   */
+  async updateEnquiryStatus(enquiryId, status) {
+    const url = this.resolveUrl("adminEnquiryStatus", { id: enquiryId });
+    const res = await this.request(url, {
+      method: "PATCH",
+      body: JSON.stringify({ status }),
+    });
+    return res.data;
+  }
+
+  /**
+   * Delete an enquiry
+   */
+  async deleteEnquiry(enquiryId) {
+    const url = `${this.resolveUrl("adminEnquiries")}/${enquiryId}`;
+    const res = await this.request(url, { method: "DELETE" });
+    return res.data;
+  }
+
+  /**
+   * Get URL for CSV export of enquiries
+   */
+  getEnquiryExportUrl() {
+    return this.resolveUrl("adminEnquiryExport");
   }
 
   /**

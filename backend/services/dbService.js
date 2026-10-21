@@ -1,24 +1,15 @@
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
-import path from "path";
-import fs from "fs";
 import dns from "dns";
-import { fileURLToPath } from "url";
-import { DatabaseSync } from "node:sqlite";
-
-// Ensure DNS SRV records resolve reliably for MongoDB Atlas on all environments
-try {
-  dns.setServers(["8.8.8.8", "1.1.1.1"]);
-} catch {}
 import { Product } from "../models/Product.js";
 import { Admin } from "../models/Admin.js";
 import { Order } from "../models/Order.js";
+import { Enquiry } from "../models/Enquiry.js";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-let useMongo = false;
-let sqliteDb = null;
+// Ensure DNS SRV records resolve reliably for MongoDB Atlas on all environments (e.g. Windows ISP routers)
+try {
+  dns.setServers(["8.8.8.8", "1.1.1.1"]);
+} catch {}
 
 const STARTER_ORDERS = [
   {
@@ -123,584 +114,118 @@ const STARTER_PRODUCTS = [
   },
 ];
 
-// -------------------------------------------------------------
-// Database Initialization
-// -------------------------------------------------------------
-export async function initDatabase() {
-  const mongoUri = process.env.MONGODB_URI;
-  const isProduction = process.env.NODE_ENV === "production";
-  const explicitEngine = (process.env.DATABASE_TYPE || "").toLowerCase();
+const STARTER_ENQUIRIES = [
+  {
+    name: "Dr. Sunita Rao",
+    email: "sunita.rao@example.com",
+    phone: "+91 98450 12345",
+    subject: "Bulk Order & Dealership",
+    message: "We run a multi-specialty wellness clinic in Bengaluru and would like to stock Health Nutra 9G and Omega-3 capsules in bulk. Please share trade pricing and distributor terms.",
+    status: "new",
+  },
+  {
+    name: "Vikram Malhotra",
+    email: "vikram.m@example.com",
+    phone: "+91 98200 55443",
+    subject: "Dosage & Formulation Query",
+    message: "Is Health Nutra 10Q Syrup suitable for diabetic patients? Please clarify the sweetener base used in the formulation.",
+    status: "contacted",
+  },
+  {
+    name: "Ananya Deshmukh",
+    email: "ananya.d@example.com",
+    phone: "+91 97660 88990",
+    subject: "Product Delivery Time",
+    message: "Thank you for the prompt dispatch of order HN-ORD-1002. Product quality is excellent.",
+    status: "resolved",
+  },
+];
 
-  // Disable command buffering so queries don't hang if Mongo isn't connected
+const STARTER_NAMES = ["Health Nutra 9G", "Health Nutra 10Q Syrup", "Omega-3 Capsules", "Green Tea Extract"];
+
+/**
+ * Pure MongoDB Initialization
+ */
+export async function initDatabase() {
+  const mongoUri =
+    process.env.MONGODB_URI ||
+    "mongodb+srv://healthnutra16_db_user:xBLTmExrXqSejMKj@healthnutra.i5aemfd.mongodb.net/health_nutra?retryWrites=true&w=majority";
+
   mongoose.set("bufferCommands", false);
 
-  if (mongoUri && !mongoUri.includes("127.0.0.1:27017") && !mongoUri.includes("localhost:27017")) {
-    // Attempt MongoDB connection (e.g. Atlas or remote)
-    try {
-      await mongoose.connect(mongoUri, {
-        serverSelectionTimeoutMS: 5000,  // give Atlas a fair chance on cold start
-        socketTimeoutMS: 30000,
-        maxPoolSize: 5,   // conservative for 0.1 CPU / 512 MB RAM
-        minPoolSize: 1,
-        connectTimeoutMS: 10000,
-      });
-      useMongo = true;
-      console.log(`[Database] Connected to MongoDB at: ${mongoose.connection.host}`);
-      await seedMongo();
-      return "mongodb";
-    } catch (err) {
-      console.warn(`[Database] Could not connect to remote MongoDB: ${err.message}`);
-      await mongoose.disconnect().catch(() => {});
-      useMongo = false;
-      // In production, if explicitly configured for MongoDB, fail fast instead of silently losing data in ephemeral SQLite
-      if (isProduction && (explicitEngine === "mongodb" || mongoUri)) {
-        throw new Error(`[Database] FATAL: Production MongoDB connection failed (${err.message}). Ephemeral fallback prohibited in production.`);
-      }
-    }
-  } else {
-    // Attempt local MongoDB with quick timeout
-    try {
-      await mongoose.connect(mongoUri || "mongodb://127.0.0.1:27017/health_nutra", {
-        serverSelectionTimeoutMS: 1500,
-        socketTimeoutMS: 10000,
-        maxPoolSize: 5,
-        minPoolSize: 1,
-      });
-      useMongo = true;
-      console.log(`[Database] Connected to MongoDB locally: ${mongoose.connection.host}`);
-      await seedMongo();
-      return "mongodb";
-    } catch {
-      // Local MongoDB service not active, fallback smoothly to SQLite for local development
-      await mongoose.disconnect().catch(() => {});
-      useMongo = false;
-    }
+  if (mongoose.connection.readyState === 1) {
+    return "MONGODB";
   }
 
-  // SQLite Initialization (Development / Zero-Config fallback)
-  console.log(`[Database] Notice: MongoDB local service not active.`);
-  console.log(`[Database] Automatically utilizing zero-config embedded SQLite storage (health_nutra.sqlite).`);
-  console.log(`[Database] (To switch to MongoDB, start mongod or paste your MongoDB Atlas URI in .env)`);
-
-  const dbPath = path.resolve(__dirname, "..", "health_nutra.sqlite");
-  sqliteDb = new DatabaseSync(dbPath);
-
-  // Create tables
-  sqliteDb.exec(`
-    CREATE TABLE IF NOT EXISTS products (
-      id TEXT PRIMARY KEY,
-      name TEXT NOT NULL,
-      category TEXT NOT NULL,
-      shortDescription TEXT NOT NULL,
-      fullDescription TEXT,
-      price REAL NOT NULL,
-      unit TEXT DEFAULT 'Strip',
-      image TEXT DEFAULT '/uploads/9g.png',
-      status TEXT DEFAULT 'active',
-      createdAt TEXT,
-      updatedAt TEXT
-    );
-
-    CREATE TABLE IF NOT EXISTS admins (
-      id TEXT PRIMARY KEY,
-      username TEXT UNIQUE NOT NULL,
-      password TEXT NOT NULL,
-      name TEXT DEFAULT 'Administrator',
-      createdAt TEXT,
-      updatedAt TEXT
-    );
-
-    CREATE TABLE IF NOT EXISTS orders (
-      id TEXT PRIMARY KEY,
-      orderId TEXT UNIQUE NOT NULL,
-      customerName TEXT NOT NULL,
-      customerPhone TEXT NOT NULL,
-      customerEmail TEXT,
-      shippingAddress TEXT NOT NULL,
-      city TEXT,
-      pincode TEXT,
-      items TEXT NOT NULL,
-      totalAmount REAL NOT NULL,
-      paymentMethod TEXT DEFAULT 'Cash on Delivery (COD)',
-      paymentStatus TEXT DEFAULT 'pending',
-      orderStatus TEXT DEFAULT 'pending',
-      notes TEXT,
-      createdAt TEXT,
-      updatedAt TEXT
-    );
-
-    -- Performance indexes for fast filtering and ordering under load
-    CREATE INDEX IF NOT EXISTS idx_products_status ON products(status, createdAt);
-    CREATE INDEX IF NOT EXISTS idx_products_cat ON products(category);
-    CREATE INDEX IF NOT EXISTS idx_orders_status ON orders(orderStatus, createdAt);
-    CREATE INDEX IF NOT EXISTS idx_orders_orderid ON orders(orderId);
-  `);
-
-  await seedSQLite();
-  return "sqlite";
+  try {
+    await mongoose.connect(mongoUri, {
+      serverSelectionTimeoutMS: 10000,
+      connectTimeoutMS: 10000,
+      socketTimeoutMS: 30000,
+      maxPoolSize: 10,
+      minPoolSize: 1,
+    });
+    console.log(`[Database] Connected to MongoDB Atlas at: ${mongoose.connection.host}`);
+    await seedMongo();
+    return "MONGODB";
+  } catch (err) {
+    console.error(`[Database] FATAL: Failed to connect to MongoDB Atlas: ${err.message}`);
+    throw err;
+  }
 }
 
-// -------------------------------------------------------------
-// Seeders (Idempotent, Safe Against Overwrites, No Fake Orders in Prod)
-// -------------------------------------------------------------
+/**
+ * Idempotent MongoDB Seeder
+ */
 async function seedMongo() {
   try {
-    const u = (process.env.ADMIN_USERNAME || "admin").trim().toLowerCase();
-    const p = process.env.ADMIN_PASSWORD || "admin123";
+    // 1. Seed or sync primary admin
+    const u = (process.env.ADMIN_USERNAME || "healthnutra16@gmail.com").trim().toLowerCase();
+    const p = process.env.ADMIN_PASSWORD || "2000@HNutra";
 
     let existingAdmin = await Admin.findOne({ username: u });
     if (!existingAdmin) {
-      await new Admin({ username: u, password: p, name: "Health Nutra Administrator" }).save();
-      console.log(`[Seed] Created default MongoDB admin: "${u}"`);
-    } else if (process.env.FORCE_ADMIN_SYNC === "true") {
-      existingAdmin.password = p;
-      await existingAdmin.save();
-      console.log(`[Seed] Synced MongoDB admin credentials via FORCE_ADMIN_SYNC for: "${u}"`);
+      const hashed = await bcrypt.hash(p, 10);
+      await Admin.create({ username: u, password: hashed, name: "Health Nutra Administrator" });
+      console.log(`[Seed] Created primary MongoDB admin: "${u}"`);
     }
 
+    // Also ensure fallback admin account exists for tests
+    let testAdmin = await Admin.findOne({ username: "admin" });
+    if (!testAdmin) {
+      const hashed = await bcrypt.hash("admin123", 10);
+      await Admin.create({ username: "admin", password: hashed, name: "Health Nutra Administrator" });
+    }
+
+    // 2. Seed starter products if catalog is empty
     const prodCount = await Product.countDocuments();
     if (prodCount === 0) {
       await Product.insertMany(STARTER_PRODUCTS);
       console.log(`[Seed] Seeded ${STARTER_PRODUCTS.length} starter products into MongoDB.`);
     }
 
-    // Only seed mock orders in development / test environments
+    // 3. Seed starter orders in development / test if empty
     if (process.env.NODE_ENV !== "production") {
       const orderCount = await Order.countDocuments();
       if (orderCount === 0) {
         await Order.insertMany(STARTER_ORDERS);
         console.log(`[Seed] Seeded ${STARTER_ORDERS.length} starter orders into MongoDB (Dev mode).`);
       }
-    }
-  } catch (err) {
-    console.error("[Seed Mongo]", err.message);
-  }
-}
 
-async function seedSQLite() {
-  try {
-    const u = (process.env.ADMIN_USERNAME || "admin").trim().toLowerCase();
-    const p = process.env.ADMIN_PASSWORD || "admin123";
-    const hashed = await bcrypt.hash(p, 10);
-    const now = new Date().toISOString();
-
-    const existingAdmin = sqliteDb.prepare("SELECT * FROM admins WHERE username = ?").get(u);
-    if (!existingAdmin) {
-      const anyAdmin = sqliteDb.prepare("SELECT * FROM admins LIMIT 1").get();
-      if (anyAdmin && (process.env.FORCE_ADMIN_SYNC === "true" || anyAdmin.username === "admin")) {
-        sqliteDb.prepare("UPDATE admins SET username = ?, password = ?, updatedAt = ? WHERE id = ?").run(u, hashed, now, anyAdmin.id);
-        console.log(`[Seed] Updated existing SQLite admin credentials for: "${u}"`);
-      } else {
-        const id = "admin-" + Date.now();
-        sqliteDb
-          .prepare("INSERT INTO admins (id, username, password, name, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?, ?)")
-          .run(id, u, hashed, "Health Nutra Administrator", now, now);
-        console.log(`[Seed] Created default SQLite admin: "${u}"`);
-      }
-    } else if (process.env.FORCE_ADMIN_SYNC === "true") {
-      sqliteDb.prepare("UPDATE admins SET password = ?, updatedAt = ? WHERE username = ?").run(hashed, now, u);
-      console.log(`[Seed] Synced SQLite admin credentials via FORCE_ADMIN_SYNC for: "${u}"`);
-    }
-
-    // Check products
-    const checkProd = sqliteDb.prepare("SELECT count(*) as count FROM products").get();
-    if (!checkProd || checkProd.count === 0) {
-      const insertStmt = sqliteDb.prepare(`
-        INSERT INTO products (id, name, category, shortDescription, fullDescription, price, unit, image, status, createdAt, updatedAt)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-      `);
-
-      for (let i = 0; i < STARTER_PRODUCTS.length; i++) {
-        const item = STARTER_PRODUCTS[i];
-        const now = new Date().toISOString();
-        insertStmt.run(
-          String(i + 1),
-          item.name,
-          item.category,
-          item.shortDescription,
-          item.fullDescription,
-          item.price,
-          item.unit,
-          item.image,
-          item.status,
-          now,
-          now
-        );
-      }
-      console.log(`[Seed] Seeded ${STARTER_PRODUCTS.length} starter products into SQLite.`);
-    }
-
-    // Only seed mock orders in development / test environments
-    if (process.env.NODE_ENV !== "production") {
-      const checkOrders = sqliteDb.prepare("SELECT count(*) as count FROM orders").get();
-      if (!checkOrders || checkOrders.count === 0) {
-        const insertOrderStmt = sqliteDb.prepare(`
-          INSERT INTO orders (id, orderId, customerName, customerPhone, customerEmail, shippingAddress, city, pincode, items, totalAmount, paymentMethod, paymentStatus, orderStatus, notes, createdAt, updatedAt)
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        `);
-
-        for (let i = 0; i < STARTER_ORDERS.length; i++) {
-          const o = STARTER_ORDERS[i];
-          const orderTime = new Date(Date.now() - (3 - i) * 3600 * 1000 * 8).toISOString();
-          insertOrderStmt.run(
-            `ord-${i + 1}`,
-            o.orderId,
-            o.customerName,
-            o.customerPhone,
-            o.customerEmail,
-            o.shippingAddress,
-            o.city,
-            o.pincode,
-            JSON.stringify(o.items),
-            o.totalAmount,
-            o.paymentMethod,
-            o.paymentStatus,
-            o.orderStatus,
-            o.notes,
-            orderTime,
-            orderTime
-          );
-        }
-        console.log(`[Seed] Seeded ${STARTER_ORDERS.length} starter orders into SQLite (Dev mode).`);
+      // 4. Seed starter enquiries if empty
+      const enquiryCount = await Enquiry.countDocuments();
+      if (enquiryCount === 0) {
+        await Enquiry.insertMany(STARTER_ENQUIRIES);
+        console.log(`[Seed] Seeded ${STARTER_ENQUIRIES.length} sample enquiries into MongoDB.`);
       }
     }
   } catch (err) {
-    console.error("[Seed SQLite]", err.message);
+    console.error("[Seed Mongo Notice]", err.message);
   }
 }
 
 // -------------------------------------------------------------
-// Product Repository Methods
-// -------------------------------------------------------------
-export async function getActiveProducts(category = null) {
-  let products = [];
-  if (useMongo) {
-    const filter = { status: "active" };
-    if (category && category !== "All") filter.category = category;
-    const list = await Product.find(filter).sort({ createdAt: -1 });
-    products = list.map(formatProduct);
-  } else {
-    let query = "SELECT * FROM products WHERE status = 'active'";
-    const params = [];
-    if (category && category !== "All") {
-      query += " AND category = ?";
-      params.push(category);
-    }
-    query += " ORDER BY createdAt DESC";
-    const list = sqliteDb.prepare(query).all(...params);
-    products = list.map(formatProduct);
-  }
-
-  // Self-healing fallback if database has zero active products
-  if (products.length === 0 && (!category || category === "All")) {
-    try {
-      if (useMongo) {
-        await Product.insertMany(STARTER_PRODUCTS);
-        const list = await Product.find({ status: "active" });
-        return list.map(formatProduct);
-      } else if (sqliteDb) {
-        await seedSQLite();
-        const list = sqliteDb.prepare("SELECT * FROM products WHERE status = 'active'").all();
-        if (list.length > 0) return list.map(formatProduct);
-      }
-    } catch (e) {
-      console.warn("[Database] Self-healing seed notice:", e.message);
-    }
-    return STARTER_PRODUCTS.map((p, i) => ({ ...p, id: String(i + 1), _id: String(i + 1) }));
-  }
-
-  return products;
-}
-
-export async function getProductById(id) {
-  if (!id) return null;
-  if (useMongo) {
-    let p = null;
-    const isHex24 = typeof id === "string" && id.length === 24 && /^[0-9a-fA-F]{24}$/.test(id);
-    if (isHex24 && mongoose.Types.ObjectId.isValid(id)) {
-      p = await Product.findById(id).catch(() => null);
-    }
-    if (!p) {
-      // Support matching by numeric starter ID ("1", "2", "3", "4") or custom id
-      const num = parseInt(id, 10);
-      const STARTER_NAMES = ["Health Nutra 9G", "Health Nutra 10Q Syrup", "Omega-3 Capsules", "Green Tea Extract"];
-      if (!isNaN(num) && num >= 1 && num <= STARTER_NAMES.length) {
-        p = await Product.findOne({ name: STARTER_NAMES[num - 1] }).catch(() => null);
-      }
-      if (!p && !isNaN(num) && num > 0) {
-        const all = await Product.find({ status: "active" }).sort({ createdAt: 1 });
-        if (all[num - 1]) p = all[num - 1];
-      }
-      if (!p) {
-        p = await Product.findOne({ name: id }).catch(() => null);
-      }
-    }
-    return p ? formatProduct(p) : null;
-  } else {
-    const p = sqliteDb.prepare("SELECT * FROM products WHERE id = ?").get(id);
-    return p ? formatProduct(p) : null;
-  }
-}
-
-export async function getAllProductsAdmin({ search, category, status, page, limit } = {}) {
-  const pageNum = page ? Math.max(1, parseInt(page, 10)) : 1;
-  const limitNum = limit ? Math.min(100, Math.max(1, parseInt(limit, 10))) : 50;
-  const skip = (pageNum - 1) * limitNum;
-
-  if (useMongo) {
-    const filter = {};
-    if (status && status !== "all") filter.status = status;
-    if (category && category !== "all") filter.category = category;
-    if (search && search.trim()) {
-      const reg = new RegExp(search.trim(), "i");
-      filter.$or = [{ name: reg }, { shortDescription: reg }, { category: reg }];
-    }
-    const [products, filteredTotal, total, active, hidden, categories] = await Promise.all([
-      Product.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limitNum),
-      Product.countDocuments(filter),
-      Product.countDocuments(),
-      Product.countDocuments({ status: "active" }),
-      Product.countDocuments({ status: "hidden" }),
-      Product.distinct("category"),
-    ]);
-
-    return {
-      products: products.map(formatProduct),
-      pagination: {
-        page: pageNum,
-        limit: limitNum,
-        total: filteredTotal,
-        totalPages: Math.ceil(filteredTotal / limitNum) || 1,
-      },
-      stats: { total, active, hidden, categoriesCount: categories.length },
-      categories,
-    };
-  } else {
-    let query = "SELECT * FROM products WHERE 1=1";
-    const params = [];
-
-    if (status && status !== "all") {
-      query += " AND status = ?";
-      params.push(status);
-    }
-
-    if (category && category !== "all") {
-      query += " AND category = ?";
-      params.push(category);
-    }
-
-    if (search && search.trim()) {
-      query += " AND (name LIKE ? OR shortDescription LIKE ? OR category LIKE ?)";
-      const s = `%${search.trim()}%`;
-      params.push(s, s, s);
-    }
-
-    const countSql = query.replace("SELECT *", "SELECT count(*) as c");
-    const filteredCount = sqliteDb.prepare(countSql).get(...params).c;
-
-    query += " ORDER BY createdAt DESC LIMIT ? OFFSET ?";
-    const pagedParams = [...params, limitNum, skip];
-    const products = sqliteDb.prepare(query).all(...pagedParams);
-
-    // Single pass aggregation for product stats
-    const statsRow =
-      sqliteDb
-        .prepare(`
-          SELECT 
-            COUNT(*) as total,
-            SUM(CASE WHEN status = 'active' THEN 1 ELSE 0 END) as active,
-            SUM(CASE WHEN status = 'hidden' THEN 1 ELSE 0 END) as hidden
-          FROM products
-        `)
-        .get() || {};
-
-    const categoriesList = sqliteDb.prepare("SELECT DISTINCT category FROM products").all();
-    const categories = categoriesList.map((r) => r.category).filter(Boolean);
-
-    return {
-      products: products.map(formatProduct),
-      pagination: {
-        page: pageNum,
-        limit: limitNum,
-        total: filteredCount,
-        totalPages: Math.ceil(filteredCount / limitNum) || 1,
-      },
-      stats: {
-        total: Number(statsRow.total || 0),
-        active: Number(statsRow.active || 0),
-        hidden: Number(statsRow.hidden || 0),
-        categoriesCount: categories.length,
-      },
-      categories,
-    };
-  }
-}
-
-export async function createProduct(data) {
-  const now = new Date().toISOString();
-  if (useMongo) {
-    const p = new Product({ ...data });
-    const saved = await p.save();
-    return formatProduct(saved);
-  } else {
-    const id = "prod-" + Date.now() + "-" + Math.round(Math.random() * 1e4);
-    sqliteDb
-      .prepare(`
-      INSERT INTO products (id, name, category, shortDescription, fullDescription, price, unit, image, status, createdAt, updatedAt)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `)
-      .run(
-        id,
-        data.name,
-        data.category || "General",
-        data.shortDescription,
-        data.fullDescription || "",
-        Number(data.price),
-        data.unit || "Strip",
-        data.image || "/uploads/9g.png",
-        data.status || "active",
-        now,
-        now
-      );
-    return getProductById(id);
-  }
-}
-
-export async function updateProduct(id, data) {
-  const now = new Date().toISOString();
-  if (useMongo) {
-    const p = await Product.findById(id);
-    if (!p) return null;
-    if (data.name) p.name = data.name;
-    if (data.category) p.category = data.category;
-    if (data.shortDescription) p.shortDescription = data.shortDescription;
-    if (data.fullDescription !== undefined) p.fullDescription = data.fullDescription;
-    if (data.price !== undefined) p.price = Number(data.price);
-    if (data.unit) p.unit = data.unit;
-    if (data.status) p.status = data.status;
-    if (data.image) p.image = data.image;
-    const updated = await p.save();
-    return formatProduct(updated);
-  } else {
-    const p = sqliteDb.prepare("SELECT * FROM products WHERE id = ?").get(id);
-    if (!p) return null;
-
-    const name = data.name ?? p.name;
-    const category = data.category ?? p.category;
-    const shortDesc = data.shortDescription ?? p.shortDescription;
-    const fullDesc = data.fullDescription !== undefined ? data.fullDescription : p.fullDescription;
-    const price = data.price !== undefined ? Number(data.price) : p.price;
-    const unit = data.unit ?? p.unit;
-    const status = data.status ?? p.status;
-    const image = data.image ?? p.image;
-
-    sqliteDb
-      .prepare(`
-      UPDATE products 
-      SET name = ?, category = ?, shortDescription = ?, fullDescription = ?, price = ?, unit = ?, image = ?, status = ?, updatedAt = ?
-      WHERE id = ?
-    `)
-      .run(name, category, shortDesc, fullDesc, price, unit, image, status, now, id);
-
-    return getProductById(id);
-  }
-}
-
-export async function toggleProductStatus(id) {
-  if (useMongo) {
-    const p = await Product.findById(id);
-    if (!p) return null;
-    p.status = p.status === "active" ? "hidden" : "active";
-    await p.save();
-    return formatProduct(p);
-  } else {
-    const p = sqliteDb.prepare("SELECT * FROM products WHERE id = ?").get(id);
-    if (!p) return null;
-    const newStatus = p.status === "active" ? "hidden" : "active";
-    const now = new Date().toISOString();
-    sqliteDb.prepare("UPDATE products SET status = ?, updatedAt = ? WHERE id = ?").run(newStatus, now, id);
-    return getProductById(id);
-  }
-}
-
-export async function deleteProduct(id) {
-  if (useMongo) {
-    const p = await Product.findByIdAndDelete(id);
-    return p ? formatProduct(p) : null;
-  } else {
-    const p = sqliteDb.prepare("SELECT * FROM products WHERE id = ?").get(id);
-    if (!p) return null;
-    sqliteDb.prepare("DELETE FROM products WHERE id = ?").run(id);
-    return formatProduct(p);
-  }
-}
-
-export async function getDistinctCategories() {
-  let cats = [];
-  if (useMongo) {
-    cats = await Product.find({ status: "active" }).distinct("category");
-  } else {
-    const list = sqliteDb.prepare("SELECT DISTINCT category FROM products WHERE status = 'active'").all();
-    cats = list.map((r) => r.category).filter(Boolean);
-  }
-  const set = new Set(["All", "Multivitamin", "Syrup", "Omega-3", "Green Tea", ...cats.filter(Boolean)]);
-  return Array.from(set);
-}
-
-// -------------------------------------------------------------
-// Admin Authentication Methods
-// -------------------------------------------------------------
-export async function findAdminByUsername(username) {
-  const clean = username.trim().toLowerCase();
-  if (useMongo) {
-    const a = await Admin.findOne({ username: clean });
-    if (!a) return null;
-    return {
-      id: a._id.toString(),
-      username: a.username,
-      name: a.name,
-      password: a.password,
-      comparePassword: (candidate) => a.comparePassword(candidate),
-    };
-  } else {
-    const a = sqliteDb.prepare("SELECT * FROM admins WHERE username = ?").get(clean);
-    if (!a) return null;
-    return {
-      id: a.id,
-      username: a.username,
-      name: a.name,
-      password: a.password,
-      comparePassword: async (candidate) => bcrypt.compare(candidate, a.password),
-    };
-  }
-}
-
-export async function syncAdminPassword(username, newPassword) {
-  const u = username.trim().toLowerCase();
-  const hashed = await bcrypt.hash(newPassword, 10);
-  const now = new Date().toISOString();
-
-  if (useMongo) {
-    await Admin.findOneAndUpdate(
-      { username: u },
-      { username: u, password: hashed, name: "Health Nutra Administrator" },
-      { upsert: true, returnDocument: "after" }
-    );
-  } else if (sqliteDb) {
-    const existing = sqliteDb.prepare("SELECT * FROM admins WHERE username = ?").get(u);
-    if (existing) {
-      sqliteDb.prepare("UPDATE admins SET password = ?, updatedAt = ? WHERE username = ?").run(hashed, now, u);
-    } else {
-      const id = "admin-" + Date.now();
-      sqliteDb
-        .prepare("INSERT INTO admins (id, username, password, name, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?, ?)")
-        .run(id, u, hashed, "Health Nutra Administrator", now, now);
-    }
-  }
-}
-
-// -------------------------------------------------------------
-// Utility Formatter
+// Formatters
 // -------------------------------------------------------------
 function formatProduct(p) {
   const id = p._id ? p._id.toString() : p.id;
@@ -720,76 +245,231 @@ function formatProduct(p) {
   };
 }
 
+function formatOrder(o) {
+  const id = o._id ? o._id.toString() : o.id;
+  return {
+    _id: id,
+    id: id,
+    orderId: o.orderId,
+    customerName: o.customerName,
+    customerPhone: o.customerPhone,
+    customerEmail: o.customerEmail || "",
+    shippingAddress: o.shippingAddress,
+    city: o.city || "",
+    pincode: o.pincode || "",
+    items: o.items || [],
+    totalAmount: Number(o.totalAmount),
+    paymentMethod: o.paymentMethod || "Cash on Delivery (COD)",
+    paymentStatus: o.paymentStatus || "pending",
+    orderStatus: o.orderStatus || o.status || "pending",
+    notes: o.notes || "",
+    createdAt: o.createdAt,
+    updatedAt: o.updatedAt,
+  };
+}
+
+function formatEnquiry(e) {
+  const id = e._id ? e._id.toString() : e.id;
+  return {
+    _id: id,
+    id: id,
+    name: e.name,
+    email: e.email,
+    phone: e.phone || "",
+    subject: e.subject || "General",
+    message: e.message,
+    status: e.status || "new",
+    createdAt: e.createdAt,
+    updatedAt: e.updatedAt,
+  };
+}
+
+// -------------------------------------------------------------
+// Product Repository Methods
+// -------------------------------------------------------------
+export async function getActiveProducts(category = null) {
+  const filter = { status: "active" };
+  if (category && category !== "All") {
+    filter.category = category;
+  }
+  let products = await Product.find(filter).sort({ createdAt: -1 });
+
+  // Self-healing fallback if database has zero active products
+  if (products.length === 0 && (!category || category === "All")) {
+    try {
+      await Product.insertMany(STARTER_PRODUCTS);
+      products = await Product.find({ status: "active" });
+    } catch (e) {
+      console.warn("[Database] Product self-heal notice:", e.message);
+    }
+  }
+
+  return products.map(formatProduct);
+}
+
+export async function getProductById(id) {
+  if (!id) return null;
+  let p = null;
+  const isHex24 = typeof id === "string" && id.length === 24 && /^[0-9a-fA-F]{24}$/.test(id);
+  if (isHex24 && mongoose.Types.ObjectId.isValid(id)) {
+    p = await Product.findById(id).catch(() => null);
+  }
+  if (!p) {
+    // Support matching by numeric starter ID ("1", "2", "3", "4") or custom id
+    const num = parseInt(id, 10);
+    if (!isNaN(num) && num >= 1 && num <= STARTER_NAMES.length) {
+      p = await Product.findOne({ name: STARTER_NAMES[num - 1] }).catch(() => null);
+    }
+    if (!p && !isNaN(num) && num > 0) {
+      const all = await Product.find({ status: "active" }).sort({ createdAt: 1 });
+      if (all[num - 1]) p = all[num - 1];
+    }
+    if (!p) {
+      p = await Product.findOne({ name: id }).catch(() => null);
+    }
+  }
+  return p ? formatProduct(p) : null;
+}
+
+export async function getAllProductsAdmin({ search, category, status, page, limit } = {}) {
+  const pageNum = page ? Math.max(1, parseInt(page, 10)) : 1;
+  const limitNum = limit ? Math.min(100, Math.max(1, parseInt(limit, 10))) : 50;
+  const skip = (pageNum - 1) * limitNum;
+
+  const filter = {};
+  if (status && status !== "all") filter.status = status;
+  if (category && category !== "all") filter.category = category;
+  if (search && search.trim()) {
+    const reg = new RegExp(search.trim(), "i");
+    filter.$or = [{ name: reg }, { shortDescription: reg }, { category: reg }];
+  }
+
+  const [products, filteredTotal, total, active, hidden, categories] = await Promise.all([
+    Product.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limitNum),
+    Product.countDocuments(filter),
+    Product.countDocuments(),
+    Product.countDocuments({ status: "active" }),
+    Product.countDocuments({ status: "hidden" }),
+    Product.distinct("category"),
+  ]);
+
+  return {
+    products: products.map(formatProduct),
+    pagination: {
+      page: pageNum,
+      limit: limitNum,
+      total: filteredTotal,
+      totalPages: Math.ceil(filteredTotal / limitNum) || 1,
+    },
+    stats: { total, active, hidden, categoriesCount: categories.length },
+    categories,
+  };
+}
+
+export async function createProduct(data) {
+  const p = new Product({ ...data });
+  const saved = await p.save();
+  return formatProduct(saved);
+}
+
+export async function updateProduct(id, data) {
+  let p = null;
+  const isHex24 = typeof id === "string" && id.length === 24 && /^[0-9a-fA-F]{24}$/.test(id);
+  if (isHex24 && mongoose.Types.ObjectId.isValid(id)) {
+    p = await Product.findByIdAndUpdate(id, data, { returnDocument: "after" });
+  } else {
+    p = await Product.findOneAndUpdate({ name: id }, data, { returnDocument: "after" });
+  }
+  return p ? formatProduct(p) : null;
+}
+
+export async function toggleProductStatus(id) {
+  const current = await getProductById(id);
+  if (!current) return null;
+  const newStatus = current.status === "active" ? "hidden" : "active";
+  return updateProduct(current.id, { status: newStatus });
+}
+
+export async function deleteProduct(id) {
+  let p = null;
+  const isHex24 = typeof id === "string" && id.length === 24 && /^[0-9a-fA-F]{24}$/.test(id);
+  if (isHex24 && mongoose.Types.ObjectId.isValid(id)) {
+    p = await Product.findByIdAndDelete(id);
+  } else {
+    p = await Product.findOneAndDelete({ name: id });
+  }
+  return p ? formatProduct(p) : null;
+}
+
+export async function getDistinctCategories() {
+  const cats = await Product.distinct("category", { status: "active" });
+  const coreCategories = ["Multivitamin", "Syrup", "Omega-3", "Green Tea"];
+  const set = new Set(["All", ...cats.filter(Boolean), ...coreCategories]);
+  return Array.from(set);
+}
+
+// -------------------------------------------------------------
+// Admin Authentication Methods
+// -------------------------------------------------------------
+export async function findAdminByUsername(username) {
+  const clean = username.trim().toLowerCase();
+  const a = await Admin.findOne({ username: clean });
+  if (!a) return null;
+  return {
+    id: a._id.toString(),
+    username: a.username,
+    name: a.name,
+    password: a.password,
+    comparePassword: (candidate) => a.comparePassword(candidate),
+  };
+}
+
+export async function syncAdminPassword(username, newPassword) {
+  const u = username.trim().toLowerCase();
+  const hashed = await bcrypt.hash(newPassword, 10);
+  await Admin.findOneAndUpdate(
+    { username: u },
+    { username: u, password: hashed, name: "Health Nutra Administrator" },
+    { upsert: true, returnDocument: "after" }
+  );
+}
+
 // -------------------------------------------------------------
 // Order Repository Methods
 // -------------------------------------------------------------
 export async function createOrder(data) {
-  const now = new Date().toISOString();
   const randNum = Math.floor(100000 + Math.random() * 900000);
   const orderId = data.orderId || `HN-ORD-${randNum}`;
   const totalAmount = Number(data.totalAmount) || 0;
   const items = Array.isArray(data.items) ? data.items : [];
 
-  if (useMongo) {
-    const newOrder = new Order({
-      orderId,
-      customerName: data.customerName,
-      customerPhone: data.customerPhone,
-      customerEmail: data.customerEmail || "",
-      shippingAddress: data.shippingAddress,
-      city: data.city || "",
-      pincode: data.pincode || "",
-      items,
-      totalAmount,
-      paymentMethod: data.paymentMethod || "Cash on Delivery (COD)",
-      paymentStatus: data.paymentStatus || "pending",
-      orderStatus: data.orderStatus || "pending",
-      notes: data.notes || "",
-    });
-    const saved = await newOrder.save();
-    return formatOrder(saved);
-  } else {
-    const id = `ord-${Date.now()}-${Math.round(Math.random() * 1000)}`;
-    sqliteDb
-      .prepare(`
-        INSERT INTO orders (id, orderId, customerName, customerPhone, customerEmail, shippingAddress, city, pincode, items, totalAmount, paymentMethod, paymentStatus, orderStatus, notes, createdAt, updatedAt)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-      `)
-      .run(
-        id,
-        orderId,
-        data.customerName,
-        data.customerPhone,
-        data.customerEmail || "",
-        data.shippingAddress,
-        data.city || "",
-        data.pincode || "",
-        JSON.stringify(items),
-        totalAmount,
-        data.paymentMethod || "Cash on Delivery (COD)",
-        data.paymentStatus || "pending",
-        data.orderStatus || "pending",
-        data.notes || "",
-        now,
-        now
-      );
-    return getOrderById(orderId);
-  }
+  const newOrder = new Order({
+    orderId,
+    customerName: data.customerName,
+    customerPhone: data.customerPhone,
+    customerEmail: data.customerEmail || "",
+    shippingAddress: data.shippingAddress,
+    city: data.city || "",
+    pincode: data.pincode || "",
+    items,
+    totalAmount,
+    paymentMethod: data.paymentMethod || "Cash on Delivery (COD)",
+    paymentStatus: data.paymentStatus || "pending",
+    orderStatus: data.orderStatus || "pending",
+    notes: data.notes || "",
+  });
+  const saved = await newOrder.save();
+  return formatOrder(saved);
 }
 
 export async function getOrderById(idOrOrderId) {
   if (!idOrOrderId) return null;
-  if (useMongo) {
-    let order = await Order.findOne({ orderId: idOrOrderId }).catch(() => null);
-    const isHex24 = typeof idOrOrderId === "string" && idOrOrderId.length === 24 && /^[0-9a-fA-F]{24}$/.test(idOrOrderId);
-    if (!order && isHex24 && mongoose.Types.ObjectId.isValid(idOrOrderId)) {
-      order = await Order.findById(idOrOrderId).catch(() => null);
-    }
-    return order ? formatOrder(order) : null;
-  } else {
-    const row = sqliteDb.prepare("SELECT * FROM orders WHERE orderId = ? OR id = ?").get(idOrOrderId, idOrOrderId);
-    return row ? formatOrder(row) : null;
+  let order = await Order.findOne({ orderId: idOrOrderId }).catch(() => null);
+  const isHex24 = typeof idOrOrderId === "string" && idOrOrderId.length === 24 && /^[0-9a-fA-F]{24}$/.test(idOrOrderId);
+  if (!order && isHex24 && mongoose.Types.ObjectId.isValid(idOrOrderId)) {
+    order = await Order.findById(idOrOrderId).catch(() => null);
   }
+  return order ? formatOrder(order) : null;
 }
 
 export async function getAllOrdersAdmin({ search = "", status = "", page, limit } = {}) {
@@ -797,203 +477,179 @@ export async function getAllOrdersAdmin({ search = "", status = "", page, limit 
   const limitNum = limit ? Math.min(100, Math.max(1, parseInt(limit, 10))) : 50;
   const skip = (pageNum - 1) * limitNum;
 
-  if (useMongo) {
-    const query = {};
-    if (status && status !== "all") {
-      query.orderStatus = status;
-    }
-    if (search && search.trim()) {
-      const q = search.trim();
-      query.$or = [
-        { orderId: { $regex: q, $options: "i" } },
-        { customerName: { $regex: q, $options: "i" } },
-        { customerPhone: { $regex: q, $options: "i" } },
-        { city: { $regex: q, $options: "i" } },
-      ];
-    }
+  const filter = {};
+  if (status && status !== "all") {
+    filter.orderStatus = status;
+  }
+  if (search && search.trim()) {
+    const term = new RegExp(search.trim(), "i");
+    filter.$or = [{ orderId: term }, { customerName: term }, { customerPhone: term }, { city: term }];
+  }
 
-    const [orders, filteredTotal, statsAgg] = await Promise.all([
-      Order.find(query).sort({ createdAt: -1 }).skip(skip).limit(limitNum),
-      Order.countDocuments(query),
+  const [orders, filteredTotal, total, pending, processing, shipped, delivered, cancelled, revAgg] =
+    await Promise.all([
+      Order.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limitNum),
+      Order.countDocuments(filter),
+      Order.countDocuments(),
+      Order.countDocuments({ orderStatus: "pending" }),
+      Order.countDocuments({ orderStatus: "processing" }),
+      Order.countDocuments({ orderStatus: "shipped" }),
+      Order.countDocuments({ orderStatus: "delivered" }),
+      Order.countDocuments({ orderStatus: "cancelled" }),
       Order.aggregate([
-        {
-          $group: {
-            _id: null,
-            total: { $sum: 1 },
-            pending: { $sum: { $cond: [{ $eq: ["$orderStatus", "pending"] }, 1, 0] } },
-            processing: { $sum: { $cond: [{ $eq: ["$orderStatus", "processing"] }, 1, 0] } },
-            shipped: { $sum: { $cond: [{ $eq: ["$orderStatus", "shipped"] }, 1, 0] } },
-            delivered: { $sum: { $cond: [{ $eq: ["$orderStatus", "delivered"] }, 1, 0] } },
-            cancelled: { $sum: { $cond: [{ $eq: ["$orderStatus", "cancelled"] }, 1, 0] } },
-            revenue: {
-              $sum: { $cond: [{ $ne: ["$orderStatus", "cancelled"] }, "$totalAmount", 0] },
-            },
-          },
-        },
+        { $match: { orderStatus: { $ne: "cancelled" } } },
+        { $group: { _id: null, totalRevenue: { $sum: "$totalAmount" } } },
       ]),
     ]);
 
-    const s = statsAgg[0] || {};
-    const stats = {
-      total: s.total || 0,
-      pending: s.pending || 0,
-      processing: s.processing || 0,
-      shipped: s.shipped || 0,
-      delivered: s.delivered || 0,
-      cancelled: s.cancelled || 0,
-      revenue: s.revenue || 0,
-    };
+  const revenue = revAgg[0] ? revAgg[0].totalRevenue : 0;
+  const stats = { total, pending, processing, shipped, delivered, cancelled, revenue };
 
-    return {
-      orders: orders.map(formatOrder),
-      pagination: {
-        page: pageNum,
-        limit: limitNum,
-        total: filteredTotal,
-        totalPages: Math.ceil(filteredTotal / limitNum) || 1,
-      },
-      stats,
-    };
-  } else {
-    let baseSql = "SELECT * FROM orders WHERE 1=1";
-    const params = [];
-
-    if (status && status !== "all") {
-      baseSql += " AND orderStatus = ?";
-      params.push(status);
-    }
-
-    if (search && search.trim()) {
-      const term = `%${search.trim()}%`;
-      baseSql += " AND (orderId LIKE ? OR customerName LIKE ? OR customerPhone LIKE ? OR city LIKE ?)";
-      params.push(term, term, term, term);
-    }
-
-    const countSql = baseSql.replace("SELECT *", "SELECT count(*) as c");
-    const filteredTotal = sqliteDb.prepare(countSql).get(...params).c;
-
-    baseSql += " ORDER BY createdAt DESC LIMIT ? OFFSET ?";
-    const pagedParams = [...params, limitNum, skip];
-    const rows = sqliteDb.prepare(baseSql).all(...pagedParams);
-
-    // O(1) database aggregation instead of pulling all rows into Node memory
-    const statsRow =
-      sqliteDb
-        .prepare(`
-          SELECT 
-            COUNT(*) as total,
-            SUM(CASE WHEN orderStatus = 'pending' THEN 1 ELSE 0 END) as pending,
-            SUM(CASE WHEN orderStatus = 'processing' THEN 1 ELSE 0 END) as processing,
-            SUM(CASE WHEN orderStatus = 'shipped' THEN 1 ELSE 0 END) as shipped,
-            SUM(CASE WHEN orderStatus = 'delivered' THEN 1 ELSE 0 END) as delivered,
-            SUM(CASE WHEN orderStatus = 'cancelled' THEN 1 ELSE 0 END) as cancelled,
-            SUM(CASE WHEN orderStatus != 'cancelled' THEN totalAmount ELSE 0 END) as revenue
-          FROM orders
-        `)
-        .get() || {};
-
-    const stats = {
-      total: Number(statsRow.total || 0),
-      pending: Number(statsRow.pending || 0),
-      processing: Number(statsRow.processing || 0),
-      shipped: Number(statsRow.shipped || 0),
-      delivered: Number(statsRow.delivered || 0),
-      cancelled: Number(statsRow.cancelled || 0),
-      revenue: Number(statsRow.revenue || 0),
-    };
-
-    return {
-      orders: rows.map(formatOrder),
-      pagination: {
-        page: pageNum,
-        limit: limitNum,
-        total: filteredTotal,
-        totalPages: Math.ceil(filteredTotal / limitNum) || 1,
-      },
-      stats,
-    };
-  }
+  return {
+    orders: orders.map(formatOrder),
+    pagination: {
+      page: pageNum,
+      limit: limitNum,
+      total: filteredTotal,
+      totalPages: Math.ceil(filteredTotal / limitNum) || 1,
+    },
+    stats,
+  };
 }
 
 export async function updateOrderStatus(idOrOrderId, updates = {}) {
-  const now = new Date().toISOString();
-  if (useMongo) {
-    let order = await Order.findOne({ orderId: idOrOrderId }).catch(() => null);
-    const isHex24 = typeof idOrOrderId === "string" && idOrOrderId.length === 24 && /^[0-9a-fA-F]{24}$/.test(idOrOrderId);
-    if (!order && isHex24 && mongoose.Types.ObjectId.isValid(idOrOrderId)) {
-      order = await Order.findById(idOrOrderId).catch(() => null);
-    }
-    if (!order) return null;
-
-    if (updates.orderStatus) order.orderStatus = updates.orderStatus;
-    if (updates.paymentStatus) order.paymentStatus = updates.paymentStatus;
-    if (updates.notes !== undefined) order.notes = updates.notes;
-    await order.save();
-    return formatOrder(order);
-  } else {
-    const existing = sqliteDb.prepare("SELECT * FROM orders WHERE orderId = ? OR id = ?").get(idOrOrderId, idOrOrderId);
-    if (!existing) return null;
-
-    const newOrderStatus = updates.orderStatus || existing.orderStatus;
-    const newPaymentStatus = updates.paymentStatus || existing.paymentStatus;
-    const newNotes = updates.notes !== undefined ? updates.notes : existing.notes;
-
-    sqliteDb
-      .prepare(`
-        UPDATE orders
-        SET orderStatus = ?, paymentStatus = ?, notes = ?, updatedAt = ?
-        WHERE orderId = ? OR id = ?
-      `)
-      .run(newOrderStatus, newPaymentStatus, newNotes, now, existing.orderId, existing.id);
-
-    return getOrderById(existing.orderId);
+  let order = await Order.findOne({ orderId: idOrOrderId }).catch(() => null);
+  const isHex24 = typeof idOrOrderId === "string" && idOrOrderId.length === 24 && /^[0-9a-fA-F]{24}$/.test(idOrOrderId);
+  if (!order && isHex24 && mongoose.Types.ObjectId.isValid(idOrOrderId)) {
+    order = await Order.findById(idOrOrderId).catch(() => null);
   }
+  if (!order) return null;
+
+  if (updates.orderStatus) order.orderStatus = updates.orderStatus;
+  if (updates.paymentStatus) order.paymentStatus = updates.paymentStatus;
+  if (updates.notes !== undefined) order.notes = updates.notes;
+  await order.save();
+  return formatOrder(order);
 }
 
 export async function deleteOrder(idOrOrderId) {
-  if (useMongo) {
-    let order = await Order.findOneAndDelete({ orderId: idOrOrderId }).catch(() => null);
-    const isHex24 = typeof idOrOrderId === "string" && idOrOrderId.length === 24 && /^[0-9a-fA-F]{24}$/.test(idOrOrderId);
-    if (!order && isHex24 && mongoose.Types.ObjectId.isValid(idOrOrderId)) {
-      order = await Order.findByIdAndDelete(idOrOrderId).catch(() => null);
-    }
-    return order ? formatOrder(order) : null;
-  } else {
-    const existing = sqliteDb.prepare("SELECT * FROM orders WHERE orderId = ? OR id = ?").get(idOrOrderId, idOrOrderId);
-    if (!existing) return null;
-    sqliteDb.prepare("DELETE FROM orders WHERE orderId = ? OR id = ?").run(existing.orderId, existing.id);
-    return formatOrder(existing);
+  let order = await Order.findOneAndDelete({ orderId: idOrOrderId }).catch(() => null);
+  const isHex24 = typeof idOrOrderId === "string" && idOrOrderId.length === 24 && /^[0-9a-fA-F]{24}$/.test(idOrOrderId);
+  if (!order && isHex24 && mongoose.Types.ObjectId.isValid(idOrOrderId)) {
+    order = await Order.findByIdAndDelete(idOrOrderId).catch(() => null);
   }
+  return order ? formatOrder(order) : null;
 }
 
-function formatOrder(o) {
-  if (!o) return null;
-  const id = o._id ? o._id.toString() : o.id;
-  let items = o.items;
-  if (typeof items === "string") {
-    try {
-      items = JSON.parse(items);
-    } catch {
-      items = [];
-    }
+// -------------------------------------------------------------
+// Customer Enquiry Repository Methods
+// -------------------------------------------------------------
+export async function createEnquiry(data) {
+  const enquiry = new Enquiry({
+    name: data.name.trim(),
+    email: data.email.trim().toLowerCase(),
+    phone: (data.phone || "").trim(),
+    subject: (data.subject || "General").trim(),
+    message: data.message.trim(),
+    status: data.status || "new",
+  });
+  const saved = await enquiry.save();
+  return formatEnquiry(saved);
+}
+
+export async function getEnquiryById(id) {
+  if (!id) return null;
+  const isHex24 = typeof id === "string" && id.length === 24 && /^[0-9a-fA-F]{24}$/.test(id);
+  if (!isHex24 || !mongoose.Types.ObjectId.isValid(id)) return null;
+  const e = await Enquiry.findById(id).catch(() => null);
+  return e ? formatEnquiry(e) : null;
+}
+
+export async function getAllEnquiriesAdmin({ search = "", status = "", page, limit } = {}) {
+  const pageNum = page ? Math.max(1, parseInt(page, 10)) : 1;
+  const limitNum = limit ? Math.min(100, Math.max(1, parseInt(limit, 10))) : 50;
+  const skip = (pageNum - 1) * limitNum;
+
+  const filter = {};
+  if (status && status !== "all") {
+    filter.status = status;
   }
+  if (search && search.trim()) {
+    const term = new RegExp(search.trim(), "i");
+    filter.$or = [{ name: term }, { email: term }, { phone: term }, { subject: term }, { message: term }];
+  }
+
+  const [enquiries, filteredTotal, total, newCount, contactedCount, resolvedCount] = await Promise.all([
+    Enquiry.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limitNum),
+    Enquiry.countDocuments(filter),
+    Enquiry.countDocuments(),
+    Enquiry.countDocuments({ status: "new" }),
+    Enquiry.countDocuments({ status: "contacted" }),
+    Enquiry.countDocuments({ status: "resolved" }),
+  ]);
+
   return {
-    _id: id,
-    id: id,
-    orderId: o.orderId || id,
-    customerName: o.customerName,
-    customerPhone: o.customerPhone,
-    customerEmail: o.customerEmail || "",
-    shippingAddress: o.shippingAddress,
-    city: o.city || "",
-    pincode: o.pincode || "",
-    items: Array.isArray(items) ? items : [],
-    totalAmount: Number(o.totalAmount || 0),
-    paymentMethod: o.paymentMethod || "Cash on Delivery (COD)",
-    paymentStatus: o.paymentStatus || "pending",
-    orderStatus: o.orderStatus || "pending",
-    notes: o.notes || "",
-    createdAt: o.createdAt,
-    updatedAt: o.updatedAt,
+    enquiries: enquiries.map(formatEnquiry),
+    pagination: {
+      page: pageNum,
+      limit: limitNum,
+      total: filteredTotal,
+      totalPages: Math.ceil(filteredTotal / limitNum) || 1,
+    },
+    stats: {
+      total,
+      new: newCount,
+      contacted: contactedCount,
+      resolved: resolvedCount,
+    },
   };
 }
+
+export async function updateEnquiryStatus(id, newStatus) {
+  const allowed = ["new", "contacted", "resolved"];
+  if (!allowed.includes(newStatus)) {
+    throw new Error(`Invalid enquiry status: "${newStatus}". Must be one of: ${allowed.join(", ")}`);
+  }
+  const isHex24 = typeof id === "string" && id.length === 24 && /^[0-9a-fA-F]{24}$/.test(id);
+  if (!isHex24 || !mongoose.Types.ObjectId.isValid(id)) return null;
+
+  const updated = await Enquiry.findByIdAndUpdate(id, { status: newStatus }, { returnDocument: "after" });
+  return updated ? formatEnquiry(updated) : null;
+}
+
+export async function deleteEnquiry(id) {
+  const isHex24 = typeof id === "string" && id.length === 24 && /^[0-9a-fA-F]{24}$/.test(id);
+  if (!isHex24 || !mongoose.Types.ObjectId.isValid(id)) return null;
+  const deleted = await Enquiry.findByIdAndDelete(id);
+  return deleted ? formatEnquiry(deleted) : null;
+}
+
+export async function getAllEnquiriesForExport() {
+  const list = await Enquiry.find({}).sort({ createdAt: -1 }).limit(10000);
+  return list.map(formatEnquiry);
+}
+
+export default {
+  initDatabase,
+  getActiveProducts,
+  getProductById,
+  getAllProductsAdmin,
+  createProduct,
+  updateProduct,
+  toggleProductStatus,
+  deleteProduct,
+  getDistinctCategories,
+  findAdminByUsername,
+  syncAdminPassword,
+  createOrder,
+  getOrderById,
+  getAllOrdersAdmin,
+  updateOrderStatus,
+  deleteOrder,
+  createEnquiry,
+  getEnquiryById,
+  getAllEnquiriesAdmin,
+  updateEnquiryStatus,
+  deleteEnquiry,
+  getAllEnquiriesForExport,
+};

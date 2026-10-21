@@ -5,11 +5,15 @@
  */
 
 function AdminPage() {
-  const [activeTab, setActiveTab] = React.useState("products"); // 'products' | 'orders' | 'system'
+  const [activeTab, setActiveTab] = React.useState("products"); // 'products' | 'orders' | 'enquiries' | 'system'
   const [adminUser, setAdminUser] = React.useState(null);
   const [products, setProducts] = React.useState([]);
   const [orders, setOrders] = React.useState([]);
   const [orderFilter, setOrderFilter] = React.useState("All");
+  const [enquiries, setEnquiries] = React.useState([]);
+  const [enquiryFilter, setEnquiryFilter] = React.useState("All");
+  const [enquirySearch, setEnquirySearch] = React.useState("");
+  const [enquiryStats, setEnquiryStats] = React.useState({ total: 0, new: 0, contacted: 0, resolved: 0 });
   const [loading, setLoading] = React.useState(true);
   const [sidebarOpen, setSidebarOpen] = React.useState(false);
 
@@ -33,7 +37,7 @@ function AdminPage() {
 
   // System Stats
   const [systemInfo, setSystemInfo] = React.useState({
-    dbEngine: "SQLITE",
+    dbEngine: "MONGODB",
     uptime: 0,
     timestamp: new Date().toISOString(),
   });
@@ -50,8 +54,8 @@ function AdminPage() {
         }
         setAdminUser(meRes.admin);
 
-        // Fetch products and orders
-        await Promise.all([loadProducts(), loadOrders(), loadSystemHealth()]);
+        // Fetch products, orders, enquiries and system health
+        await Promise.all([loadProducts(), loadOrders(), loadEnquiries(), loadSystemHealth()]);
       } catch (err) {
         console.error("Admin init error:", err);
       } finally {
@@ -60,7 +64,6 @@ function AdminPage() {
     }
     initAdmin();
   }, []);
-
 
   const loadProducts = async () => {
     try {
@@ -81,6 +84,49 @@ function AdminPage() {
       }
     } catch (e) {
       console.error("Failed to load admin orders:", e);
+    }
+  };
+
+  const loadEnquiries = async (search = enquirySearch, status = enquiryFilter) => {
+    try {
+      if (window.apiHelper && typeof window.apiHelper.getAdminEnquiries === "function") {
+        const data = await window.apiHelper.getAdminEnquiries({ search, status });
+        if (data && data.success) {
+          setEnquiries(data.data || []);
+          if (data.counts) {
+            setEnquiryStats(data.counts);
+          }
+        }
+      }
+    } catch (e) {
+      console.error("Failed to load admin enquiries:", e);
+    }
+  };
+
+  const handleUpdateEnquiryStatus = async (id, status) => {
+    try {
+      const res = await window.apiHelper.updateEnquiryStatus(id, status);
+      if (res && res.success) {
+        setEnquiries((prev) =>
+          prev.map((item) => (item.id === id ? { ...item, status } : item))
+        );
+        loadEnquiries(enquirySearch, enquiryFilter);
+      }
+    } catch (e) {
+      console.error("Status update error:", e);
+    }
+  };
+
+  const handleDeleteEnquiry = async (id, name) => {
+    if (!window.confirm(`Are you sure you want to delete inquiry from "${name}"?`)) return;
+    try {
+      const res = await window.apiHelper.deleteEnquiry(id);
+      if (res && res.success) {
+        setEnquiries((prev) => prev.filter((item) => item.id !== id));
+        loadEnquiries(enquirySearch, enquiryFilter);
+      }
+    } catch (e) {
+      console.error("Delete enquiry error:", e);
     }
   };
 
@@ -361,6 +407,30 @@ function AdminPage() {
               )}
             </button>
 
+            {/* Tab: Enquiries */}
+            <button
+              type="button"
+              onClick={() => {
+                setActiveTab("enquiries");
+                setSidebarOpen(false);
+              }}
+              className={`w-full flex items-center justify-between px-3.5 py-3 rounded-2xl text-xs font-bold transition-all ${
+                activeTab === "enquiries"
+                  ? "bg-brand-50 text-brand-800 shadow-xs"
+                  : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+              }`}
+            >
+              <span className="flex items-center gap-3">
+                <Icon name="message-square" className={`w-4 h-4 ${activeTab === "enquiries" ? "text-brand-700" : "text-slate-400"}`} />
+                <span>Customer Enquiries</span>
+              </span>
+              {enquiryStats.new > 0 && (
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-blue-100 text-blue-700">
+                  {enquiryStats.new}
+                </span>
+              )}
+            </button>
+
             {/* Tab: System Health */}
             <button
               type="button"
@@ -437,6 +507,7 @@ function AdminPage() {
             <h1 className="text-base sm:text-xl font-black text-slate-900 tracking-tight">
               {activeTab === "products" && "Products Management"}
               {activeTab === "orders" && "Customer Orders Management"}
+              {activeTab === "enquiries" && "Customer Enquiries & Form Submissions"}
               {activeTab === "system" && "System & Keep-Alive Diagnostics"}
             </h1>
           </div>
@@ -453,11 +524,23 @@ function AdminPage() {
               </button>
             )}
 
+            {activeTab === "enquiries" && (
+              <a
+                href="/api/admin/enquiries/export"
+                download="HealthNutra_Enquiries.csv"
+                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-black text-white bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 shadow-md shadow-emerald-700/20 transition-all cursor-pointer"
+              >
+                <Icon name="download" className="w-4 h-4" />
+                <span>Export CSV</span>
+              </a>
+            )}
+
             <button
               type="button"
               onClick={() => {
                 if (activeTab === "products") loadProducts();
                 if (activeTab === "orders") loadOrders();
+                if (activeTab === "enquiries") loadEnquiries();
                 if (activeTab === "system") loadSystemHealth();
               }}
               title="Refresh Data"
@@ -720,15 +803,228 @@ function AdminPage() {
             </div>
           )}
 
-          {/* TAB 3: SYSTEM DIAGNOSTICS & CRON */}
+          {/* TAB 3: ENQUIRIES MANAGEMENT */}
+          {activeTab === "enquiries" && (
+            <div className="space-y-6">
+
+              {/* Stats Cards Grid */}
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="bg-white rounded-3xl p-5 border border-slate-200/80 shadow-xs flex items-center justify-between">
+                  <div>
+                    <span className="text-[11px] uppercase font-bold text-slate-400 block tracking-wider">Total Enquiries</span>
+                    <span className="text-2xl sm:text-3xl font-black text-slate-900 mt-1 block">{enquiryStats.total || enquiries.length}</span>
+                  </div>
+                  <div className="w-12 h-12 rounded-2xl bg-slate-100 text-slate-600 flex items-center justify-center">
+                    <Icon name="message-square" className="w-6 h-6" />
+                  </div>
+                </div>
+
+                <div className="bg-white rounded-3xl p-5 border border-slate-200/80 shadow-xs flex items-center justify-between">
+                  <div>
+                    <span className="text-[11px] uppercase font-bold text-blue-600 block tracking-wider">New Enquiries</span>
+                    <span className="text-2xl sm:text-3xl font-black text-blue-700 mt-1 block">{enquiryStats.new || 0}</span>
+                  </div>
+                  <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center">
+                    <Icon name="inbox" className="w-6 h-6" />
+                  </div>
+                </div>
+
+                <div className="bg-white rounded-3xl p-5 border border-slate-200/80 shadow-xs flex items-center justify-between">
+                  <div>
+                    <span className="text-[11px] uppercase font-bold text-amber-600 block tracking-wider">Contacted</span>
+                    <span className="text-2xl sm:text-3xl font-black text-amber-700 mt-1 block">{enquiryStats.contacted || 0}</span>
+                  </div>
+                  <div className="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center">
+                    <Icon name="phone" className="w-6 h-6" />
+                  </div>
+                </div>
+
+                <div className="bg-white rounded-3xl p-5 border border-slate-200/80 shadow-xs flex items-center justify-between">
+                  <div>
+                    <span className="text-[11px] uppercase font-bold text-emerald-600 block tracking-wider">Resolved</span>
+                    <span className="text-2xl sm:text-3xl font-black text-emerald-700 mt-1 block">{enquiryStats.resolved || 0}</span>
+                  </div>
+                  <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                    <Icon name="check-circle" className="w-6 h-6" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Toolbar: Search, Status Filter & Export Button */}
+              <div className="bg-white rounded-3xl p-4 sm:p-5 border border-slate-200/80 shadow-xs flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 flex-grow max-w-xl">
+                  <div className="relative flex-grow">
+                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                      <Icon name="search" className="w-4 h-4" />
+                    </div>
+                    <input
+                      type="text"
+                      placeholder="Search inquiries by name, email, phone, message..."
+                      value={enquirySearch}
+                      onChange={(e) => {
+                        setEnquirySearch(e.target.value);
+                        loadEnquiries(e.target.value, enquiryFilter);
+                      }}
+                      className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 text-xs font-semibold text-slate-800 placeholder-slate-400 focus:outline-none focus:border-brand-600 focus:ring-2 focus:ring-brand-500/10"
+                    />
+                  </div>
+
+                  <select
+                    value={enquiryFilter}
+                    onChange={(e) => {
+                      setEnquiryFilter(e.target.value);
+                      loadEnquiries(enquirySearch, e.target.value);
+                    }}
+                    className="px-4 py-2.5 rounded-xl border border-slate-200 text-xs font-bold text-slate-700 bg-white focus:outline-none focus:border-brand-600"
+                  >
+                    <option value="All">All Statuses</option>
+                    <option value="new">New</option>
+                    <option value="contacted">Contacted</option>
+                    <option value="resolved">Resolved</option>
+                  </select>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <a
+                    href="/api/admin/enquiries/export"
+                    download="HealthNutra_Enquiries.csv"
+                    className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 shadow-md shadow-emerald-600/20 transition-all cursor-pointer"
+                  >
+                    <Icon name="download" className="w-4 h-4" />
+                    <span>Export CSV</span>
+                  </a>
+                </div>
+              </div>
+
+              {/* Enquiries Table Card */}
+              <div className="bg-white rounded-3xl border border-slate-200/80 shadow-xs overflow-hidden">
+                <div className="p-6 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div>
+                    <h3 className="text-base font-black text-slate-900">Customer Inquiries & Form Leads</h3>
+                    <p className="text-xs text-slate-400 mt-0.5">Submissions via Contact Us form stored in MongoDB Atlas</p>
+                  </div>
+                  <span className="text-xs font-black text-brand-800 bg-brand-50 px-3 py-1.5 rounded-xl border border-brand-200/60 self-start sm:self-auto">
+                    {enquiries.length} Enquiries
+                  </span>
+                </div>
+
+                {enquiries.length === 0 ? (
+                  <div className="py-16 text-center p-8 space-y-3">
+                    <div className="w-14 h-14 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center mx-auto">
+                      <Icon name="message-square" className="w-7 h-7" />
+                    </div>
+                    <h4 className="text-base font-black text-slate-900">No Enquiries Found</h4>
+                    <p className="text-xs text-slate-400">Customer contact inquiries will appear here.</p>
+                  </div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left text-xs border-collapse">
+                      <thead className="bg-slate-50 text-[10px] font-black uppercase tracking-wider text-slate-400 border-b border-slate-100">
+                        <tr>
+                          <th className="px-5 py-4">Date & Time</th>
+                          <th className="px-5 py-4">Contact Person</th>
+                          <th className="px-5 py-4">Contact Info</th>
+                          <th className="px-5 py-4">Subject</th>
+                          <th className="px-5 py-4">Message</th>
+                          <th className="px-5 py-4 text-center">Status</th>
+                          <th className="px-5 py-4 text-right">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100">
+                        {enquiries.map((item) => (
+                          <tr key={item.id} className="hover:bg-slate-50/70 transition-colors">
+                            <td className="px-5 py-4 whitespace-nowrap text-slate-500 font-medium">
+                              {item.createdAt
+                                ? new Date(item.createdAt).toLocaleDateString("en-IN", {
+                                    day: "2-digit",
+                                    month: "short",
+                                    year: "numeric",
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                  })
+                                : "—"}
+                            </td>
+                            <td className="px-5 py-4">
+                              <div className="flex items-center gap-2.5">
+                                <div className="w-8 h-8 rounded-full bg-emerald-100 text-emerald-800 font-black text-xs flex items-center justify-center shrink-0">
+                                  {(item.name || "A")[0].toUpperCase()}
+                                </div>
+                                <div className="font-bold text-slate-900 whitespace-nowrap">{item.name}</div>
+                              </div>
+                            </td>
+                            <td className="px-5 py-4 whitespace-nowrap">
+                              <div className="space-y-1">
+                                {item.email && (
+                                  <a href={`mailto:${item.email}`} className="text-brand-700 hover:underline font-semibold flex items-center gap-1.5">
+                                    <Icon name="mail" className="w-3.5 h-3.5 text-slate-400" />
+                                    <span>{item.email}</span>
+                                  </a>
+                                )}
+                                {item.phone && (
+                                  <a href={`tel:${item.phone}`} className="text-slate-600 hover:text-slate-900 font-medium flex items-center gap-1.5">
+                                    <Icon name="phone" className="w-3.5 h-3.5 text-slate-400" />
+                                    <span>{item.phone}</span>
+                                  </a>
+                                )}
+                              </div>
+                            </td>
+                            <td className="px-5 py-4 whitespace-nowrap">
+                              <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold bg-slate-100 text-slate-700 border border-slate-200">
+                                {item.subject || "General"}
+                              </span>
+                            </td>
+                            <td className="px-5 py-4 max-w-xs sm:max-w-md">
+                              <p className="text-xs text-slate-700 font-normal leading-relaxed break-words whitespace-pre-line line-clamp-3">
+                                {item.message}
+                              </p>
+                            </td>
+                            <td className="px-5 py-4 text-center whitespace-nowrap">
+                              <select
+                                value={item.status || "new"}
+                                onChange={(e) => handleUpdateEnquiryStatus(item.id, e.target.value)}
+                                className={`text-xs font-bold rounded-xl px-2.5 py-1.5 border focus:outline-none cursor-pointer ${
+                                  item.status === "resolved"
+                                    ? "bg-emerald-50 text-emerald-800 border-emerald-200"
+                                    : item.status === "contacted"
+                                    ? "bg-amber-50 text-amber-800 border-amber-200"
+                                    : "bg-blue-50 text-blue-800 border-blue-200"
+                                }`}
+                              >
+                                <option value="new">New</option>
+                                <option value="contacted">Contacted</option>
+                                <option value="resolved">Resolved</option>
+                              </select>
+                            </td>
+                            <td className="px-5 py-4 text-right whitespace-nowrap">
+                              <button
+                                type="button"
+                                onClick={() => handleDeleteEnquiry(item.id, item.name)}
+                                className="p-2 rounded-xl text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+                                title="Delete Enquiry"
+                              >
+                                <Icon name="trash-2" className="w-4 h-4" />
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+
+            </div>
+          )}
+
+          {/* TAB 4: SYSTEM DIAGNOSTICS & CRON */}
           {activeTab === "system" && (
             <div className="space-y-6 max-w-4xl">
               
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                 <div className="p-6 rounded-3xl bg-white border border-slate-200/80 shadow-xs space-y-2">
                   <div className="text-[10px] font-black uppercase tracking-wider text-slate-400">Database Engine</div>
-                  <div className="text-xl font-black text-brand-700">{systemInfo.dbEngine || "SQLITE"}</div>
-                  <div className="text-xs text-slate-500">Embedded zero-config storage</div>
+                  <div className="text-xl font-black text-brand-700">{systemInfo.dbEngine || "MONGODB"}</div>
+                  <div className="text-xs text-slate-500">MongoDB Atlas Enterprise Cluster</div>
                 </div>
 
                 <div className="p-6 rounded-3xl bg-white border border-slate-200/80 shadow-xs space-y-2">

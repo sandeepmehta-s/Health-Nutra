@@ -98,6 +98,15 @@
           <span id="sidebarOrdersPending" class="px-2 py-0.5 rounded-full text-[10px] font-black bg-orange-100 text-orange-700">0</span>
         </button>
 
+        <!-- Tab: Enquiries -->
+        <button id="navTabEnquiries" class="nav-tab-btn w-full flex items-center justify-between px-3.5 py-3 rounded-2xl text-xs font-bold text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-all">
+          <span class="flex items-center gap-3">
+            <i data-lucide="message-square" class="w-4 h-4 text-slate-500"></i>
+            <span>Customer Enquiries</span>
+          </span>
+          <span id="sidebarEnquiriesNew" class="px-2 py-0.5 rounded-full text-[10px] font-black bg-blue-100 text-blue-700">0</span>
+        </button>
+
         <!-- Tab: Analytics -->
         <button id="navTabAnalytics" class="nav-tab-btn w-full flex items-center justify-between px-3.5 py-3 rounded-2xl text-xs font-bold text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-all">
           <span class="flex items-center gap-3">
@@ -526,6 +535,135 @@
             <a href="/health" target="_blank" class="block text-center w-full py-2.5 rounded-xl text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-colors">
               Inspect /health Endpoint
             </a>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ======================================================== -->
+      <!-- VIEW 4: ENQUIRIES MANAGEMENT                             -->
+      <!-- ======================================================== -->
+      <div id="viewEnquiries" class="space-y-6 hidden">
+
+        <!-- Enquiries Metrics Grid -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <!-- Total -->
+          <div class="bg-white rounded-3xl p-5 border border-slate-200/80 shadow-xs flex items-center justify-between">
+            <div>
+              <span class="text-[11px] uppercase font-bold text-slate-400 block tracking-wider">Total Enquiries</span>
+              <span id="statEnquiriesTotal" class="text-2xl sm:text-3xl font-black text-slate-900 mt-1 block">0</span>
+            </div>
+            <div class="w-12 h-12 rounded-2xl bg-slate-100 text-slate-600 flex items-center justify-center">
+              <i data-lucide="message-square" class="w-6 h-6"></i>
+            </div>
+          </div>
+
+          <!-- New / Unread -->
+          <div class="bg-white rounded-3xl p-5 border border-slate-200/80 shadow-xs flex items-center justify-between">
+            <div>
+              <span class="text-[11px] uppercase font-bold text-blue-600 block tracking-wider">New Enquiries</span>
+              <span id="statEnquiriesNew" class="text-2xl sm:text-3xl font-black text-blue-700 mt-1 block">0</span>
+            </div>
+            <div class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center">
+              <i data-lucide="inbox" class="w-6 h-6"></i>
+            </div>
+          </div>
+
+          <!-- Contacted -->
+          <div class="bg-white rounded-3xl p-5 border border-slate-200/80 shadow-xs flex items-center justify-between">
+            <div>
+              <span class="text-[11px] uppercase font-bold text-amber-600 block tracking-wider">Contacted</span>
+              <span id="statEnquiriesContacted" class="text-2xl sm:text-3xl font-black text-amber-700 mt-1 block">0</span>
+            </div>
+            <div class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center">
+              <i data-lucide="phone-call" class="w-6 h-6"></i>
+            </div>
+          </div>
+
+          <!-- Resolved -->
+          <div class="bg-white rounded-3xl p-5 border border-slate-200/80 shadow-xs flex items-center justify-between">
+            <div>
+              <span class="text-[11px] uppercase font-bold text-emerald-600 block tracking-wider">Resolved</span>
+              <span id="statEnquiriesResolved" class="text-2xl sm:text-3xl font-black text-emerald-700 mt-1 block">0</span>
+            </div>
+            <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+              <i data-lucide="check-circle" class="w-6 h-6"></i>
+            </div>
+          </div>
+        </div>
+
+        <!-- Toolbar: Search, Status Filter, Export CSV Button -->
+        <div class="bg-white rounded-3xl p-4 sm:p-5 border border-slate-200/80 shadow-xs flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
+          <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 flex-grow max-w-xl">
+            <!-- Search -->
+            <div class="relative flex-grow">
+              <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+              <input
+                id="searchEnquiryInput"
+                type="text"
+                placeholder="Search by name, email, phone, message..."
+                class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 text-xs font-semibold text-slate-800 placeholder-slate-400 focus:outline-none focus:border-brand-600 focus:ring-2 focus:ring-brand-500/10"
+              />
+            </div>
+            <!-- Status Filter -->
+            <select
+              id="filterEnquiryStatus"
+              class="px-4 py-2.5 rounded-xl border border-slate-200 text-xs font-bold text-slate-700 bg-white focus:outline-none focus:border-brand-600"
+            >
+              <option value="All">All Statuses</option>
+              <option value="new">New</option>
+              <option value="contacted">Contacted</option>
+              <option value="resolved">Resolved</option>
+            </select>
+          </div>
+
+          <!-- Export CSV Button & Refresh -->
+          <div class="flex items-center gap-3">
+            <button
+              id="refreshEnquiriesBtn"
+              class="p-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-600 transition-colors"
+              title="Refresh Enquiries"
+            >
+              <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+            </button>
+            <a
+              id="exportEnquiriesBtn"
+              href="/api/admin/enquiries/export"
+              download="HealthNutra_Enquiries.csv"
+              class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 shadow-md shadow-emerald-600/20 transition-all cursor-pointer"
+            >
+              <i data-lucide="download" class="w-4 h-4"></i>
+              <span>Export CSV</span>
+            </a>
+          </div>
+        </div>
+
+        <!-- Enquiries Table -->
+        <div class="bg-white rounded-3xl border border-slate-200/80 shadow-xs overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse text-xs">
+              <thead>
+                <tr class="bg-slate-50 border-b border-slate-100 text-[10px] font-black uppercase tracking-wider text-slate-500">
+                  <th class="py-3.5 px-4">Date & Time</th>
+                  <th class="py-3.5 px-4">Name</th>
+                  <th class="py-3.5 px-4">Contact</th>
+                  <th class="py-3.5 px-4">Subject</th>
+                  <th class="py-3.5 px-4">Message</th>
+                  <th class="py-3.5 px-4 text-center">Status</th>
+                  <th class="py-3.5 px-4 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="enquiriesTableBody" class="divide-y divide-slate-100 font-medium">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
+          </div>
+          <div id="enquiriesEmptyState" class="p-12 text-center hidden">
+            <div class="w-12 h-12 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center mx-auto mb-3">
+              <i data-lucide="message-square" class="w-6 h-6"></i>
+            </div>
+            <h4 class="text-sm font-bold text-slate-700">No Enquiries Found</h4>
+            <p class="text-xs text-slate-400 mt-1">Customer contact inquiries will appear here.</p>
           </div>
         </div>
 
