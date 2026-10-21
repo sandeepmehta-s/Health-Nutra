@@ -1,7 +1,6 @@
 /**
  * Health Nutra - HomePage View
- * Complete storefront page with Search Optimization (relevance ranking & scroll-to-top),
- * dynamic formulations catalog, modal controls, Order Tracking, and Contact Us form.
+ * Complete storefront page matching the official product showcase mockup.
  */
 
 const DEFAULT_PRODUCTS = [
@@ -20,8 +19,8 @@ const DEFAULT_PRODUCTS = [
   {
     id: "2",
     name: "Health Nutra 10Q Syrup",
-    category: "Syrup",
-    shortDescription: "Energy booster syrup with CoQ10 & antioxidants for daily vitality.",
+    category: "Multivitamin",
+    shortDescription: "Energy booster syrup for daily health.",
     fullDescription:
       "200ml multivitamin, CoQ10 & antioxidant syrup. Helps combat fatigue, support cardiac health, and revitalize natural stamina. Shake well before use.",
     price: 210,
@@ -33,7 +32,7 @@ const DEFAULT_PRODUCTS = [
     id: "3",
     name: "Omega-3 Capsules",
     category: "Omega-3",
-    shortDescription: "Supports heart, brain, joint, and cardiovascular wellness.",
+    shortDescription: "Supports heart, brain & joint health.",
     fullDescription:
       "Ultra-strength molecularly distilled fish oil softgels providing 1000mg EPA/DHA. Supports clear focus, cardiovascular circulation, and joint flexibility.",
     price: 499,
@@ -45,7 +44,7 @@ const DEFAULT_PRODUCTS = [
     id: "4",
     name: "Green Tea Extract",
     category: "Green Tea",
-    shortDescription: "Standardised 50% EGCG capsules for metabolism & antioxidant support.",
+    shortDescription: "Helps in weight management & antioxidant support.",
     fullDescription:
       "Standardised green tea botanical extract rich in natural polyphenols and 50% EGCG. Promotes healthy metabolic rate, gentle weight balance, and antioxidant protection.",
     price: 299,
@@ -55,7 +54,7 @@ const DEFAULT_PRODUCTS = [
   },
 ];
 
-const DEFAULT_CATEGORIES = ["All", "Multivitamin", "Syrup", "Omega-3", "Green Tea"];
+const DEFAULT_CATEGORIES = ["All", "Multivitamin", "Omega-3", "Green Tea"];
 
 function HomePage() {
   const [products, setProducts] = React.useState(DEFAULT_PRODUCTS);
@@ -80,21 +79,15 @@ function HomePage() {
     window.onOpenTrackModalWithId = handleOpenTrackModal;
   }, []);
 
-  // Load initial products and categories from apiHelper
+  // Load initial products from apiHelper
   React.useEffect(() => {
     async function loadData() {
       try {
         if (!window.apiHelper) return;
-        const [prodData, catData] = await Promise.all([
-          window.apiHelper.getProducts(),
-          window.apiHelper.getCategories(),
-        ]);
+        const prodData = await window.apiHelper.getProducts();
 
         if (prodData && prodData.success && Array.isArray(prodData.data) && prodData.data.length > 0) {
           setProducts(prodData.data);
-        }
-        if (catData && catData.success && Array.isArray(catData.data) && catData.data.length > 0) {
-          setCategories(catData.data.includes("All") ? catData.data : ["All", ...catData.data]);
         }
       } catch (err) {
         console.warn("Catalog fetch notice, using fallback starter formulations:", err);
@@ -103,10 +96,8 @@ function HomePage() {
     loadData();
   }, []);
 
-
   // -------------------------------------------------------------
-  // Search Optimization & Priority Relevance Ranking Algorithm
-  // ("search optmization kr do search kre to top pr aa jaye")
+  // Filter & Search Priority Algorithm
   // -------------------------------------------------------------
   const filteredAndRankedProducts = React.useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
@@ -114,9 +105,20 @@ function HomePage() {
     // 1. Filter by category
     let baseList = products;
     if (selectedCategory && selectedCategory !== "All") {
-      baseList = baseList.filter(
-        (p) => (p.category || "").toLowerCase() === selectedCategory.toLowerCase()
-      );
+      baseList = baseList.filter((p) => {
+        const c = (p.category || "").toLowerCase();
+        const target = selectedCategory.toLowerCase();
+        if (target === "multivitamin") {
+          return c.includes("multivitamin") || c.includes("syrup") || (p.name || "").toLowerCase().includes("9g") || (p.name || "").toLowerCase().includes("10q");
+        }
+        if (target === "omega-3") {
+          return c.includes("omega") || (p.name || "").toLowerCase().includes("omega");
+        }
+        if (target === "green tea") {
+          return c.includes("tea") || c.includes("green") || (p.name || "").toLowerCase().includes("green");
+        }
+        return c === target;
+      });
     }
 
     // If query is empty, return category list
@@ -134,54 +136,26 @@ function HomePage() {
 
       let score = 0;
 
-      // Exact title match gets absolute #1 highest priority (score: 1000)
-      if (name === q) {
-        score += 1000;
-      }
-      // Name starts with query (score: 500)
-      else if (name.startsWith(q)) {
-        score += 500;
-      }
-      // Word inside name starts with query (score: 300)
-      else if (name.split(/\s+/).some((word) => word.startsWith(q))) {
-        score += 300;
-      }
-      // Name contains query anywhere (score: 150)
-      else if (name.includes(q)) {
-        score += 150;
-      }
+      if (name === q) score += 1000;
+      else if (name.startsWith(q)) score += 500;
+      else if (name.split(/\s+/).some((word) => word.startsWith(q))) score += 300;
+      else if (name.includes(q)) score += 150;
 
-      // Category match (score: 80)
-      if (cat.includes(q)) {
-        score += 80;
-      }
-
-      // Short benefit description match (score: 40)
-      if (shortDesc.includes(q)) {
-        score += 40;
-      }
-
-      // Full clinical description match (score: 20)
-      if (fullDesc.includes(q)) {
-        score += 20;
-      }
+      if (cat.includes(q)) score += 80;
+      if (shortDesc.includes(q)) score += 40;
+      if (fullDesc.includes(q)) score += 20;
 
       if (score > 0) {
         scoredList.push({ ...p, _searchScore: score });
       }
     }
 
-    // 3. Sort by score descending (Highest score is guaranteed #1 at the TOP of the grid)
     scoredList.sort((a, b) => b._searchScore - a._searchScore);
-
     return scoredList;
   }, [products, selectedCategory, searchQuery]);
 
-  // Handle Search Input Change & Auto-Scroll to Top of Catalog
   const handleSearchChange = (query) => {
     setSearchQuery(query);
-
-    // Auto-scroll catalog into view when user searches
     if (query.trim().length > 0 && catalogRef.current) {
       const rect = catalogRef.current.getBoundingClientRect();
       if (rect.top < -50 || rect.top > 300) {
@@ -197,57 +171,31 @@ function HomePage() {
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 text-slate-800">
       
-      {/* Top Navbar with Track Order Button */}
+      {/* Top Navbar */}
       <Navbar
         onOpenSearch={() => catalogRef.current?.scrollIntoView({ behavior: "smooth" })}
         onOpenTrackOrder={() => handleOpenTrackModal()}
       />
 
-      {/* Hero Showcase */}
+      {/* Hero Showcase Matching Mockup */}
       <Hero onExploreClick={() => catalogRef.current?.scrollIntoView({ behavior: "smooth" })} />
 
-      {/* Quick Track Order Banner */}
-      <div className="bg-brand-900 text-white py-3.5 px-4 sm:px-6">
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
-          <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-            <span className="font-semibold text-slate-200">
-              Already ordered? Enter your Order Reference number to check live courier & dispatch status.
-            </span>
-          </div>
-
-          <button
-            type="button"
-            onClick={() => handleOpenTrackModal()}
-            className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-xl font-black bg-brand-700 hover:bg-brand-600 text-white shadow-xs transition-colors shrink-0"
-          >
-            <Icon name="truck" className="w-3.5 h-3.5" />
-            <span>Track Order & Download PDF</span>
-          </button>
-        </div>
-      </div>
-
       {/* Main Catalog Section */}
-      <main id="products" ref={catalogRef} className="py-16 sm:py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full flex-grow">
+      <main id="products" ref={catalogRef} className="py-12 sm:py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full flex-grow scroll-mt-16">
         
-        {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto mb-10 space-y-3">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-black bg-brand-50 text-brand-800 border border-brand-200">
-            <Icon name="sparkles" className="w-3.5 h-3.5 text-accent-600" />
-            <span>PHARMACEUTICAL EXCELLENCE</span>
+        {/* Section Header: Leaf Icon + OUR PRODUCTS */}
+        <div className="text-center mb-6">
+          <div className="flex items-center justify-center mb-1">
+            <span className="text-emerald-700 text-xl">🌿</span>
           </div>
-
-          <h2 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">
-            Our Certified Formulations
+          <h2 className="text-3xl sm:text-4xl font-black tracking-tight leading-tight">
+            <span className="text-[#166534]">OUR </span>
+            <span className="text-[#F97316]">PRODUCTS</span>
           </h2>
-
-          <p className="text-sm sm:text-base text-slate-600 font-medium">
-            Search by brand name or category. Formulations are intelligently prioritized with top matches at the top.
-          </p>
         </div>
 
         {/* Search & Category Filter Controls */}
-        <div className="mb-10">
+        <div className="mb-8">
           <SearchFilter
             searchQuery={searchQuery}
             onSearchChange={handleSearchChange}
@@ -259,18 +207,18 @@ function HomePage() {
           />
         </div>
 
-        {/* Products Grid */}
+        {/* Products Grid: 4 Columns */}
         {loading ? (
-          <div className="py-20 text-center space-y-4">
-            <div className="w-12 h-12 rounded-2xl bg-brand-700 text-white flex items-center justify-center mx-auto animate-spin">
+          <div className="py-16 text-center space-y-4">
+            <div className="w-12 h-12 rounded-2xl bg-[#166534] text-white flex items-center justify-center mx-auto animate-spin">
               <Icon name="refresh-cw" className="w-6 h-6" />
             </div>
             <p className="text-sm font-bold text-slate-500">Loading formulations catalog...</p>
           </div>
         ) : filteredAndRankedProducts.length === 0 ? (
-          <div className="py-16 px-6 text-center bg-white rounded-3xl border border-slate-200 max-w-md mx-auto space-y-4">
-            <div className="w-16 h-16 rounded-3xl bg-orange-100 text-accent-600 flex items-center justify-center mx-auto">
-              <Icon name="search-x" className="w-8 h-8" />
+          <div className="py-16 px-6 text-center bg-white rounded-2xl border border-slate-200 max-w-md mx-auto space-y-4">
+            <div className="w-14 h-14 rounded-2xl bg-orange-100 text-orange-600 flex items-center justify-center mx-auto">
+              <Icon name="search-x" className="w-7 h-7" />
             </div>
             <div>
               <h3 className="text-lg font-black text-slate-900">No Formulations Found</h3>
@@ -286,13 +234,13 @@ function HomePage() {
                 setSelectedCategory("All");
                 handleClearSearch();
               }}
-              className="px-5 py-2.5 rounded-xl text-xs font-black text-white bg-brand-700 hover:bg-brand-800 transition-colors shadow-sm"
+              className="px-5 py-2.5 rounded-xl text-xs font-black text-white bg-[#166534] hover:bg-[#14532d] transition-colors shadow-sm"
             >
               Reset Filters & Show All
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {filteredAndRankedProducts.map((product, idx) => (
               <ProductCard
                 key={product.id || idx}
@@ -311,10 +259,9 @@ function HomePage() {
       <section id="about" className="py-16 sm:py-20 bg-white border-y border-slate-200/80 scroll-mt-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
-          {/* Section Header */}
           <div className="text-center max-w-3xl mx-auto mb-12 space-y-3">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-black bg-brand-50 text-brand-800 border border-brand-200">
-              <Icon name="shield-check" className="w-3.5 h-3.5 text-brand-700" />
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-black bg-emerald-50 text-emerald-800 border border-emerald-200">
+              <Icon name="shield-check" className="w-3.5 h-3.5 text-emerald-700" />
               <span>ABOUT HEALTH NUTRA</span>
             </div>
             <h2 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">
@@ -326,18 +273,18 @@ function HomePage() {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div className="p-8 rounded-3xl bg-slate-50 border border-slate-200/80 space-y-3">
-              <div className="w-12 h-12 rounded-2xl bg-brand-100 text-brand-800 flex items-center justify-center font-black">
+            <div className="p-8 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-3">
+              <div className="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-800 flex items-center justify-center font-black">
                 <Icon name="shield-check" className="w-6 h-6" />
               </div>
               <h3 className="text-lg font-black text-slate-900">WHO-GMP Quality Certified</h3>
               <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-                Every formulation follows stringent World Health Organization Good Manufacturing Practices with end-to-end sterility and air control.
+                Every formulation follows stringent World Health Organization Good Manufacturing Practices with end-to-end sterility and clean-room air filtration.
               </p>
             </div>
 
-            <div className="p-8 rounded-3xl bg-slate-50 border border-slate-200/80 space-y-3">
-              <div className="w-12 h-12 rounded-2xl bg-orange-100 text-accent-600 flex items-center justify-center font-black">
+            <div className="p-8 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-3">
+              <div className="w-12 h-12 rounded-2xl bg-orange-100 text-orange-600 flex items-center justify-center font-black">
                 <Icon name="check-circle" className="w-6 h-6" />
               </div>
               <h3 className="text-lg font-black text-slate-900">Heavy Metal & Purity Tested</h3>
@@ -346,7 +293,7 @@ function HomePage() {
               </p>
             </div>
 
-            <div className="p-8 rounded-3xl bg-slate-50 border border-slate-200/80 space-y-3">
+            <div className="p-8 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-3">
               <div className="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-800 flex items-center justify-center font-black">
                 <Icon name="truck" className="w-6 h-6" />
               </div>
@@ -359,8 +306,70 @@ function HomePage() {
         </div>
       </section>
 
+      {/* Leadership & Clinical Advisory ("Our Team") Section */}
+      <section id="team" className="py-16 sm:py-20 bg-slate-50 border-b border-slate-200/80 scroll-mt-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          
+          <div className="text-center max-w-3xl mx-auto mb-12 space-y-3">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-black bg-emerald-50 text-emerald-800 border border-emerald-200">
+              <Icon name="users" className="w-3.5 h-3.5 text-emerald-700" />
+              <span>LEADERSHIP & ADVISORY</span>
+            </div>
+            <h2 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">
+              Meet Our Executive Leadership
+            </h2>
+            <p className="text-sm sm:text-base text-slate-600 font-medium leading-relaxed">
+              Guided by seasoned clinical researchers, pharmaceutical chemists, and wellness visionaries committed to preventive healthcare.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-3xl mx-auto">
+            {/* Founder / Managing Director */}
+            <div className="bg-white rounded-2xl border border-slate-200 p-6 text-center shadow-xs hover:shadow-md transition-shadow">
+              <div className="w-28 h-28 mx-auto mb-4 rounded-full overflow-hidden border-2 border-emerald-600/30">
+                <img
+                  src="/images/ashutosh.jpg"
+                  alt="Ashutosh Sharma"
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = "https://res.cloudinary.com/usqwgkl7/image/upload/v1792576055/logo.jpg";
+                  }}
+                />
+              </div>
+              <h3 className="text-lg font-black text-slate-900">Ashutosh Sharma</h3>
+              <p className="text-xs font-bold text-[#F97316] uppercase tracking-wider mt-0.5">Founder & Managing Director</p>
+              <p className="text-xs text-slate-500 mt-2.5 leading-relaxed">
+                Pioneering pharmaceutical and nutraceutical research, driving formulation purity and nationwide healthcare distribution.
+              </p>
+            </div>
+
+            {/* Medical Director */}
+            <div className="bg-white rounded-2xl border border-slate-200 p-6 text-center shadow-xs hover:shadow-md transition-shadow">
+              <div className="w-28 h-28 mx-auto mb-4 rounded-full overflow-hidden border-2 border-emerald-600/30">
+                <img
+                  src="/images/director.jpg"
+                  alt="Dr. Rajesh Patel"
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = "https://res.cloudinary.com/usqwgkl7/image/upload/v1792576055/logo.jpg";
+                  }}
+                />
+              </div>
+              <h3 className="text-lg font-black text-slate-900">Dr. Rajesh Patel</h3>
+              <p className="text-xs font-bold text-[#166534] uppercase tracking-wider mt-0.5">Director & Clinical Advisor</p>
+              <p className="text-xs text-slate-500 mt-2.5 leading-relaxed">
+                Specializing in metabolic wellness and evidence-based nutritional therapeutics to ensure maximum patient safety.
+              </p>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
       {/* Interactive Contact Us Section */}
-      <section id="contact-inquiry" className="py-20 bg-slate-100/60 border-b border-slate-200/80">
+      <section id="contact" className="py-16 sm:py-20 bg-white border-b border-slate-200 scroll-mt-20">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <ContactForm />
         </div>
@@ -401,11 +410,9 @@ function HomePage() {
   );
 }
 
-// Global browser registration
 if (typeof window !== "undefined") {
   window.HomePage = HomePage;
 }
-
 if (typeof exports !== "undefined") {
   exports.HomePage = HomePage;
 }
