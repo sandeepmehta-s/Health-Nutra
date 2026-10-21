@@ -266,7 +266,9 @@ function ProductsPage() {
                 key={product.id || idx}
                 product={product}
                 isTopMatch={searchQuery.trim().length > 0 && idx === 0}
-                onViewDetails={(prod) => setSelectedProduct(prod)}
+                onViewDetails={(prod) => {
+                  window.location.href = `/product/${prod.id || prod.slug || "3"}`;
+                }}
                 onOrderNow={(prod) => setCheckoutProduct(prod)}
               />
             ))}

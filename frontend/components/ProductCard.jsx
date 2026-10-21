@@ -1,6 +1,6 @@
 /**
  * Health Nutra - ProductCard Component
- * Displays individual product card matching the centered card design.
+ * Displays individual product card with direct navigation to dedicated Product Detail Page.
  */
 
 function ProductCard({
@@ -33,6 +33,16 @@ function ProductCard({
     return `/${product.image}`;
   }, [product.image, dummyFallback]);
 
+  const productUrl = `/product/${product.id || product.slug || "3"}`;
+
+  const handleCardClick = () => {
+    if (onViewDetails) {
+      onViewDetails(product);
+    } else {
+      window.location.href = productUrl;
+    }
+  };
+
   return (
     <div
       className={`group bg-white rounded-2xl border transition-all duration-300 flex flex-col justify-between text-center p-5 sm:p-6 overflow-hidden ${
@@ -42,7 +52,14 @@ function ProductCard({
       }`}
     >
       {/* Product Image Area */}
-      <div className="relative h-44 sm:h-48 w-full flex items-center justify-center p-2 mb-4 bg-white">
+      <a
+        href={productUrl}
+        onClick={(e) => {
+          e.preventDefault();
+          handleCardClick();
+        }}
+        className="relative h-44 sm:h-48 w-full flex items-center justify-center p-2 mb-4 bg-white cursor-pointer"
+      >
         <img
           src={imageError ? dummyFallback : imageSrc}
           alt={product.name}
@@ -52,15 +69,24 @@ function ProductCard({
           className="max-h-full max-w-full object-contain transform group-hover:scale-105 transition-transform duration-300"
           loading="lazy"
         />
-      </div>
+      </a>
 
       {/* Product Content Details */}
       <div className="flex flex-col flex-grow justify-between">
         <div>
           {/* Product Title */}
-          <h3 className="text-base sm:text-lg font-black text-slate-900 group-hover:text-[#166534] transition-colors leading-snug">
-            {product.name}
-          </h3>
+          <a
+            href={productUrl}
+            onClick={(e) => {
+              e.preventDefault();
+              handleCardClick();
+            }}
+            className="block cursor-pointer"
+          >
+            <h3 className="text-base sm:text-lg font-black text-slate-900 group-hover:text-[#166534] transition-colors leading-snug">
+              {product.name}
+            </h3>
+          </a>
 
           {/* Benefit Description */}
           <p className="text-xs text-slate-500 font-medium mt-1.5 mb-3 line-clamp-2 min-h-[32px] leading-relaxed">
@@ -80,13 +106,16 @@ function ProductCard({
 
         {/* View Details Action Button */}
         <div className="mt-3">
-          <button
-            type="button"
-            onClick={() => onViewDetails && onViewDetails(product)}
-            className="w-full py-2.5 px-4 rounded-lg text-xs sm:text-sm font-bold text-white bg-[#166534] hover:bg-[#14532d] shadow-xs hover:shadow-sm transition-all active:scale-98"
+          <a
+            href={productUrl}
+            onClick={(e) => {
+              e.preventDefault();
+              handleCardClick();
+            }}
+            className="block w-full py-2.5 px-4 rounded-lg text-xs sm:text-sm font-bold text-white bg-[#166534] hover:bg-[#14532d] shadow-xs hover:shadow-sm transition-all active:scale-98 cursor-pointer"
           >
             View Details
-          </button>
+          </a>
         </div>
       </div>
     </div>

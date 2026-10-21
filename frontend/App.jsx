@@ -32,6 +32,15 @@ function App() {
   }
 
   if (
+    currentPath.startsWith("/product/") ||
+    currentPath === "/product" ||
+    currentPath === "/product/" ||
+    (currentPath.startsWith("/products/") && currentPath !== "/products/")
+  ) {
+    return <ProductDetailPage />;
+  }
+
+  if (
     currentPath === "/contact-us" ||
     currentPath === "/contact-us/" ||
     currentPath === "/contact" ||
