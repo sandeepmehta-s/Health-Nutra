@@ -27,6 +27,8 @@ const adminSchema = new mongoose.Schema(
 // Hash password before saving if modified
 adminSchema.pre("save", async function () {
   if (!this.isModified("password")) return;
+  // If already a valid bcrypt hash, avoid double hashing
+  if (/^\$2[aby]\$\d{2}\$[./A-Za-z0-9]{53}$/.test(this.password)) return;
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
 });

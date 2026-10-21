@@ -16,8 +16,17 @@ function Footer() {
           {/* Brand Info */}
           <div className="lg:col-span-5 space-y-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-2xl bg-brand-700 flex items-center justify-center text-white shadow-lg shadow-brand-700/30">
-                {(typeof window !== "undefined" && window?.apiHelper?.config?.brand?.logoUrl) ? (<img src={window.apiHelper.config.brand.logoUrl} alt="Health Nutra" className="w-full h-full object-contain p-1" />) : (<Icon name="leaf" className="w-5 h-5" />)}
+              <div className="w-11 h-11 rounded-2xl bg-white border border-slate-700 p-1 flex items-center justify-center shadow-md overflow-hidden">
+                <img
+                  src={(typeof window !== "undefined" && window?.apiHelper?.config?.brand?.logoUrl) || "https://res.cloudinary.com/usqwgkl7/image/upload/v1792576055/logo.jpg"}
+                  alt="Health Nutra"
+                  className="w-full h-full object-contain"
+                  onError={(e) => {
+                    e.target.style.display = "none";
+                    if (e.target.nextElementSibling) e.target.nextElementSibling.style.display = "block";
+                  }}
+                />
+                <Icon name="leaf" className="w-5 h-5 text-brand-700 hidden" />
               </div>
               <span className="text-xl font-black tracking-tight">
                 HEALTH <span className="text-accent-500">NUTRA</span>
@@ -76,15 +85,19 @@ function Footer() {
             <div className="space-y-2.5 text-xs text-slate-400 font-medium">
               <div className="flex items-center gap-2.5">
                 <Icon name="phone" className="w-4 h-4 text-emerald-400 shrink-0" />
-                <span>+91 98765 43210</span>
+                <a href="tel:+917024308660" className="hover:text-emerald-400 transition-colors">+91-7024308660</a>
               </div>
               <div className="flex items-center gap-2.5">
                 <Icon name="mail" className="w-4 h-4 text-emerald-400 shrink-0" />
-                <span>care@healthnutra.com</span>
+                <a href="mailto:healthnutra16@gmail.com" className="hover:text-emerald-400 transition-colors">healthnutra16@gmail.com</a>
               </div>
               <div className="flex items-start gap-2.5">
                 <Icon name="map-pin" className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                <span>Industrial Area Phase II, Pharmaceutical Zone, India</span>
+                <span>
+                  Shop No/ Plot No.: 247, SLICE-2,<br />
+                  SECTOR-A, SCHEME NO 78,<br />
+                  INDORE - 452010 Dist.-INDORE (M.P.)
+                </span>
               </div>
             </div>
           </div>

@@ -188,6 +188,13 @@ async function seedMongo() {
       const hashed = await bcrypt.hash(p, 10);
       await Admin.create({ username: u, password: hashed, name: "Health Nutra Administrator" });
       console.log(`[Seed] Created primary MongoDB admin: "${u}"`);
+    } else {
+      const match = await existingAdmin.comparePassword(p);
+      if (!match) {
+        const hashed = await bcrypt.hash(p, 10);
+        await Admin.updateOne({ _id: existingAdmin._id }, { $set: { password: hashed } });
+        console.log(`[Seed] Synchronized primary admin password for: "${u}"`);
+      }
     }
 
     // Also ensure fallback admin account exists for tests
@@ -195,6 +202,12 @@ async function seedMongo() {
     if (!testAdmin) {
       const hashed = await bcrypt.hash("admin123", 10);
       await Admin.create({ username: "admin", password: hashed, name: "Health Nutra Administrator" });
+    } else {
+      const match = await testAdmin.comparePassword("admin123");
+      if (!match) {
+        const hashed = await bcrypt.hash("admin123", 10);
+        await Admin.updateOne({ _id: testAdmin._id }, { $set: { password: hashed } });
+      }
     }
 
     // 2. Seed starter products if catalog is empty

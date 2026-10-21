@@ -69,7 +69,7 @@ function ContactForm() {
           Get in Touch With Our Specialists
         </h3>
         <p className="text-xs sm:text-sm text-slate-500 mt-1 font-medium">
-          Have questions regarding ingredients, bulk formulation supply, or retail dealership? Send us a message.
+          Have questions regarding ingredients, bulk formulation supply, or retail dealership? Send us a message or contact directly at <a href="tel:+917024308660" className="text-brand-700 font-bold hover:underline">+91-7024308660</a> / <a href="mailto:healthnutra16@gmail.com" className="text-brand-700 font-bold hover:underline">healthnutra16@gmail.com</a>.
         </p>
       </div>
 
@@ -136,7 +136,7 @@ function ContactForm() {
                 type="tel"
                 value={formData.phone}
                 onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                placeholder="+91 98765 43210"
+                placeholder="+91-7024308660"
                 className="w-full px-4 py-3 rounded-2xl border border-slate-200 text-xs sm:text-sm font-semibold text-slate-800 focus:outline-none focus:border-brand-600 focus:ring-4 focus:ring-brand-500/10"
               />
             </div>

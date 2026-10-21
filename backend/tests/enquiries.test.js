@@ -138,3 +138,4 @@ describe("Contact Form & Admin Enquiries Suite", () => {
     assert.equal(delJson.success, true);
   });
 });
+

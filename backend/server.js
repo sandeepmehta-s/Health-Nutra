@@ -67,7 +67,15 @@ app.use(
         ],
         fontSrc: ["'self'", "https://fonts.gstatic.com", "data:"],
         imgSrc: ["'self'", "data:", "blob:", "https:"],
-        connectSrc: ["'self'", APP_URL, API_URL, "https://health-nutra.onrender.com"],
+        connectSrc: [
+          "'self'",
+          APP_URL,
+          API_URL,
+          "https://health-nutra.onrender.com",
+          "https://unpkg.com",
+          "https://cdnjs.cloudflare.com",
+          "https://cdn.tailwindcss.com",
+        ],
         objectSrc: ["'none'"],
         upgradeInsecureRequests: process.env.NODE_ENV === "production" ? [] : null,
       },
@@ -115,19 +123,20 @@ if (isProduction && !process.env.SESSION_SECRET) {
   console.warn("[Security Notice] SESSION_SECRET not set in environment! Set a strong secret in production.");
 }
 
-// Session store helper: reuses active Mongoose connection if MongoDB is connected
-const sessionStore =
-  mongoose.connection.readyState === 1
-    ? MongoStore.create({
-        client: mongoose.connection.getClient(),
-        ttl: 7 * 24 * 60 * 60, // 7 days
-        autoRemove: "native",
-        touchAfter: 24 * 3600,
-        crypto: {
-          secret: process.env.SESSION_SECRET || "health-nutra-super-secret-key-987654",
-        },
-      })
-    : undefined;
+const mongoUri =
+  process.env.MONGODB_URI ||
+  "mongodb+srv://healthnutra16_db_user:xBLTmExrXqSejMKj@healthnutra.i5aemfd.mongodb.net/health_nutra?retryWrites=true&w=majority";
+
+// Persistent MongoDB session store prevents memory leaks and ensures scalable sessions on Render
+const sessionStore = MongoStore.create({
+  mongoUrl: mongoUri,
+  ttl: 7 * 24 * 60 * 60, // 7 days
+  autoRemove: "native",
+  touchAfter: 24 * 3600,
+  crypto: {
+    secret: process.env.SESSION_SECRET || "health-nutra-super-secret-key-987654",
+  },
+});
 
 app.use(
   session({

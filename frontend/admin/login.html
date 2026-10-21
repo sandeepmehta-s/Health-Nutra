@@ -5,6 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin Sign In - Health Nutra</title>
   
+  <script>
+    // Suppress Tailwind Play CDN production notice in console
+    const _origWarn = console.warn;
+    console.warn = function(...args) {
+      if (args[0] && typeof args[0] === 'string' && args[0].includes('cdn.tailwindcss.com should not be used in production')) return;
+      _origWarn.apply(console, args);
+    };
+  </script>
+
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -51,11 +60,12 @@
     <div class="bg-gradient-to-br from-brand-800 to-emerald-900 p-8 text-center text-white relative">
       <div class="absolute -top-10 -right-10 w-32 h-32 bg-accent-500/20 rounded-full blur-2xl pointer-events-none"></div>
 
-      <div class="w-16 h-16 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 mx-auto flex items-center justify-center text-emerald-300 shadow-lg mb-4">
-        <i data-lucide="lock" class="w-8 h-8"></i>
+      <div class="w-16 h-16 rounded-2xl bg-white p-1 border border-white/40 mx-auto flex items-center justify-center shadow-lg mb-4 overflow-hidden">
+        <img src="https://res.cloudinary.com/usqwgkl7/image/upload/v1792576055/logo.jpg" alt="Health Nutra" class="w-full h-full object-contain" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" />
+        <i data-lucide="lock" class="w-8 h-8 text-brand-800 hidden"></i>
       </div>
 
-      <h1 class="text-2xl font-black tracking-tight">HEALTH <span class="text-accent-400">NUTRA</span></h1>
+      <h1 class="text-2xl font-black tracking-tight">HEALTH <span class="text-accent-400">NUTRA</span><span class="text-xs align-super font-bold text-emerald-200">™</span></h1>
       <p class="text-xs text-emerald-200/80 mt-1 uppercase tracking-wider font-semibold">
         Management & Inventory Control
       </p>

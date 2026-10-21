@@ -11,6 +11,7 @@ import {
 } from "../services/dbService.js";
 import { cache } from "../services/cacheService.js";
 import { orderRateLimiter, contactRateLimiter, trackingRateLimiter } from "../middleware/rateLimiter.js";
+import { sendOrderNotifications, sendEnquiryNotification } from "../services/emailService.js";
 
 const router = express.Router();
 
@@ -238,6 +239,11 @@ router.post("/orders", orderRateLimiter, async (req, res) => {
       cache.set(`idempotency:${idempotencyKey.trim()}`, newOrder, 600); // 10 minutes
     }
 
+    // Trigger transactional notifications in background
+    sendOrderNotifications(newOrder).catch((err) =>
+      console.warn("[Email Notification Error]", err.message)
+    );
+
     res.status(201).json({
       success: true,
       message: "Order placed successfully! Our dispatch team will contact you shortly.",
@@ -339,6 +345,11 @@ router.post("/contact", contactRateLimiter, async (req, res) => {
     const safeName = name.trim().slice(0, 30);
     const safeSubject = String(subject || "General").slice(0, 40);
     console.log(`[Contact Form] Stored inquiry #${saved.id} from "${safeName}" - Subject: "${safeSubject}"`);
+
+    // Trigger admin email alert in background
+    sendEnquiryNotification(saved).catch((err) =>
+      console.warn("[Email Notification Error]", err.message)
+    );
 
     res.status(200).json({
       success: true,

@@ -337,9 +337,14 @@ export function downloadOrderInvoicePDF(order) {
     
     <!-- Top Header -->
     <div class="invoice-header">
-      <div>
-        <div class="brand-title">HEALTH <span>NUTRA</span></div>
-        <div class="brand-tagline">Pharmaceutical Excellence • WHO-GMP Certified</div>
+      <div style="display: flex; align-items: center; gap: 16px;">
+        <div style="width: 58px; height: 58px; background: #ffffff; border-radius: 16px; padding: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0;">
+          <img src="https://res.cloudinary.com/usqwgkl7/image/upload/v1792576055/logo.jpg" alt="Health Nutra Logo" style="width: 100%; height: 100%; object-fit: contain;" />
+        </div>
+        <div>
+          <div class="brand-title">HEALTH <span>NUTRA</span>™</div>
+          <div class="brand-tagline">Nurturing Health, Enriching Life • WHO-GMP Certified</div>
+        </div>
       </div>
       <div class="invoice-badge-box">
         <div class="invoice-label">Official Order Invoice</div>
@@ -377,12 +382,15 @@ export function downloadOrderInvoicePDF(order) {
         </div>
 
         <div class="meta-box">
-          <div class="meta-box-title">Order & Payment Details:</div>
-          <div class="meta-box-name">Payment Method: ${paymentMethod}</div>
+          <div class="meta-box-title">Marketed & Dispatched By:</div>
+          <div class="meta-box-name">HEALTH NUTRA™</div>
           <div class="meta-box-text">
-            <strong>Order Reference:</strong> #${orderId}<br>
-            <strong>Payment Mode:</strong> ${paymentMethod}<br>
-            <strong>Fulfilled By:</strong> Health Nutra Central Warehouse
+            Shop No/ Plot No.: 247, SLICE-2,<br>
+            SECTOR-A, SCHEME NO 78,<br>
+            INDORE - 452010 Dist.-INDORE (M.P.)<br>
+            <strong>Phone:</strong> +91-7024308660<br>
+            <strong>Email:</strong> healthnutra16@gmail.com<br>
+            <span style="font-size: 10px; color: #64748b; font-weight: 700;">TM TRADEMARK APPLIED FOR</span>
           </div>
         </div>
       </div>
@@ -443,7 +451,8 @@ export function downloadOrderInvoicePDF(order) {
     <!-- Footer -->
     <div class="invoice-footer">
       <div>
-        <strong>Health Nutra Care:</strong> care@healthnutra.com | +91 98765 43210
+        <strong>Health Nutra Care:</strong> healthnutra16@gmail.com | +91-7024308660<br>
+        <span style="font-size: 10px; color: #64748b;">Plot 247, Slice-2, Sector-A, Scheme 78, Indore - 452010 Dist.-Indore (M.P.)</span>
       </div>
       <div class="cert-pills">
         <span class="cert-pill">WHO-GMP</span>

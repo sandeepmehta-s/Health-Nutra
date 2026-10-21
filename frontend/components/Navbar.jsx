@@ -20,8 +20,17 @@ function Navbar({ onOpenSearch, onOpenTrackOrder, orderCount = 0 }) {
           
           {/* Brand Logo */}
           <a href="#" className="flex items-center gap-3 group">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-brand-700 to-emerald-800 flex items-center justify-center text-white shadow-lg shadow-brand-700/25 group-hover:scale-105 transition-transform">
-              {(typeof window !== "undefined" && window?.apiHelper?.config?.brand?.logoUrl) ? (<img src={window.apiHelper.config.brand.logoUrl} alt="Health Nutra" className="w-full h-full object-contain p-1" />) : (<Icon name="leaf" className="w-6 h-6" />)}
+            <div className="w-12 h-12 rounded-2xl bg-white border border-slate-200/90 shadow-md shadow-slate-200/50 p-1 flex items-center justify-center overflow-hidden group-hover:scale-105 transition-transform">
+              <img
+                src={(typeof window !== "undefined" && window?.apiHelper?.config?.brand?.logoUrl) || "https://res.cloudinary.com/usqwgkl7/image/upload/v1792576055/logo.jpg"}
+                alt="Health Nutra"
+                className="w-full h-full object-contain"
+                onError={(e) => {
+                  e.target.style.display = "none";
+                  if (e.target.nextElementSibling) e.target.nextElementSibling.style.display = "block";
+                }}
+              />
+              <Icon name="leaf" className="w-6 h-6 text-brand-700 hidden" />
             </div>
             <div>
               <div className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight leading-none">
