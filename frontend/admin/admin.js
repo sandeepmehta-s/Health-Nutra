@@ -975,14 +975,19 @@ window.downloadOrderInvoice = function(orderId) { /* download PDF */
   }
   try {
     const id = o.orderId || o.id || orderId;
-    const downloadUrl = `/api/orders//invoice/download`;
+    const cleanId = encodeURIComponent(id);
+    const downloadUrl = `/api/orders/${cleanId}/invoice/download`;
     const a = document.createElement("a");
     a.href = downloadUrl;
-    a.download = `HealthNutra_Invoice_.pdf`;
+    a.download = `HealthNutra_Invoice_${id}.pdf`;
     document.body.appendChild(a);
     a.click();
-    setTimeout(() => document.body.removeChild(a), 300);
-    showToast(`Downloading official PDF invoice for #...`);
+    setTimeout(() => {
+      try {
+        if (a.parentNode) document.body.removeChild(a);
+      } catch (e) {}
+    }, 500);
+    showToast(`Downloading official PDF invoice for #${id}...`);
   } catch (err) {
     showToast("Error downloading invoice: " + err.message, "error");
   }

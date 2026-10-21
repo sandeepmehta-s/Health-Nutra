@@ -469,13 +469,18 @@ export function downloadOrderInvoicePDF(order) {
 
   // 1-Click Direct Binary PDF Download via API endpoint
   try {
-    const downloadUrl = `/api/orders//invoice/download`;
+    const cleanId = encodeURIComponent(orderId);
+    const downloadUrl = `/api/orders/${cleanId}/invoice/download`;
     const a = document.createElement("a");
     a.href = downloadUrl;
-    a.download = `HealthNutra_Invoice_.pdf`;
+    a.download = `HealthNutra_Invoice_${orderId}.pdf`;
     document.body.appendChild(a);
     a.click();
-    setTimeout(() => document.body.removeChild(a), 300);
+    setTimeout(() => {
+      try {
+        if (a.parentNode) document.body.removeChild(a);
+      } catch (e) {}
+    }, 500);
     return;
   } catch (err) {
     console.warn("Fallback to browser print:", err.message);

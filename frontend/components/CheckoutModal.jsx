@@ -69,6 +69,7 @@ function CheckoutModal({
       if (result && result.success) {
         const orderData = result.data || result.order || {
           id: result.orderId || "HN-ORD-1",
+          orderId: result.orderId || "HN-ORD-1",
           customerName: customerName.trim(),
           productName: product.name,
           quantity: qty,
@@ -76,8 +77,42 @@ function CheckoutModal({
           paymentMethod: paymentMethod,
           shippingAddress: payload.shippingAddress,
         };
+
+        // Ensure orderId is explicitly populated
+        if (result.orderId) {
+          orderData.orderId = result.orderId;
+        }
+        if (!orderData.orderId && orderData.id) {
+          orderData.orderId = orderData.id;
+        }
+
         setReceipt(orderData);
         if (onOrderCompleted) onOrderCompleted(orderData);
+
+        // ========================================================
+        // AUTOMATIC INSTANT PDF INVOICE DOWNLOAD ON SUCCESSFUL ORDER
+        // ========================================================
+        try {
+          const invId = orderData.orderId || orderData.id;
+          if (invId) {
+            setTimeout(() => {
+              if (window.downloadOrderInvoicePDF) {
+                window.downloadOrderInvoicePDF(orderData);
+              } else {
+                const a = document.createElement("a");
+                a.href = `/api/orders/${encodeURIComponent(invId)}/invoice/download`;
+                a.download = `HealthNutra_Invoice_${invId}.pdf`;
+                document.body.appendChild(a);
+                a.click();
+                setTimeout(() => {
+                  try { if (a.parentNode) document.body.removeChild(a); } catch (e) {}
+                }, 500);
+              }
+            }, 600);
+          }
+        } catch (downloadErr) {
+          console.warn("[Auto-Download Invoice Error]", downloadErr);
+        }
       } else {
         setErrorMsg(result?.message || "Failed to submit order. Please try again.");
       }
@@ -147,7 +182,7 @@ function CheckoutModal({
                   {receipt ? "Order Confirmed!" : "Direct Formulation Order"}
                 </h3>
                 <p className="text-xs text-slate-500">
-                  {receipt ? `Order #${receipt.id} Placed Successfully` : "Fast dispatch directly from certified store"}
+                  {receipt ? `Order #${receipt.orderId || receipt.id} Placed Successfully` : "Fast dispatch directly from certified store"}
                 </p>
               </div>
             </div>
@@ -182,7 +217,7 @@ function CheckoutModal({
                 <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200/80 text-left space-y-3">
                   <div className="flex justify-between items-center text-xs pb-2 border-b border-slate-200">
                     <span className="text-slate-400 font-bold uppercase">Order Reference:</span>
-                    <span className="font-black text-slate-900">#{receipt.id}</span>
+                    <span className="font-black text-slate-900">#{receipt.orderId || receipt.id}</span>
                   </div>
                   <div className="flex justify-between items-center text-xs">
                     <span className="text-slate-500 font-semibold">Formulation:</span>
@@ -212,6 +247,16 @@ function CheckoutModal({
                     onClick={() => {
                       if (window.downloadOrderInvoicePDF) {
                         window.downloadOrderInvoicePDF(receipt);
+                      } else {
+                        const invId = receipt.orderId || receipt.id;
+                        const a = document.createElement("a");
+                        a.href = `/api/orders/${encodeURIComponent(invId)}/invoice/download`;
+                        a.download = `HealthNutra_Invoice_${invId}.pdf`;
+                        document.body.appendChild(a);
+                        a.click();
+                        setTimeout(() => {
+                          try { if (a.parentNode) document.body.removeChild(a); } catch (e) {}
+                        }, 500);
                       }
                     }}
                     className="w-full py-3.5 rounded-2xl text-xs sm:text-sm font-black text-white bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 shadow-md shadow-orange-600/20 transition-all flex items-center justify-center gap-2 transform hover:-translate-y-0.5 active:scale-95 cursor-pointer"

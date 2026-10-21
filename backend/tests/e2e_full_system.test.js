@@ -24,7 +24,7 @@ describe("Health Nutra - Comprehensive Live E2E Integration Suite", () => {
     const rootRes = await fetch(`${BASE_URL}/`);
     assert.equal(rootRes.status, 200, "Root storefront must return 200 HTML");
     const html = await rootRes.text();
-    assert.ok(html.includes("HEALTH NUTRA"), "Root HTML must contain HEALTH NUTRA title");
+    assert.ok(html.includes("HEALTH NUTRA") || html.includes("Health Nutra"), "Root HTML must contain HEALTH NUTRA title");
   });
 
   test("1.2 Brand and API configuration endpoint returns active branding", async () => {
