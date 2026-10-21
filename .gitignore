@@ -1,0 +1,18 @@
+# Root .gitignore for Health Nutra
+node_modules/
+dist/
+build/
+.env
+*.env
+*.sqlite
+*.sqlite-journal
+
+# Private admin credentials scripts (never push to GitHub)
+backend/create-admin.js
+backend/createAdmin.js
+backend/scripts/
+create-admin.js
+createAdmin.js
+scripts/
+*.private.js
+*.secret.js

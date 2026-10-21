@@ -26,3 +26,10 @@ dist-ssr
 .env
 *.sqlite
 *.sqlite-journal
+
+# Private admin scripts (never push to GitHub)
+create-admin.js
+createAdmin.js
+scripts/
+*.private.js
+*.secret.js
