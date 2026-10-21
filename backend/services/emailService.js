@@ -37,12 +37,19 @@ export async function sendEmail({ to, subject, htmlContent, textContent, senderN
     ? to.map((e) => (typeof e === "string" ? { email: e } : e))
     : [{ email: to }];
 
+  // Ensure robust non-empty textContent fallback to satisfy Brevo API requirements
+  const plainText =
+    (textContent && typeof textContent === "string" && textContent.trim()) ||
+    (htmlContent ? htmlContent.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim() : "") ||
+    subject ||
+    "Health Nutra Notification";
+
   const payload = {
     sender,
     to: recipientList,
-    subject,
-    htmlContent: htmlContent || `<p>${textContent || ""}</p>`,
-    textContent: textContent || "",
+    subject: subject || "Health Nutra Notification",
+    htmlContent: htmlContent || `<p>${plainText}</p>`,
+    textContent: plainText,
   };
 
   try {
@@ -61,7 +68,11 @@ export async function sendEmail({ to, subject, htmlContent, textContent, senderN
       console.log(`[Email Service] Sent email to ${recipientList.map((r) => r.email).join(", ")} - Subject: "${subject}" (Message ID: ${data.messageId || "N/A"})`);
       return { success: true, messageId: data.messageId };
     } else {
-      console.error(`[Email Service] Brevo API Error (${res.status}):`, data.message || res.statusText);
+      if (res.status === 401 && (data.message || "").includes("unrecognised IP address")) {
+        console.warn(`[Email Service] Brevo IP Restriction: Please disable IP restriction or authorise server IP in Brevo: https://app.brevo.com/security/authorised_ips`);
+      } else {
+        console.error(`[Email Service] Brevo API Error (${res.status}):`, data.message || res.statusText);
+      }
       return { success: false, error: data.message || "Failed to send email." };
     }
   } catch (err) {

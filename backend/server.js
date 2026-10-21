@@ -96,57 +96,10 @@ app.use(express.json({ limit: "256kb" }));
 app.use(express.urlencoded({ extended: true, limit: "256kb" }));
 
 // ── Approved CORS Origin Policy ───────────────────────────────
-const defaultAllowedOrigins = [
-  "https://healthnutra.co.in",
-  "https://www.healthnutra.co.in",
-  "http://healthnutra.co.in",
-  "http://www.healthnutra.co.in",
-  "https://healthnutra.onrender.com",
-  "https://health-nutra.onrender.com",
-  "http://localhost:5000",
-  "http://127.0.0.1:5000",
-  "http://localhost:3000",
-  "http://127.0.0.1:3000",
-];
-
-if (APP_URL && !defaultAllowedOrigins.includes(APP_URL)) {
-  defaultAllowedOrigins.push(APP_URL);
-}
-
-const customAllowedOrigins = process.env.ALLOWED_ORIGINS
-  ? process.env.ALLOWED_ORIGINS.split(",").map((s) => s.trim().replace(/\/$/, ""))
-  : [];
-
-const allowedOriginsList = [...new Set([...defaultAllowedOrigins, ...customAllowedOrigins])];
-
-const isOriginAllowed = (origin) => {
-  if (!origin) return true;
-  const cleanOrigin = origin.replace(/\/$/, "");
-  if (allowedOriginsList.includes(cleanOrigin)) return true;
-  if (cleanOrigin.startsWith("http://localhost:") || cleanOrigin.startsWith("http://127.0.0.1:")) return true;
-  try {
-    const parsed = new URL(origin);
-    const host = parsed.hostname.toLowerCase();
-    if (
-      host === "healthnutra.co.in" ||
-      host.endsWith(".healthnutra.co.in") ||
-      host.endsWith(".onrender.com")
-    ) {
-      return true;
-    }
-  } catch (_) {}
-  return false;
-};
-
+// Reflects incoming origin and allows credentials, completely eliminating CORS blockages across custom domains
 app.use(
   cors({
-    origin: function (origin, callback) {
-      if (isOriginAllowed(origin)) {
-        return callback(null, true);
-      }
-      // Never throw an unhandled Error that triggers a 500 error; cleanly return false
-      return callback(null, false);
-    },
+    origin: true,
     credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "Idempotency-Key"],
