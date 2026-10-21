@@ -7,10 +7,14 @@ build/
 *.sqlite
 *.sqlite-journal
 
+backend/playwright-report/
+backend/test-results/
+
 # Private admin credentials scripts (never push to GitHub)
 backend/create-admin.js
 backend/createAdmin.js
 backend/scripts/
+!backend/scripts/run_ui_audit.js
 create-admin.js
 createAdmin.js
 scripts/
