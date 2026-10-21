@@ -1,8 +1,9 @@
 /**
  * Health Nutra - Contact Section Component
- * Modern 2-card layout in one row:
- * Left Card: Address, Contact Number, Email ID with rich branded design.
- * Right Card: Clean, modern Contact Us form.
+ * Matches the reference design mockup:
+ * Left side: Brand forest green banner with "Have Any Questions?", description,
+ * Phone (+91 7024308660), Email (healthnutra16@gmail.com), and Address.
+ * Right side: Clean white card with minimalist inputs and orange "Send Us →" button.
  */
 
 function ContactForm() {
@@ -61,249 +62,169 @@ function ContactForm() {
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-stretch">
+    <div className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-[#14532d] via-[#166534] to-[#0f3d1f] text-white p-6 sm:p-10 lg:p-12 shadow-2xl">
       
-      {/* ========================================================= */}
-      {/* LEFT CARD: Address, Contact Number, Email ID */}
-      {/* ========================================================= */}
-      <div className="lg:col-span-5 bg-gradient-to-br from-[#14532d] via-[#166534] to-[#0f3d1f] text-white rounded-3xl p-7 sm:p-9 shadow-xl flex flex-col justify-between relative overflow-hidden">
+      {/* Decorative gradient atmosphere */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-emerald-400/20 via-transparent to-black/25 pointer-events-none"></div>
+
+      <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
         
-        {/* Subtle decorative glow */}
-        <div className="absolute top-0 right-0 -mt-10 -mr-10 w-44 h-44 rounded-full bg-emerald-400/10 blur-2xl pointer-events-none"></div>
+        {/* ========================================================= */}
+        {/* LEFT COLUMN: Have Any Questions? + Contact Details */}
+        {/* ========================================================= */}
+        <div className="lg:col-span-6 space-y-6">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight leading-tight">
+            Have Any Questions?
+          </h2>
 
-        {/* Card Header */}
-        <div className="space-y-2 relative z-10">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold bg-white/10 text-emerald-200 backdrop-blur-sm border border-white/15">
-            <span className="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
-            <span>HEALTH NUTRA HEADQUARTERS</span>
-          </div>
-          <h3 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
-            Contact Information
-          </h3>
-          <p className="text-xs sm:text-sm text-emerald-100/90 leading-relaxed font-normal">
-            Have questions about formulations, clinical partnerships, or bulk distribution? Reach out directly to our Indore central office.
+          <p className="text-xs sm:text-sm text-emerald-100/90 leading-relaxed font-normal max-w-lg">
+            Health Nutra is committed to delivering clinical-grade nutraceuticals that support better health and vitality. Have queries regarding our formulations, dealership opportunities, or your order? Get in touch with us anytime.
           </p>
-        </div>
 
-        {/* 3 Core Contact Information Items */}
-        <div className="space-y-6 my-8 relative z-10">
-          
-          {/* 1. Address */}
-          <div className="flex items-start gap-4">
-            <div className="w-11 h-11 rounded-2xl bg-white/15 border border-white/20 flex items-center justify-center shrink-0 text-amber-300 shadow-xs">
-              <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
-                <path d="M12 0C7.589 0 4 3.589 4 8c0 4.282 7.025 15.344 7.332 15.823a.8.8 0 0 0 1.336 0C12.975 23.344 20 12.282 20 8c0-4.289-3.589-8-8-8zm0 12c-2.206 0-4-1.794-4-4s1.794-4 4-4 4 1.794 4 4-1.794 4-4 4z" />
-              </svg>
-            </div>
-            <div className="space-y-1">
-              <div className="text-[11px] font-black uppercase tracking-wider text-emerald-200/80">Registered Address</div>
-              <p className="text-xs sm:text-sm text-white font-semibold leading-relaxed">
-                Shop No/ Plot No.: 247, SLICE-2, SECTOR-A, SCHEME NO 78, INDORE - 452010 Dist.-INDORE (M.P.)
-              </p>
-            </div>
-          </div>
-
-          {/* 2. Contact Number */}
-          <div className="flex items-start gap-4">
-            <div className="w-11 h-11 rounded-2xl bg-white/15 border border-white/20 flex items-center justify-center shrink-0 text-amber-300 shadow-xs">
-              <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
-                <path d="M6.62 10.79a15.053 15.053 0 006.59 6.59l2.2-2.2a1 1 0 011.01-.24c1.12.37 2.33.57 3.58.57a1 1 0 011 1V20a1 1 0 01-1 1A17 17 0 013 4a1 1 0 011-1h3.5a1 1 0 011 1c0 1.25.2 2.46.57 3.58a1 1 0 01-.24 1.01l-2.21 2.2z" />
-              </svg>
-            </div>
-            <div className="space-y-1">
-              <div className="text-[11px] font-black uppercase tracking-wider text-emerald-200/80">Phone Support</div>
+          {/* 3 Contact details with clear line icons */}
+          <div className="space-y-4 pt-2">
+            
+            {/* Phone */}
+            <div className="flex items-center gap-4 group">
+              <div className="w-10 h-10 rounded-xl bg-white/15 border border-white/20 flex items-center justify-center shrink-0 text-white">
+                <svg className="w-5 h-5 fill-none stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <rect x="5" y="2" width="14" height="20" rx="2" ry="2" />
+                  <line x1="12" y1="18" x2="12.01" y2="18" />
+                </svg>
+              </div>
               <a
                 href="tel:+917024308660"
-                className="text-base sm:text-lg font-black text-white hover:text-amber-300 transition-colors block"
+                className="text-base sm:text-lg font-bold text-white hover:text-amber-300 transition-colors"
               >
                 +91 7024308660
               </a>
-              <div className="text-[11px] text-emerald-200/80 font-medium">
-                Mon - Sat: 9:00 AM - 7:00 PM IST
-              </div>
             </div>
-          </div>
 
-          {/* 3. Email Address */}
-          <div className="flex items-start gap-4">
-            <div className="w-11 h-11 rounded-2xl bg-white/15 border border-white/20 flex items-center justify-center shrink-0 text-amber-300 shadow-xs">
-              <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
-                <path d="M20 4H4c-1.103 0-2 .897-2 2v12c0 1.103.897 2 2 2h16c1.103 0 2-.897 2-2V6c0-1.103-.897-2-2-2zm0 2v.511l-8 5.333-8-5.333V6h16zM4 18V9.044l7.445 4.963a1.002 1.002 0 0 0 1.11 0L20 9.044 20.002 18H4z" />
-              </svg>
-            </div>
-            <div className="space-y-1">
-              <div className="text-[11px] font-black uppercase tracking-wider text-emerald-200/80">Email Address</div>
+            {/* Email */}
+            <div className="flex items-center gap-4 group">
+              <div className="w-10 h-10 rounded-xl bg-white/15 border border-white/20 flex items-center justify-center shrink-0 text-white">
+                <svg className="w-5 h-5 fill-none stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <circle cx="12" cy="12" r="4" />
+                  <path d="M16 8v5a3 3 0 0 0 6 0v-1a10 10 0 1 0-3.92 7.94" />
+                </svg>
+              </div>
               <a
                 href="mailto:healthnutra16@gmail.com"
-                className="text-xs sm:text-sm font-bold text-white hover:text-amber-300 transition-colors block break-all"
+                className="text-sm sm:text-base font-bold text-white hover:text-amber-300 transition-colors break-all"
               >
                 healthnutra16@gmail.com
               </a>
-              <div className="text-[11px] text-emerald-200/80 font-medium">
-                Direct reply within 24 hours
-              </div>
             </div>
-          </div>
 
-        </div>
-
-        {/* Card Footer: WhatsApp & Certification */}
-        <div className="pt-6 border-t border-white/15 flex items-center justify-between flex-wrap gap-3 relative z-10">
-          <a
-            href="https://wa.me/917024308660?text=Hello%20Health%20Nutra%20team,%20I%20have%20an%20inquiry."
-            target="_blank"
-            rel="noreferrer"
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold text-[#166534] bg-white hover:bg-emerald-50 transition-colors shadow-sm"
-          >
-            <Icon name="message-circle" className="w-4 h-4 text-emerald-700" />
-            <span>Chat on WhatsApp</span>
-          </a>
-          <span className="text-[11px] font-bold text-emerald-200/80">
-            WHO-GMP & ISO 9001:2015
-          </span>
-        </div>
-
-      </div>
-
-      {/* ========================================================= */}
-      {/* RIGHT CARD: Redesigned Contact Us Form */}
-      {/* ========================================================= */}
-      <div className="lg:col-span-7 bg-white rounded-3xl border border-slate-200/90 p-7 sm:p-9 shadow-xl flex flex-col justify-between">
-        
-        {/* Clean Header */}
-        <div className="mb-6">
-          <h3 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-            Send Us a Message
-          </h3>
-          <p className="text-xs sm:text-sm text-slate-500 mt-1 font-medium">
-            Fill out the form below and our clinical support team will get back to you promptly.
-          </p>
-        </div>
-
-        {/* Success Banner */}
-        {successMsg ? (
-          <div className="p-8 rounded-2xl bg-emerald-50 border border-emerald-200 text-center space-y-3 my-auto">
-            <div className="w-14 h-14 rounded-full bg-emerald-100 text-[#166534] flex items-center justify-center mx-auto shadow-xs">
-              <Icon name="check-circle" className="w-7 h-7" />
-            </div>
-            <h4 className="text-lg font-black text-emerald-900">Message Received!</h4>
-            <p className="text-xs sm:text-sm text-emerald-800 font-medium max-w-md mx-auto">{successMsg}</p>
-            <button
-              type="button"
-              onClick={() => setSuccessMsg("")}
-              className="mt-2 px-6 py-2.5 rounded-xl text-xs font-bold text-white bg-[#166534] hover:bg-[#14532d] transition-colors shadow-xs cursor-pointer"
-            >
-              Send Another Message
-            </button>
-          </div>
-        ) : (
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {errorMsg && (
-              <div className="p-3.5 rounded-xl bg-red-50 border border-red-200 text-xs font-bold text-red-600 flex items-center gap-2">
-                <Icon name="alert-circle" className="w-4 h-4 shrink-0" />
-                <span>{errorMsg}</span>
+            {/* Address */}
+            <div className="flex items-start gap-4">
+              <div className="w-10 h-10 rounded-xl bg-white/15 border border-white/20 flex items-center justify-center shrink-0 text-white mt-0.5">
+                <svg className="w-5 h-5 fill-none stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                  <circle cx="12" cy="10" r="3" />
+                </svg>
               </div>
-            )}
+              <p className="text-xs sm:text-sm font-semibold text-emerald-100 leading-relaxed max-w-sm">
+                Shop No/ Plot No.: 247, SLICE-2, SECTOR-A, SCHEME NO 78, INDORE - 452010 Dist.-INDORE (M.P.)
+              </p>
+            </div>
 
-            {/* Row 1: Full Name & Email Address */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          </div>
+        </div>
+
+        {/* ========================================================= */}
+        {/* RIGHT COLUMN: Clean White Form Card Matching Reference */}
+        {/* ========================================================= */}
+        <div className="lg:col-span-6 bg-white rounded-3xl p-6 sm:p-10 shadow-2xl text-slate-800">
+          
+          {successMsg ? (
+            <div className="p-8 rounded-2xl bg-emerald-50 border border-emerald-200 text-center space-y-3">
+              <div className="w-12 h-12 rounded-full bg-emerald-100 text-[#166534] flex items-center justify-center mx-auto shadow-xs">
+                <Icon name="check-circle" className="w-6 h-6" />
+              </div>
+              <h4 className="text-lg font-black text-emerald-900">Message Received!</h4>
+              <p className="text-xs sm:text-sm text-emerald-800 font-medium max-w-md mx-auto">{successMsg}</p>
+              <button
+                type="button"
+                onClick={() => setSuccessMsg("")}
+                className="mt-2 px-6 py-2 rounded-xl text-xs font-bold text-white bg-[#166534] hover:bg-[#14532d] transition-colors shadow-xs cursor-pointer"
+              >
+                Send Another Message
+              </button>
+            </div>
+          ) : (
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {errorMsg && (
+                <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-xs font-bold text-red-600 flex items-center gap-2">
+                  <Icon name="alert-circle" className="w-4 h-4 shrink-0" />
+                  <span>{errorMsg}</span>
+                </div>
+              )}
+
+              {/* Enter Your Name */}
               <div>
-                <label className="block text-[11px] font-black uppercase tracking-wider text-slate-600 mb-1.5">
-                  Full Name *
-                </label>
                 <input
                   type="text"
                   required
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  placeholder="Your Name / Clinic Name"
-                  className="w-full px-4 py-3 rounded-xl border border-slate-200 text-xs sm:text-sm font-semibold text-slate-800 placeholder-slate-400 bg-slate-50/70 hover:bg-white focus:bg-white focus:outline-none focus:border-[#166534] focus:ring-2 focus:ring-[#166534]/15 transition-all"
+                  placeholder="Enter Your Name *"
+                  className="w-full pb-3 pt-2 text-sm sm:text-base font-semibold text-slate-900 placeholder-slate-400 border-b border-slate-200 focus:border-[#166534] focus:outline-none transition-colors bg-transparent"
                 />
               </div>
 
+              {/* Enter Your Email */}
               <div>
-                <label className="block text-[11px] font-black uppercase tracking-wider text-slate-600 mb-1.5">
-                  Email Address *
-                </label>
                 <input
                   type="email"
                   required
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  placeholder="name@example.com"
-                  className="w-full px-4 py-3 rounded-xl border border-slate-200 text-xs sm:text-sm font-semibold text-slate-800 placeholder-slate-400 bg-slate-50/70 hover:bg-white focus:bg-white focus:outline-none focus:border-[#166534] focus:ring-2 focus:ring-[#166534]/15 transition-all"
+                  placeholder="Enter Your Email *"
+                  className="w-full pb-3 pt-2 text-sm sm:text-base font-semibold text-slate-900 placeholder-slate-400 border-b border-slate-200 focus:border-[#166534] focus:outline-none transition-colors bg-transparent"
                 />
               </div>
-            </div>
 
-            {/* Row 2: Phone Number & Inquiry Subject */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {/* Enter Your Phone Number */}
               <div>
-                <label className="block text-[11px] font-black uppercase tracking-wider text-slate-600 mb-1.5">
-                  Phone Number
-                </label>
                 <input
                   type="tel"
                   value={formData.phone}
                   onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                  placeholder="+91-7024308660"
-                  className="w-full px-4 py-3 rounded-xl border border-slate-200 text-xs sm:text-sm font-semibold text-slate-800 placeholder-slate-400 bg-slate-50/70 hover:bg-white focus:bg-white focus:outline-none focus:border-[#166534] focus:ring-2 focus:ring-[#166534]/15 transition-all"
+                  placeholder="Enter Your Phone Number"
+                  className="w-full pb-3 pt-2 text-sm sm:text-base font-semibold text-slate-900 placeholder-slate-400 border-b border-slate-200 focus:border-[#166534] focus:outline-none transition-colors bg-transparent"
                 />
               </div>
 
+              {/* Enter Your Message */}
               <div>
-                <label className="block text-[11px] font-black uppercase tracking-wider text-slate-600 mb-1.5">
-                  Inquiry Topic
-                </label>
-                <select
-                  value={formData.subject}
-                  onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-                  className="w-full px-4 py-3 rounded-xl border border-slate-200 text-xs sm:text-sm font-semibold text-slate-800 bg-slate-50/70 hover:bg-white focus:bg-white focus:outline-none focus:border-[#166534] focus:ring-2 focus:ring-[#166534]/15 transition-all cursor-pointer"
-                >
-                  <option value="Product Inquiry">Product Inquiry & Dosage</option>
-                  <option value="Bulk Order & Dealership">Bulk Order & Dealership Supply</option>
-                  <option value="Doctor / Clinic Support">Doctor / Clinic Support</option>
-                  <option value="Order Tracking & Delivery">Order Tracking & Delivery Help</option>
-                  <option value="General Query">General Query</option>
-                </select>
+                <textarea
+                  rows={3}
+                  required
+                  value={formData.message}
+                  onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                  placeholder="Enter Your Message *"
+                  className="w-full pb-3 pt-2 text-sm sm:text-base font-semibold text-slate-900 placeholder-slate-400 border-b border-slate-200 focus:border-[#166534] focus:outline-none transition-colors bg-transparent resize-y"
+                ></textarea>
               </div>
-            </div>
 
-            {/* Message Area */}
-            <div>
-              <label className="block text-[11px] font-black uppercase tracking-wider text-slate-600 mb-1.5">
-                Your Message *
-              </label>
-              <textarea
-                rows={4}
-                required
-                value={formData.message}
-                onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                placeholder="Write your message, order requirement, or question..."
-                className="w-full p-4 rounded-xl border border-slate-200 text-xs sm:text-sm font-semibold text-slate-800 placeholder-slate-400 bg-slate-50/70 hover:bg-white focus:bg-white focus:outline-none focus:border-[#166534] focus:ring-2 focus:ring-[#166534]/15 transition-all resize-y"
-              ></textarea>
-            </div>
+              {/* Action Button: Orange "Send Us →" */}
+              <div className="pt-2">
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className="inline-flex items-center gap-2 px-8 py-3.5 rounded-xl text-sm font-bold text-white bg-[#F97316] hover:bg-[#ea580c] shadow-lg shadow-orange-500/25 transition-all transform hover:-translate-y-0.5 active:scale-95 cursor-pointer disabled:opacity-60"
+                >
+                  <span>{submitting ? "Sending..." : "Send Us"}</span>
+                  <span className="text-base font-bold">→</span>
+                </button>
+              </div>
+            </form>
+          )}
 
-            {/* Submit Button */}
-            <button
-              type="submit"
-              disabled={submitting}
-              className="w-full py-3.5 px-6 rounded-xl text-sm font-bold text-white bg-[#166534] hover:bg-[#14532d] shadow-md shadow-emerald-900/15 transition-all flex items-center justify-center gap-2.5 disabled:opacity-60 transform hover:-translate-y-0.5 active:scale-98 cursor-pointer"
-            >
-              {submitting ? (
-                <span>Sending Message...</span>
-              ) : (
-                <>
-                  <Icon name="send" className="w-4 h-4" />
-                  <span>Submit Inquiry</span>
-                </>
-              )}
-            </button>
-          </form>
-        )}
+        </div>
 
       </div>
-
     </div>
   );
 }
