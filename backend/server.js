@@ -193,9 +193,23 @@ app.get("/", (req, res) => {
   res.sendFile(path.join(frontendDir, "index.html"));
 });
 
-// Static assets — long-lived cache for images/uploads, revalidate for code
-app.use("/uploads", express.static(uploadsDir, { maxAge: "7d", etag: true }));
-app.use("/images", express.static(imagesDir, { maxAge: "7d", etag: true }));
+// Static assets — revalidate with ETag for instant fresh updates
+app.use(
+  "/uploads",
+  express.static(uploadsDir, {
+    setHeaders: (res) => {
+      res.setHeader("Cache-Control", "no-cache, must-revalidate");
+    },
+  })
+);
+app.use(
+  "/images",
+  express.static(imagesDir, {
+    setHeaders: (res) => {
+      res.setHeader("Cache-Control", "no-cache, must-revalidate");
+    },
+  })
+);
 app.use("/js", express.static(frontendDir, { maxAge: "1h", etag: true })); // Alias /js to frontend folder so /js/main.js never 404s
 app.use(
   express.static(frontendDir, {

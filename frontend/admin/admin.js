@@ -916,7 +916,7 @@ function generateInvoiceHtml(order) {
       <strong style="color: #0f172a;">HEALTH NUTRA™</strong><br>
       Shop No/ Plot No.: 247, SLICE-2, SECTOR-A, SCHEME NO 78,<br>
       INDORE - 452010 Dist.-INDORE (M.P.)<br>
-      <strong>Hotline:</strong> +91-+91 8809672959, +91 7024308660<br>
+      <strong>Hotline:</strong> +91 8809672959 / +91 7024308660<br>
       <strong>Email:</strong> healthnutra16@gmail.com
     </div>
     <div class="card">
@@ -961,7 +961,7 @@ function generateInvoiceHtml(order) {
 
   <div class="footer">
     <p>This is a computer-generated tax invoice and requires no physical signature.</p>
-    <p>Marketed by: HEALTH NUTRA™ • TM TRADEMARK APPLIED FOR • Customer Care: +91-+91 8809672959, +91 7024308660</p>
+    <p>Marketed by: HEALTH NUTRA™ • TM TRADEMARK APPLIED FOR • Customer Care: +91 8809672959 / +91 7024308660</p>
   </div>
 </body>
 </html>`;

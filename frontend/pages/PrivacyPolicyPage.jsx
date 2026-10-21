@@ -199,7 +199,7 @@ function PrivacyPolicyPage() {
             <div className="p-4 rounded-xl bg-emerald-50/70 border border-emerald-200 text-xs sm:text-sm space-y-1 text-slate-800 font-medium">
               <div><strong>Grievance Officer:</strong> Legal & Compliance Cell, Health Nutra™</div>
               <div><strong>Facility Address:</strong> Shop No/ Plot No.: 247, SLICE-2, SECTOR-A, SCHEME NO 78, INDORE - 452010 Dist.-INDORE (M.P.)</div>
-              <div><strong>Phone Hotline:</strong> <a href="tel:+91+91 8809672959, +91 7024308660" className="text-[#166534] font-bold hover:underline">+91 +91 8809672959, +91 7024308660</a></div>
+              <div><strong>Phone Hotline:</strong> <a href="tel:+918809672959" className="text-[#166534] font-bold hover:underline">+91 8809672959</a> / <a href="tel:+917024308660" className="text-[#166534] font-bold hover:underline">+91 7024308660</a></div>
               <div><strong>Email:</strong> <a href="mailto:healthnutra16@gmail.com" className="text-[#166534] font-bold hover:underline">healthnutra16@gmail.com</a></div>
             </div>
           </div>

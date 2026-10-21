@@ -176,7 +176,7 @@ function TermsPage() {
               5. 7-Day Replacement & Transit Damage Cover
             </h3>
             <p className="text-xs sm:text-sm text-slate-600 leading-relaxed font-normal">
-              If your formulation arrives with damaged outer seals, cracked bottles, or incorrect items, you are entitled to a <strong>free replacement</strong>. Simply notify our customer support team at <a href="mailto:healthnutra16@gmail.com" className="text-[#166534] font-bold hover:underline">healthnutra16@gmail.com</a> or <a href="tel:+91+91 8809672959, +91 7024308660" className="text-[#166534] font-bold hover:underline">+91 +91 8809672959, +91 7024308660</a> within 7 calendar days of delivery with your Order ID and photo of the package.
+              If your formulation arrives with damaged outer seals, cracked bottles, or incorrect items, you are entitled to a <strong>free replacement</strong>. Simply notify our customer support team at <a href="mailto:healthnutra16@gmail.com" className="text-[#166534] font-bold hover:underline">healthnutra16@gmail.com</a> or <a href="tel:+918809672959" className="text-[#166534] font-bold hover:underline">+91 8809672959</a> / <a href="tel:+917024308660" className="text-[#166534] font-bold hover:underline">+91 7024308660</a> within 7 calendar days of delivery with your Order ID and photo of the package.
             </p>
           </div>
 

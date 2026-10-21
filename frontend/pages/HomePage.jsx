@@ -374,10 +374,10 @@ function HomePage() {
               
               {/* Card 1: Director */}
               <div className="bg-white rounded-2xl border border-slate-200 p-6 sm:p-7 shadow-xs hover:shadow-md transition-shadow flex flex-col sm:flex-row gap-5 items-start">
-                <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden border-2 border-slate-200 shrink-0 mx-auto sm:mx-0">
+                <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden border-2 border-slate-200 shrink-0 mx-auto sm:mx-0 shadow-xs">
                   <img
-                    src="/images/director.jpg"
-                    alt="Mr. Veer Pratap Singh - Director"
+                    src="/images/director.jpg?v=3.6"
+                    alt="Mr. Veer Pratap Singh - Founder & CEO"
                     title="Mr. Veer Pratap Singh"
                     className="w-full h-full object-cover"
                     onError={(e) => {
@@ -394,7 +394,7 @@ function HomePage() {
                   </div>
 
                   <p className="text-xs text-slate-600 leading-relaxed font-normal">
-                    As the Director of Health Nutra, I am committed to our mission of delivering premium quality nutraceutical products that improve lives. Our focus is on innovation, quality and customer trust.
+                    As the Founder & CEO of Health Nutra, I am dedicated to our mission of delivering premium quality, clinically proven nutraceutical formulations that enhance daily vitality. Our foundation is built on continuous scientific innovation, pharmaceutical-grade purity, and earning enduring customer trust.
                   </p>
 
                   <ul className="space-y-1.5 pt-1 text-xs text-slate-700 font-medium">
@@ -422,9 +422,9 @@ function HomePage() {
 
               {/* Card 2: Mr. Ashutosh Pandey */}
               <div className="bg-white rounded-2xl border border-slate-200 p-6 sm:p-7 shadow-xs hover:shadow-md transition-shadow flex flex-col sm:flex-row gap-5 items-start">
-                <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden border-2 border-slate-200 shrink-0 mx-auto sm:mx-0">
+                <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden border-2 border-slate-200 shrink-0 mx-auto sm:mx-0 shadow-xs">
                   <img
-                    src="/images/ashutosh.jpg"
+                    src="/images/ashutosh.jpg?v=3.6"
                     alt="Mr. Ashutosh Pandey"
                     className="w-full h-full object-cover"
                     onError={(e) => {

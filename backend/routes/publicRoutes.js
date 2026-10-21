@@ -473,7 +473,7 @@ router.get("/orders/:id/invoice", async (req, res) => {
         <strong style="color: #0f172a; font-size: 13px;">HEALTH NUTRA™</strong><br>
         Shop No/ Plot No.: 247, SLICE-2, SECTOR-A, SCHEME NO 78,<br>
         INDORE - 452010 Dist.-INDORE (M.P.)<br>
-        <strong>Hotline:</strong> +91-+91 8809672959, +91 7024308660<br>
+        <strong>Hotline:</strong> +91 8809672959 / +91 7024308660<br>
         <strong>Email:</strong> healthnutra16@gmail.com
       </div>
       <div class="card">
@@ -521,7 +521,7 @@ router.get("/orders/:id/invoice", async (req, res) => {
     <div class="footer">
       <p>This is a computer-generated official tax invoice and requires no physical signature.</p>
       <p>Marketed by: HEALTH NUTRA™ • TM TRADEMARK APPLIED FOR • WHO-GMP & ISO 9001:2015 COMPLIANT</p>
-      <p>Customer Support: <a href="tel:+91+91 8809672959, +91 7024308660" style="color: #166534; font-weight: bold; text-decoration: none;">+91-+91 8809672959, +91 7024308660</a> | <a href="mailto:healthnutra16@gmail.com" style="color: #166534; font-weight: bold; text-decoration: none;">healthnutra16@gmail.com</a></p>
+      <p>Customer Support: <a href="tel:+918809672959" style="color: #166534; font-weight: bold; text-decoration: none;">+91 8809672959</a> / <a href="tel:+917024308660" style="color: #166534; font-weight: bold; text-decoration: none;">+91 7024308660</a> | <a href="mailto:healthnutra16@gmail.com" style="color: #166534; font-weight: bold; text-decoration: none;">healthnutra16@gmail.com</a></p>
     </div>
   </div>
 

@@ -2,7 +2,7 @@
  * Health Nutra - Contact Section Component
  * Matches the reference design mockup:
  * Left side: Brand forest green banner with "Have Any Questions?", description,
- * Phone (+91 +91 8809672959, +91 7024308660), Email (healthnutra16@gmail.com), and Address.
+ * Phone (+91 8809672959 / +91 7024308660), Email (healthnutra16@gmail.com), and Address.
  * Right side: Clean white card with minimalist inputs and orange "Send Us →" button.
  */
 
@@ -92,12 +92,21 @@ function ContactForm() {
                   <line x1="12" y1="18" x2="12.01" y2="18" />
                 </svg>
               </div>
-              <a
-                href="tel:+918809672959,+91+91 8809672959, +91 7024308660"
-                className="text-base sm:text-lg font-bold text-white hover:text-amber-300 transition-colors"
-              >
-                +91 8809672959, +91 +91 8809672959, +91 7024308660
-              </a>
+              <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                <a
+                  href="tel:+918809672959"
+                  className="text-sm sm:text-base font-bold text-white hover:text-amber-300 transition-colors"
+                >
+                  +91 8809672959
+                </a>
+                <span className="text-white/40">•</span>
+                <a
+                  href="tel:+917024308660"
+                  className="text-sm sm:text-base font-bold text-white hover:text-amber-300 transition-colors"
+                >
+                  +91 7024308660
+                </a>
+              </div>
             </div>
 
             {/* Email */}

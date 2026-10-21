@@ -155,8 +155,11 @@ export async function sendOrderNotifications(order) {
     const customerHtml = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 16px; background: #ffffff;">
         <div style="background: linear-gradient(135deg, #166534 0%, #15803d 100%); color: #ffffff; padding: 24px; border-radius: 12px; text-align: center;">
-          <h1 style="margin: 0; font-size: 24px; letter-spacing: 0.5px;">HEALTH NUTRA™</h1>
-          <p style="margin: 4px 0 0 0; font-size: 13px; color: #bbf7d0; font-weight: bold;">Order Confirmation & Official Receipt</p>
+          <div style="display: inline-block; width: 68px; height: 68px; background: #ffffff; border-radius: 50%; padding: 3px; border: 2px solid #f59e0b; margin-bottom: 12px; overflow: hidden;">
+            <img src="https://res.cloudinary.com/usqwgkl7/image/upload/v1792576055/logo.jpg" alt="Health Nutra" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: block;" />
+          </div>
+          <h1 style="margin: 0; font-size: 24px; letter-spacing: 0.5px; color: #ffffff;">HEALTH NUTRA™</h1>
+          <p style="margin: 4px 0 0 0; font-size: 13px; color: #bbf7d0; font-weight: bold;">Order Confirmation & Official Tax Receipt</p>
         </div>
 
         <div style="padding: 24px 8px;">
@@ -218,7 +221,7 @@ export async function sendOrderNotifications(order) {
         <div style="border-top: 1px solid #e2e8f0; padding-top: 16px; font-size: 11px; color: #94a3b8; text-align: center; line-height: 1.6;">
           <strong>Marketed by: HEALTH NUTRA™</strong> • TM TRADEMARK APPLIED FOR<br>
           Shop No/ Plot No.: 247, SLICE-2, SECTOR-A, SCHEME NO 78, INDORE - 452010 Dist.-INDORE (M.P.)<br>
-          Customer Support: <a href="tel:+91+91 8809672959, +91 7024308660" style="color: #166534; font-weight: bold; text-decoration: none;">+91-+91 8809672959, +91 7024308660</a> | <a href="mailto:healthnutra16@gmail.com" style="color: #166534; font-weight: bold; text-decoration: none;">healthnutra16@gmail.com</a>
+          Customer Support: <a href="tel:+918809672959" style="color: #166534; font-weight: bold; text-decoration: none;">+91 8809672959</a> / <a href="tel:+917024308660" style="color: #166534; font-weight: bold; text-decoration: none;">+91 7024308660</a> | <a href="mailto:healthnutra16@gmail.com" style="color: #166534; font-weight: bold; text-decoration: none;">healthnutra16@gmail.com</a>
         </div>
       </div>
     `;
