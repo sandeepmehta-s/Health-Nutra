@@ -1,6 +1,6 @@
 /**
  * Health Nutra - Main Application Controller
- * Routes between HomePage, AdminPage, and LoginPage based on URL.
+ * Routes between HomePage, ProductsPage, AboutUsPage, ContactUsPage, AdminPage, and LoginPage.
  */
 
 function App() {
@@ -25,6 +25,19 @@ function App() {
 
   if (currentPath === "/about-us" || currentPath === "/about-us/") {
     return <AboutUsPage />;
+  }
+
+  if (currentPath === "/products" || currentPath === "/products/") {
+    return <ProductsPage />;
+  }
+
+  if (
+    currentPath === "/contact-us" ||
+    currentPath === "/contact-us/" ||
+    currentPath === "/contact" ||
+    currentPath === "/contact/"
+  ) {
+    return <ContactUsPage />;
   }
 
   return <HomePage />;

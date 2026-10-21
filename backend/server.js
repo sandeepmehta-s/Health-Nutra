@@ -213,9 +213,21 @@ app.use("/api", publicRoutes);
 app.use("/api/admin", adminRoutes);
 
 // Direct Public Page Routes (SPA Routing)
-app.get(["/about-us", "/about-us/"], (req, res) => {
-  res.sendFile(path.join(frontendDir, "index.html"));
-});
+app.get(
+  [
+    "/about-us",
+    "/about-us/",
+    "/products",
+    "/products/",
+    "/contact-us",
+    "/contact-us/",
+    "/contact",
+    "/contact/",
+  ],
+  (req, res) => {
+    res.sendFile(path.join(frontendDir, "index.html"));
+  }
+);
 
 // Fallback 404
 app.use((req, res) => {

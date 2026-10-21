@@ -95,7 +95,7 @@ function Footer() {
                 </a>
               </li>
               <li>
-                <a href="/#products" className="hover:text-amber-300 transition-colors">
+                <a href="/products" className="hover:text-amber-300 transition-colors">
                   Products
                 </a>
               </li>
@@ -110,7 +110,7 @@ function Footer() {
                 </a>
               </li>
               <li>
-                <a href="/#contact" className="hover:text-amber-300 transition-colors">
+                <a href="/contact-us" className="hover:text-amber-300 transition-colors">
                   Contact Us
                 </a>
               </li>
@@ -124,22 +124,22 @@ function Footer() {
             </h4>
             <ul className="space-y-2 text-xs sm:text-sm text-emerald-100 font-medium">
               <li>
-                <a href="/#products" className="hover:text-amber-300 transition-colors">
+                <a href="/products?category=Multivitamin" className="hover:text-amber-300 transition-colors">
                   Multivitamin
                 </a>
               </li>
               <li>
-                <a href="/#products" className="hover:text-amber-300 transition-colors">
+                <a href="/products?category=Omega-3" className="hover:text-amber-300 transition-colors">
                   Omega-3
                 </a>
               </li>
               <li>
-                <a href="/#products" className="hover:text-amber-300 transition-colors">
+                <a href="/products?category=Green Tea" className="hover:text-amber-300 transition-colors">
                   Green Tea
                 </a>
               </li>
               <li>
-                <a href="/#products" className="hover:text-amber-300 transition-colors">
+                <a href="/products" className="hover:text-amber-300 transition-colors">
                   All Products
                 </a>
               </li>
@@ -203,7 +203,15 @@ function Footer() {
         {/* Bottom Bar: Copyright & Subtle Admin Link */}
         <div className="pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-emerald-200/90 font-medium">
           <div>
-            © {new Date().getFullYear()} HEALTH NUTRA™. All rights reserved. • WHO-GMP & ISO 9001:2015 Compliant
+            © {new Date().getFullYear()} HEALTH NUTRA™. All rights reserved. • Developed by{" "}
+            <a
+              href="https://sandeep-kumar-mehta.vercel.app/"
+              target="_blank"
+              rel="noreferrer"
+              className="underline hover:text-amber-300 font-bold transition-colors"
+            >
+              Sandeep Mehta
+            </a>
           </div>
 
           <div className="flex items-center gap-4">

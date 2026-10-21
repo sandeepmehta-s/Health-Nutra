@@ -173,6 +173,8 @@ function HomePage() {
       
       {/* Top Navbar */}
       <Navbar
+        initialSearchQuery={searchQuery}
+        onSearchQueryChange={handleSearchChange}
         onOpenSearch={() => catalogRef.current?.scrollIntoView({ behavior: "smooth" })}
         onOpenTrackOrder={() => handleOpenTrackModal()}
       />
