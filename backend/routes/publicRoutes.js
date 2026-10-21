@@ -309,6 +309,173 @@ router.get(["/orders/:id", "/orders/track/:id"], trackingRateLimiter, async (req
   }
 });
 
+// GET /api/orders/:id/invoice - Render official Tax Invoice for Customer & Print-to-PDF
+router.get("/orders/:id/invoice", async (req, res) => {
+  try {
+    const rawId = (req.params.id || "").trim();
+    if (!rawId) {
+      return res.status(400).send("Order ID is required.");
+    }
+
+    const order = await getOrderById(rawId);
+    if (!order) {
+      return res.status(404).send("Order not found. Please verify your Order Reference ID.");
+    }
+
+    const orderId = order.orderId || order.id || rawId;
+    const createdAt = order.createdAt
+      ? new Date(order.createdAt).toLocaleDateString("en-IN", {
+          day: "2-digit",
+          month: "short",
+          year: "numeric",
+        })
+      : new Date().toLocaleDateString("en-IN");
+
+    const items =
+      order.items && Array.isArray(order.items) && order.items.length > 0
+        ? order.items
+        : [
+            {
+              name: order.productName || "Nutra Dietary Formulation",
+              quantity: order.quantity || 1,
+              price: order.unitPrice || order.totalAmount || 0,
+              unit: "Strip",
+            },
+          ];
+
+    const totalAmount = order.totalAmount || 0;
+    const customerName = order.customerName || "Valued Customer";
+    const customerPhone = order.customerPhone || "-";
+    const customerEmail = order.customerEmail || "-";
+    const shippingAddress =
+      `${order.shippingAddress || ""}${order.city ? `, ${order.city}` : ""}${order.pincode ? ` - ${order.pincode}` : ""}` ||
+      "Verified Address";
+    const paymentMethod = order.paymentMethod || "Cash on Delivery";
+
+    const invoiceHtml = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tax Invoice #${orderId} - Health Nutra</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #1e293b; margin: 0; padding: 24px; background: #f8fafc; }
+    .invoice-card { max-width: 750px; margin: 0 auto; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 32px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+    .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #f1f5f9; padding-bottom: 20px; margin-bottom: 24px; }
+    .logo-box { display: flex; align-items: center; gap: 14px; }
+    .logo-img { width: 56px; height: 56px; object-fit: cover; border-radius: 12px; border: 1px solid #e2e8f0; }
+    .brand-title { font-size: 22px; font-weight: 900; color: #166534; margin: 0; letter-spacing: -0.5px; }
+    .brand-sub { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #64748b; margin: 2px 0 0 0; }
+    .invoice-badge { text-align: right; }
+    .invoice-title { font-size: 18px; font-weight: 900; color: #0f172a; margin: 0; }
+    .invoice-id { font-size: 14px; font-weight: 800; color: #166534; font-family: monospace; margin-top: 2px; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px; }
+    .card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 14px 18px; font-size: 12px; line-height: 1.6; }
+    .card-title { font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; color: #64748b; margin-bottom: 8px; border-bottom: 1px solid #e2e8f0; padding-bottom: 4px; }
+    table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+    th { background: #f1f5f9; color: #475569; font-size: 11px; text-transform: uppercase; font-weight: 800; padding: 10px 14px; text-align: left; border-bottom: 2px solid #cbd5e1; }
+    td { padding: 12px 14px; border-bottom: 1px solid #e2e8f0; font-size: 13px; }
+    .total-row { font-size: 16px; font-weight: 900; color: #166534; }
+    .footer { margin-top: 32px; padding-top: 20px; border-top: 1px solid #e2e8f0; text-align: center; font-size: 11px; color: #64748b; line-height: 1.6; }
+    .actions-bar { display: flex; justify-content: space-between; align-items: center; max-width: 750px; margin: 0 auto 16px auto; }
+    .print-btn { background: #166534; color: white; padding: 10px 22px; border-radius: 10px; border: none; font-weight: bold; cursor: pointer; font-size: 13px; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 2px 4px rgba(22, 101, 52, 0.2); }
+    .back-btn { color: #64748b; text-decoration: none; font-size: 13px; font-weight: 600; }
+    @media print {
+      body { background: white; padding: 0; }
+      .invoice-card { border: none; box-shadow: none; padding: 0; }
+      .actions-bar { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="actions-bar">
+    <a href="https://healthnutra.co.in" class="back-btn">← Back to Health Nutra</a>
+    <button class="print-btn" onclick="window.print()">🖨️ Print / Save as PDF</button>
+  </div>
+
+  <div class="invoice-card">
+    <div class="header">
+      <div class="logo-box">
+        <img src="https://res.cloudinary.com/usqwgkl7/image/upload/v1792576055/logo.jpg" alt="Health Nutra" class="logo-img" />
+        <div>
+          <h1 class="brand-title">HEALTH NUTRA™</h1>
+          <p class="brand-sub">Pharmaceutical & Botanical Formulations</p>
+        </div>
+      </div>
+      <div class="invoice-badge">
+        <h2 class="invoice-title">OFFICIAL TAX INVOICE</h2>
+        <div class="invoice-id">#${orderId}</div>
+        <div style="font-size: 11px; color: #64748b; margin-top: 2px;">Date: ${createdAt}</div>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <div class="card-title">Marketed & Dispatched By</div>
+        <strong style="color: #0f172a; font-size: 13px;">HEALTH NUTRA™</strong><br>
+        Shop No/ Plot No.: 247, SLICE-2, SECTOR-A, SCHEME NO 78,<br>
+        INDORE - 452010 Dist.-INDORE (M.P.)<br>
+        <strong>Hotline:</strong> +91-7024308660<br>
+        <strong>Email:</strong> healthnutra16@gmail.com
+      </div>
+      <div class="card">
+        <div class="card-title">Customer & Delivery Info</div>
+        <strong style="color: #0f172a; font-size: 13px;">${customerName}</strong><br>
+        <strong>Phone:</strong> ${customerPhone}<br>
+        <strong>Email:</strong> ${customerEmail}<br>
+        <strong>Address:</strong> ${shippingAddress}
+      </div>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th style="width: 50%;">Formulation Description</th>
+          <th style="text-align: center;">Unit</th>
+          <th style="text-align: right;">Price (₹)</th>
+          <th style="text-align: center;">Qty</th>
+          <th style="text-align: right;">Amount (₹)</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${items
+          .map((it) => {
+            const p = parseFloat(it.price) || 0;
+            const q = parseInt(it.quantity, 10) || 1;
+            return `
+            <tr>
+              <td><strong>${it.name || "Nutra Formulation"}</strong></td>
+              <td style="text-align: center; color: #64748b;">${it.unit || "Strip"}</td>
+              <td style="text-align: right;">₹${p.toFixed(2)}</td>
+              <td style="text-align: center; font-weight: bold;">${q}</td>
+              <td style="text-align: right; font-weight: bold; color: #0f172a;">₹${(p * q).toFixed(2)}</td>
+            </tr>
+          `;
+          })
+          .join("")}
+        <tr class="total-row">
+          <td colspan="4" style="text-align: right; padding-top: 16px;">Grand Total (${paymentMethod}):</td>
+          <td style="text-align: right; padding-top: 16px;">₹${parseFloat(totalAmount).toFixed(2)}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="footer">
+      <p>This is a computer-generated official tax invoice and requires no physical signature.</p>
+      <p>Marketed by: HEALTH NUTRA™ • TM TRADEMARK APPLIED FOR • WHO-GMP & ISO 9001:2015 COMPLIANT</p>
+      <p>Customer Support: <a href="tel:+917024308660" style="color: #166534; font-weight: bold; text-decoration: none;">+91-7024308660</a> | <a href="mailto:healthnutra16@gmail.com" style="color: #166534; font-weight: bold; text-decoration: none;">healthnutra16@gmail.com</a></p>
+    </div>
+  </div>
+</body>
+</html>`;
+
+    res.setHeader("Content-Type", "text/html; charset=utf-8");
+    res.send(invoiceHtml);
+  } catch (err) {
+    res.status(500).send("Error generating invoice: " + err.message);
+  }
+});
+
 // POST /api/contact (or /api/enquiries) - Customer Contact Inquiry Form with Input Validation
 router.post(["/contact", "/enquiries"], contactRateLimiter, async (req, res) => {
   try {
