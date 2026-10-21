@@ -1,6 +1,8 @@
 /**
  * Health Nutra - Navbar Component
- * Navigation bar with brand identity, search bar, mobile drawer, and portal links.
+ * Navigation bar with brand identity, Home & Products links,
+ * Track Order, Enquiry Now, and Search bar on the right side of Enquiry.
+ * (About Us and Contact Us are kept in the Footer only as requested).
  */
 
 function Navbar({ onOpenSearch, onOpenTrackOrder, orderCount = 0, initialSearchQuery = "", onSearchQueryChange }) {
@@ -13,11 +15,10 @@ function Navbar({ onOpenSearch, onOpenTrackOrder, orderCount = 0, initialSearchQ
     }
   }, [initialSearchQuery]);
 
+  // Navbar contains Home and Products only (About Us & Contact Us are in Footer only)
   const navLinks = [
     { label: "Home", href: "/" },
     { label: "Products", href: "/products" },
-    { label: "About Us", href: "/about-us" },
-    { label: "Contact Us", href: "/contact-us" },
   ];
 
   const handleSearchSubmit = (e) => {
@@ -33,7 +34,7 @@ function Navbar({ onOpenSearch, onOpenTrackOrder, orderCount = 0, initialSearchQ
   return (
     <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 transition-all shadow-xs">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-20 gap-4">
+        <div className="flex items-center justify-between h-20 gap-3 lg:gap-6">
           
           {/* Brand Logo (Circular Emblem + Clean Bold Wordmark) */}
           <a href="/" className="flex items-center gap-3 group shrink-0">
@@ -55,90 +56,97 @@ function Navbar({ onOpenSearch, onOpenTrackOrder, orderCount = 0, initialSearchQ
             </div>
           </a>
 
-          {/* Search Bar in Navbar (Desktop / Tablet) */}
-          <form
-            onSubmit={handleSearchSubmit}
-            className="hidden md:flex items-center relative flex-1 max-w-xs lg:max-w-sm"
-          >
-            <input
-              type="text"
-              value={searchVal}
-              onChange={(e) => {
-                setSearchVal(e.target.value);
-                if (onSearchQueryChange && (window.location.pathname === "/products" || window.location.pathname === "/")) {
-                  onSearchQueryChange(e.target.value);
-                }
-              }}
-              placeholder="Search formulations (e.g. 9G, 10Q, Omega)..."
-              className="w-full pl-9 pr-8 py-2 rounded-xl text-xs font-semibold bg-slate-100 hover:bg-slate-100/90 focus:bg-white text-slate-800 placeholder-slate-400 border border-slate-200 focus:border-[#166534] focus:ring-2 focus:ring-[#166534]/15 transition-all outline-none"
-            />
-            <button
-              type="submit"
-              className="absolute left-2.5 text-slate-400 hover:text-[#166534] transition-colors"
-              title="Search"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-            </button>
-            {searchVal && (
-              <button
-                type="button"
-                onClick={() => {
-                  setSearchVal("");
-                  if (onSearchQueryChange && (window.location.pathname === "/products" || window.location.pathname === "/")) {
-                    onSearchQueryChange("");
-                  }
-                }}
-                className="absolute right-2.5 w-4 h-4 rounded-full bg-slate-200 hover:bg-slate-300 text-slate-600 flex items-center justify-center text-[10px] font-bold"
-              >
-                ✕
-              </button>
-            )}
-          </form>
-
-          {/* Desktop Navigation Links */}
-          <nav className="hidden lg:flex items-center gap-6 xl:gap-8 shrink-0">
+          {/* Desktop Navigation Links (Home & Products only) */}
+          <nav className="hidden md:flex items-center gap-6 xl:gap-8 shrink-0">
             {navLinks.map((item) => (
               <a
                 key={item.label}
                 href={item.href}
-                className="inline-flex items-center gap-1 text-sm font-semibold text-slate-700 hover:text-[#166534] transition-colors"
+                className="inline-flex items-center gap-1 text-sm font-bold text-slate-700 hover:text-[#166534] transition-colors"
               >
                 <span>{item.label}</span>
               </a>
             ))}
           </nav>
 
-          {/* Right Action Buttons */}
-          <div className="hidden sm:flex items-center gap-3 shrink-0">
-            {/* Track Order Pill */}
+          {/* Right Action Group: Track Order -> Enquiry Now -> Search (Search is on right side of Enquiry) */}
+          <div className="hidden sm:flex items-center gap-2.5 lg:gap-3 shrink-0">
+            {/* Track Order Button */}
             <button
               type="button"
               onClick={onOpenTrackOrder}
-              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-bold text-slate-700 hover:text-[#166534] hover:bg-emerald-50/70 border border-slate-200 transition-colors"
+              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold text-slate-700 hover:text-[#166534] hover:bg-emerald-50/70 border border-slate-200 transition-colors cursor-pointer"
               title="Track Live Order"
             >
               <Icon name="truck" className="w-4 h-4 text-[#166534]" />
-              <span>Track Order</span>
+              <span className="hidden lg:inline">Track Order</span>
             </button>
 
             {/* Orange Enquiry Now Button */}
             <a
-              href="/contact-us"
-              className="inline-flex items-center gap-2 px-4 py-2 sm:px-5 sm:py-2.5 rounded-lg text-xs sm:text-sm font-bold text-white bg-[#F97316] hover:bg-[#ea580c] shadow-sm shadow-orange-500/20 transition-all transform hover:-translate-y-0.5 active:scale-95"
+              href="#contact"
+              onClick={(e) => {
+                const el = document.getElementById("contact");
+                if (el) {
+                  e.preventDefault();
+                  el.scrollIntoView({ behavior: "smooth" });
+                }
+              }}
+              className="inline-flex items-center gap-1.5 px-4 py-2 sm:px-4 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-[#F97316] hover:bg-[#ea580c] shadow-xs shadow-orange-500/20 transition-all transform hover:-translate-y-0.5 active:scale-95 shrink-0"
             >
               <span>Enquiry Now</span>
-              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+              <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M6.62 10.79a15.053 15.053 0 006.59 6.59l2.2-2.2a1 1 0 011.01-.24c1.12.37 2.33.57 3.58.57a1 1 0 011 1V20a1 1 0 01-1 1A17 17 0 013 4a1 1 0 011-1h3.5a1 1 0 011 1c0 1.25.2 2.46.57 3.58a1 1 0 01-.24 1.01l-2.21 2.2z" />
               </svg>
             </a>
+
+            {/* Search Bar (On the RIGHT side of Enquiry Now) */}
+            <form
+              onSubmit={handleSearchSubmit}
+              className="relative flex items-center w-44 md:w-48 lg:w-56 shrink-0"
+            >
+              <input
+                type="text"
+                value={searchVal}
+                onChange={(e) => {
+                  setSearchVal(e.target.value);
+                  if (onSearchQueryChange && (window.location.pathname === "/products" || window.location.pathname === "/")) {
+                    onSearchQueryChange(e.target.value);
+                  }
+                }}
+                placeholder="Search formulations..."
+                className="w-full pl-8 pr-7 py-2 rounded-xl text-xs font-semibold bg-slate-100 hover:bg-slate-100/90 focus:bg-white text-slate-800 placeholder-slate-400 border border-slate-200 focus:border-[#166534] focus:ring-2 focus:ring-[#166534]/15 transition-all outline-none"
+              />
+              <button
+                type="submit"
+                className="absolute left-2.5 text-slate-400 hover:text-[#166534] transition-colors"
+                title="Search"
+              >
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </button>
+              {searchVal && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSearchVal("");
+                    if (onSearchQueryChange && (window.location.pathname === "/products" || window.location.pathname === "/")) {
+                      onSearchQueryChange("");
+                    }
+                  }}
+                  className="absolute right-2.5 w-3.5 h-3.5 rounded-full bg-slate-200 hover:bg-slate-300 text-slate-600 flex items-center justify-center text-[9px] font-bold"
+                >
+                  ✕
+                </button>
+              )}
+            </form>
           </div>
 
-          {/* Mobile Hamburger Button */}
-          <div className="flex lg:hidden items-center gap-2">
+          {/* Mobile Actions & Hamburger */}
+          <div className="flex sm:hidden items-center gap-2">
             <a
-              href="/contact-us"
+              href="#contact"
               className="px-3 py-1.5 rounded-lg text-xs font-bold text-white bg-[#F97316] flex items-center gap-1 shadow-xs"
             >
               <span>Enquiry</span>
@@ -158,7 +166,7 @@ function Navbar({ onOpenSearch, onOpenTrackOrder, orderCount = 0, initialSearchQ
 
       {/* Mobile Drawer */}
       {mobileMenuOpen && (
-        <div className="lg:hidden border-t border-slate-200 bg-white px-4 pt-3 pb-6 space-y-3 shadow-lg">
+        <div className="sm:hidden border-t border-slate-200 bg-white px-4 pt-3 pb-6 space-y-3 shadow-lg">
           {/* Mobile Search Bar */}
           <form onSubmit={handleSearchSubmit} className="relative">
             <input
@@ -185,7 +193,8 @@ function Navbar({ onOpenSearch, onOpenTrackOrder, orderCount = 0, initialSearchQ
               {item.label}
             </a>
           ))}
-          <div className="pt-3 border-t border-slate-100 flex flex-col gap-2">
+
+          <div className="pt-2 border-t border-slate-100 flex flex-col gap-2">
             <button
               type="button"
               onClick={() => {

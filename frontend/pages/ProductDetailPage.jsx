@@ -1000,3 +1000,4 @@ if (typeof window !== "undefined") {
 if (typeof exports !== "undefined") {
   exports.ProductDetailPage = ProductDetailPage;
 }
+
