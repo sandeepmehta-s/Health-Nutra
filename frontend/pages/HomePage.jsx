@@ -377,7 +377,8 @@ function HomePage() {
                 <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden border-2 border-slate-200 shrink-0 mx-auto sm:mx-0">
                   <img
                     src="/images/director.jpg"
-                    alt="Company Director"
+                    alt="Mr. Veer Pratap Singh - Director"
+                    title="Mr. Veer Pratap Singh"
                     className="w-full h-full object-cover"
                     onError={(e) => {
                       e.target.onerror = null;
@@ -388,8 +389,8 @@ function HomePage() {
 
                 <div className="space-y-2.5 flex-grow">
                   <div>
-                    <h3 className="text-xl font-black text-[#166534] leading-tight">Director</h3>
-                    <div className="text-xs font-semibold text-slate-500">Company Director</div>
+                    <h3 className="text-xl font-black text-[#166534] leading-tight">Mr. Veer Pratap Singh</h3>
+                    <div className="text-xs font-semibold text-slate-500">Founder & CEO</div>
                   </div>
 
                   <p className="text-xs text-slate-600 leading-relaxed font-normal">

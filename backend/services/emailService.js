@@ -218,7 +218,7 @@ export async function sendOrderNotifications(order) {
         <div style="border-top: 1px solid #e2e8f0; padding-top: 16px; font-size: 11px; color: #94a3b8; text-align: center; line-height: 1.6;">
           <strong>Marketed by: HEALTH NUTRA™</strong> • TM TRADEMARK APPLIED FOR<br>
           Shop No/ Plot No.: 247, SLICE-2, SECTOR-A, SCHEME NO 78, INDORE - 452010 Dist.-INDORE (M.P.)<br>
-          Customer Support: <a href="tel:+917024308660" style="color: #166534; font-weight: bold; text-decoration: none;">+91-7024308660</a> | <a href="mailto:healthnutra16@gmail.com" style="color: #166534; font-weight: bold; text-decoration: none;">healthnutra16@gmail.com</a>
+          Customer Support: <a href="tel:+91+91 8809672959, +91 7024308660" style="color: #166534; font-weight: bold; text-decoration: none;">+91-+91 8809672959, +91 7024308660</a> | <a href="mailto:healthnutra16@gmail.com" style="color: #166534; font-weight: bold; text-decoration: none;">healthnutra16@gmail.com</a>
         </div>
       </div>
     `;

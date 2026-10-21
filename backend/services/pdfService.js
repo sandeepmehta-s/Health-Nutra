@@ -122,7 +122,7 @@ export async function generateInvoicePdfBuffer(order) {
         .font("Helvetica")
         .fontSize(8.5)
         .text(
-          "Shop No/ Plot No.: 247, SLICE-2, SECTOR-A,\nSCHEME NO 78, INDORE - 452010 (M.P.)\nHotline: +91-7024308660\nEmail: healthnutra16@gmail.com",
+          "Shop No/ Plot No.: 247, SLICE-2, SECTOR-A,\nSCHEME NO 78, INDORE - 452010 (M.P.)\nHotline: +91-+91 8809672959, +91 7024308660\nEmail: healthnutra16@gmail.com",
           50,
           boxY + 36,
           { width: colWidth - 20, lineGap: 2 }
@@ -267,7 +267,7 @@ export async function generateInvoicePdfBuffer(order) {
         .font("Helvetica")
         .fontSize(8)
         .text(
-          "This is a computer-generated tax invoice and requires no physical signature.\nMarketed by: HEALTH NUTRA™ • TM TRADEMARK APPLIED FOR • Scheme No 78, Indore - 452010 (M.P.)\nSupport Hotline: +91-7024308660 | Email: healthnutra16@gmail.com | Website: https://healthnutra.co.in",
+          "This is a computer-generated tax invoice and requires no physical signature.\nMarketed by: HEALTH NUTRA™ • TM TRADEMARK APPLIED FOR • Scheme No 78, Indore - 452010 (M.P.)\nSupport Hotline: +91-+91 8809672959, +91 7024308660 | Email: healthnutra16@gmail.com | Website: https://healthnutra.co.in",
           40,
           footerY + 10,
           { align: "center", width: 515, lineGap: 3 }

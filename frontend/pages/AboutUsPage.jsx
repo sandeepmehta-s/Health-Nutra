@@ -158,8 +158,8 @@ function AboutUsPage() {
               {/* Bio & Details */}
               <div className="space-y-2.5 flex-grow">
                 <div>
-                  <h3 className="text-xl font-black text-[#166534] leading-tight">Director</h3>
-                  <div className="text-xs font-semibold text-slate-500">Company Director</div>
+                  <h3 className="text-xl font-black text-[#166534] leading-tight">Mr. Veer Pratap Singh</h3>
+                  <div className="text-xs font-semibold text-slate-500">Founder & CEO</div>
                 </div>
 
                 <p className="text-xs text-slate-600 leading-relaxed font-normal">

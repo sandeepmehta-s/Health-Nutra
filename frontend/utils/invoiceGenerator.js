@@ -388,7 +388,7 @@ export function downloadOrderInvoicePDF(order) {
             Shop No/ Plot No.: 247, SLICE-2,<br>
             SECTOR-A, SCHEME NO 78,<br>
             INDORE - 452010 Dist.-INDORE (M.P.)<br>
-            <strong>Phone:</strong> +91-7024308660<br>
+            <strong>Phone:</strong> +91-+91 8809672959, +91 7024308660<br>
             <strong>Email:</strong> healthnutra16@gmail.com<br>
             <span style="font-size: 10px; color: #64748b; font-weight: 700;">TM TRADEMARK APPLIED FOR</span>
           </div>
@@ -451,7 +451,7 @@ export function downloadOrderInvoicePDF(order) {
     <!-- Footer -->
     <div class="invoice-footer">
       <div>
-        <strong>Health Nutra Care:</strong> healthnutra16@gmail.com | +91-7024308660<br>
+        <strong>Health Nutra Care:</strong> healthnutra16@gmail.com | +91-+91 8809672959, +91 7024308660<br>
         <span style="font-size: 10px; color: #64748b;">Plot 247, Slice-2, Sector-A, Scheme 78, Indore - 452010 Dist.-Indore (M.P.)</span>
       </div>
       <div class="cert-pills">

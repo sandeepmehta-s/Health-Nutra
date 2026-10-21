@@ -638,7 +638,7 @@ function ProductDetailPage() {
 
               {/* Wholesale / Clinic Bulk Inquiry via WhatsApp */}
               <a
-                href={`https://wa.me/917024308660?text=${encodeURIComponent(
+                href={`https://wa.me/91+91 8809672959, +91 7024308660?text=${encodeURIComponent(
                   `Hello Health Nutra, I am interested in bulk / clinical supply of ${product.name}.`
                 )}`}
                 target="_blank"

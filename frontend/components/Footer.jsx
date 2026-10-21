@@ -189,10 +189,10 @@ function Footer() {
                   </svg>
                 </div>
                 <a
-                  href="tel:+917024308660"
+                  href="tel:+91+91 8809672959, +91 7024308660"
                   className="hover:text-amber-300 transition-colors font-bold"
                 >
-                  +91 7024308660
+                  +91 +91 8809672959, +91 7024308660
                 </a>
               </div>
             </div>
