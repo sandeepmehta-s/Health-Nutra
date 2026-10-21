@@ -145,19 +145,18 @@ export class NavigationManager {
 
   async checkAdminSession() {
     try {
+      const btn = document.getElementById("navAdminBtn");
+      if (!btn) return; // Only probe session if admin button is actually present in navigation
       const res = await fetch("/api/admin/me");
       if (res.ok) {
         const data = await res.json();
         if (data.success && data.admin) {
-          const btn = document.getElementById("navAdminBtn");
-          if (btn) {
-            btn.innerHTML = `
-              <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-              <i data-lucide="shield-check" class="w-4 h-4"></i>
-              <span>Dashboard (${data.admin.username})</span>
-            `;
-            this.refreshIcons();
-          }
+          btn.innerHTML = `
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <i data-lucide="shield-check" class="w-4 h-4"></i>
+            <span>Dashboard (${data.admin.username})</span>
+          `;
+          this.refreshIcons();
         }
       }
     } catch {

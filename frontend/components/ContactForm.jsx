@@ -87,7 +87,7 @@ function ContactForm() {
             {/* Phone */}
             <div className="flex items-center gap-4 group">
               <div className="w-10 h-10 rounded-xl bg-white/15 border border-white/20 flex items-center justify-center shrink-0 text-white">
-                <svg className="w-5 h-5 fill-none stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                   <rect x="5" y="2" width="14" height="20" rx="2" ry="2" />
                   <line x1="12" y1="18" x2="12.01" y2="18" />
                 </svg>
@@ -103,7 +103,7 @@ function ContactForm() {
             {/* Email */}
             <div className="flex items-center gap-4 group">
               <div className="w-10 h-10 rounded-xl bg-white/15 border border-white/20 flex items-center justify-center shrink-0 text-white">
-                <svg className="w-5 h-5 fill-none stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                   <circle cx="12" cy="12" r="4" />
                   <path d="M16 8v5a3 3 0 0 0 6 0v-1a10 10 0 1 0-3.92 7.94" />
                 </svg>
@@ -119,7 +119,7 @@ function ContactForm() {
             {/* Address */}
             <div className="flex items-start gap-4">
               <div className="w-10 h-10 rounded-xl bg-white/15 border border-white/20 flex items-center justify-center shrink-0 text-white mt-0.5">
-                <svg className="w-5 h-5 fill-none stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                   <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
                   <circle cx="12" cy="10" r="3" />
                 </svg>
