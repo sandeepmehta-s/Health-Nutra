@@ -6,13 +6,12 @@ Health Nutra is an Ayurvedic and Nutraceuticals e-commerce and clinician portal 
 
 - **Storefront & Catalog:** Dynamic product showcase with real-time stock status, categories (Multivitamin, Syrup, Omega-3, Green Tea), and priority search.
 - **Secure Ordering:** Server-side price calculation, availability validation, and collision-resistant order ID generation.
-- **Order Tracking:** Real-time fulfillment progress tracking with customer privacy protection (phone, email, and full street address are excluded from public responses).
 - **Admin Management Portal:** Session-authenticated dashboard for formulation catalog management, order status lifecycle updates, and inventory control.
 - **High Performance & Security:**
   - Multi-tier in-process TTL cache with LRU eviction.
   - HTTP response compression (gzip/deflate).
   - Helmet security headers and Content Security Policy (CSP).
-  - Multi-tier rate limiting for auth, orders, and tracking.
+  - Multi-tier rate limiting for auth and orders.
   - Persistent encrypted sessions using MongoDB (`connect-mongo`).
   - Strict binary signature validation (magic numbers) on image uploads.
 
@@ -50,8 +49,8 @@ Health Nutra is an Ayurvedic and Nutraceuticals e-commerce and clinician portal 
    PORT=5000
    NODE_ENV=development
    SESSION_SECRET=your-secure-session-secret-here
-   ADMIN_USERNAME=admin
-   ADMIN_PASSWORD=admin123
+   ADMIN_USERNAME=your_admin_username
+   ADMIN_PASSWORD=your_secure_admin_password
    # Optional: MongoDB connection (falls back to local SQLite if omitted)
    # MONGODB_URI=mongodb+srv://<user>:<password>@cluster0.mongodb.net/health_nutra
    ```

@@ -103,9 +103,9 @@ SESSION_SECRET=health-nutra-secure-production-secret-key-2026
 # To use MongoDB, start mongod or paste a MongoDB Atlas connection string:
 MONGODB_URI=mongodb://127.0.0.1:27017/health_nutra
 
-# Default Admin Credentials
-ADMIN_USERNAME=admin
-ADMIN_PASSWORD=admin123
+# Admin Credentials (Set strong custom credentials)
+ADMIN_USERNAME=your_admin_username
+ADMIN_PASSWORD=your_secure_admin_password
 
 # Keep-Alive Cron Configuration
 PING_INTERVAL_MINUTES=5
@@ -135,9 +135,7 @@ Upon launch:
    ```text
    http://localhost:5000/admin
    ```
-2. Enter the default credentials:
-   - **Username**: `admin`
-   - **Password**: `admin123`
+2. Log in using the credentials configured in your `.env` file (`ADMIN_USERNAME` and `ADMIN_PASSWORD`).
 3. The Admin Dashboard allows managing inventory, toggling visibility, uploading product images, and viewing live stats.
 
 ### Step 6: View the Public Website

@@ -142,16 +142,6 @@ function LoginPage() {
             </button>
           </form>
 
-          {/* Default Credentials Hint for zero-hassle admin setup */}
-          <div className="mt-6 p-3.5 rounded-2xl bg-slate-50 border border-slate-100 text-center">
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">
-              Default Credentials Hint
-            </span>
-            <div className="text-xs font-mono font-bold text-slate-700">
-              Username: <span className="text-brand-700 font-extrabold">admin</span> | Password: <span className="text-brand-700 font-extrabold">admin123</span>
-            </div>
-          </div>
-
           <div className="mt-6 text-center">
             <a href="/" className="text-xs font-bold text-slate-500 hover:text-brand-700 transition-colors inline-flex items-center gap-1.5">
               <Icon name="arrow-left" className="w-3.5 h-3.5" />
