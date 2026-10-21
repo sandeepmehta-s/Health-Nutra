@@ -7,11 +7,9 @@ function Navbar({ onOpenSearch, onOpenTrackOrder, orderCount = 0 }) {
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
 
   const navLinks = [
-    { label: "Home", href: "#hero" },
-    { label: "Products", href: "#products", hasDropdown: true },
-    { label: "About Us", href: "#about" },
-    { label: "Our Team", href: "#team" },
-    { label: "Contact Us", href: "#contact" },
+    { label: "Home", href: "/" },
+    { label: "Products", href: "/#products", hasDropdown: true },
+    { label: "About Us", href: "/about-us" },
   ];
 
   return (
@@ -72,7 +70,7 @@ function Navbar({ onOpenSearch, onOpenTrackOrder, orderCount = 0 }) {
 
             {/* Orange Enquiry Now Button */}
             <a
-              href="#contact"
+              href="/#contact"
               className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-bold text-white bg-[#F97316] hover:bg-[#ea580c] shadow-sm shadow-orange-500/20 transition-all transform hover:-translate-y-0.5 active:scale-95"
             >
               <span>Enquiry Now</span>

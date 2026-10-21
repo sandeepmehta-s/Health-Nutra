@@ -23,6 +23,10 @@ function App() {
     return <AdminPage />;
   }
 
+  if (currentPath === "/about-us" || currentPath === "/about-us/") {
+    return <AboutUsPage />;
+  }
+
   return <HomePage />;
 }
 

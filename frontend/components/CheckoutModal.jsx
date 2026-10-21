@@ -366,9 +366,7 @@ function CheckoutModal({
                     Payment Option
                   </label>
                   <div className="grid grid-cols-2 gap-2">
-                    <label className={`flex items-center gap-2 p-3 rounded-xl border cursor-pointer text-xs font-bold transition-all ${
-                      paymentMethod === "COD" ? "border-brand-600 bg-brand-50 text-brand-900" : "border-slate-200 text-slate-600"
-                    }`}>
+                    <label className="flex items-center gap-2 p-3 rounded-xl border border-brand-600 bg-brand-50 text-brand-900 cursor-pointer text-xs font-bold transition-all shadow-xs">
                       <input
                         type="radio"
                         name="payment"
@@ -380,18 +378,22 @@ function CheckoutModal({
                       <span>Cash on Delivery</span>
                     </label>
 
-                    <label className={`flex items-center gap-2 p-3 rounded-xl border cursor-pointer text-xs font-bold transition-all ${
-                      paymentMethod === "UPI" ? "border-brand-600 bg-brand-50 text-brand-900" : "border-slate-200 text-slate-600"
-                    }`}>
+                    <label
+                      className="flex items-center gap-2 p-3 rounded-xl border border-slate-200 bg-slate-100/80 text-slate-400 cursor-not-allowed text-xs font-bold transition-all opacity-60"
+                      title="UPI on Delivery is currently disabled"
+                    >
                       <input
                         type="radio"
                         name="payment"
                         value="UPI"
-                        checked={paymentMethod === "UPI"}
-                        onChange={() => setPaymentMethod("UPI")}
-                        className="text-brand-600"
+                        disabled
+                        checked={false}
+                        className="text-slate-400 cursor-not-allowed"
                       />
-                      <span>UPI on Delivery</span>
+                      <span className="flex items-center justify-between w-full">
+                        <span>UPI on Delivery</span>
+                        <span className="text-[10px] bg-slate-200 text-slate-500 px-1.5 py-0.5 rounded font-normal">Disabled</span>
+                      </span>
                     </label>
                   </div>
                 </div>
