@@ -8,6 +8,7 @@ import {
   getBrandLogoUrl,
   getOptimizedUrl,
   getAutoCropUrl,
+  DEFAULT_BRAND_LOGO,
 } from "../services/cloudinaryService.js";
 
 const BASE_URL = process.env.TEST_API_URL || process.env.TEST_APP_URL || "http://localhost:5000";
@@ -82,7 +83,7 @@ describe("Cloudinary Service & Environment Configuration", () => {
     assert.equal(getBrandLogoUrl(), "https://res.cloudinary.com/usqwgkl7/image/upload/cdn-logo.png");
 
     delete process.env.CLOUDINARY_LOGO_URL;
-    assert.equal(getBrandLogoUrl(), "");
+    assert.equal(getBrandLogoUrl(), DEFAULT_BRAND_LOGO);
   });
 
   test("URL transformation helpers generate valid Cloudinary delivery URLs", () => {

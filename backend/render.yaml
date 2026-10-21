@@ -36,5 +36,5 @@ services:
       - key: CLOUDINARY_API_SECRET
         sync: false
       - key: BRAND_LOGO_URL
-        sync: false
+        value: https://res.cloudinary.com/usqwgkl7/image/upload/v1792576055/logo.jpg
 

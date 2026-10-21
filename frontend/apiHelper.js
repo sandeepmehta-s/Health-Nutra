@@ -36,6 +36,13 @@ const DEFAULT_CONFIG = {
     Immunity: "shield-check",
     General: "package",
   },
+  brand: {
+    logoUrl: "https://res.cloudinary.com/usqwgkl7/image/upload/v1792576055/logo.jpg",
+    primary: "#166534",
+    primaryLight: "#15803d",
+    accent: "#ea580c",
+    accentLight: "#f97316",
+  },
 };
 
 class ApiHelper {

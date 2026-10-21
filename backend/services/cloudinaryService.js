@@ -197,12 +197,15 @@ export async function deleteImage(publicIdOrUrl) {
   }
 }
 
+export const DEFAULT_BRAND_LOGO = "https://res.cloudinary.com/usqwgkl7/image/upload/v1792576055/logo.jpg";
+
 /**
  * Retrieve the Brand Logo URL configured from environment variables
  * Reads in order of precedence:
  * 1. process.env.BRAND_LOGO_URL
  * 2. process.env.CLOUDINARY_LOGO_URL
  * 3. Default Cloudinary asset URL if configured
+ * 4. DEFAULT_BRAND_LOGO
  *
  * @returns {string}
  */
@@ -216,7 +219,7 @@ export function getBrandLogoUrl() {
   if (process.env.CLOUDINARY_LOGO_PUBLIC_ID && isCloudinaryConfigured()) {
     return getOptimizedUrl(process.env.CLOUDINARY_LOGO_PUBLIC_ID);
   }
-  return "";
+  return DEFAULT_BRAND_LOGO;
 }
 
 export default {
