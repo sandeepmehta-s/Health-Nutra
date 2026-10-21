@@ -21,7 +21,7 @@ function Navbar({ onOpenSearch, onOpenTrackOrder, orderCount = 0 }) {
           {/* Brand Logo */}
           <a href="#" className="flex items-center gap-3 group">
             <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-brand-700 to-emerald-800 flex items-center justify-center text-white shadow-lg shadow-brand-700/25 group-hover:scale-105 transition-transform">
-              <Icon name="leaf" className="w-6 h-6" />
+              {(typeof window !== "undefined" && window?.apiHelper?.config?.brand?.logoUrl) ? (<img src={window.apiHelper.config.brand.logoUrl} alt="Health Nutra" className="w-full h-full object-contain p-1" />) : (<Icon name="leaf" className="w-6 h-6" />)}
             </div>
             <div>
               <div className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight leading-none">

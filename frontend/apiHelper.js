@@ -22,6 +22,8 @@ const DEFAULT_CONFIG = {
     adminProductToggle: "/api/admin/products/:id/toggle-status",
     adminOrders: "/api/admin/orders",
     adminOrderStatus: "/api/admin/orders/:id/status",
+    adminBrandLogo: "/api/admin/brand/logo",
+    config: "/api/config",
     contact: "/api/contact",
   },
   categoryIcons: {

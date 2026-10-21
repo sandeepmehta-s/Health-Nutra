@@ -18,6 +18,8 @@
     "orderDetail": "/api/orders/:id",
     "adminOrders": "/api/admin/orders",
     "adminOrderStatus": "/api/admin/orders/:id/status",
+    "adminBrandLogo": "/api/admin/brand/logo",
+    "config": "/api/config",
     "contact": "/api/contact"
   },
   "pingIntervalMinutes": 5,

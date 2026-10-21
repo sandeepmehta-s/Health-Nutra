@@ -291,7 +291,7 @@ function AdminPage() {
           <div className="h-20 px-6 border-b border-slate-100 flex items-center justify-between">
             <a href="/admin" className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-brand-700 to-emerald-800 flex items-center justify-center text-white shadow-md shadow-brand-700/20">
-                <Icon name="leaf" className="w-5 h-5" />
+                {(typeof window !== "undefined" && window?.apiHelper?.config?.brand?.logoUrl) ? (<img src={window.apiHelper.config.brand.logoUrl} alt="Health Nutra" className="w-full h-full object-contain p-1" />) : (<Icon name="leaf" className="w-5 h-5" />)}
               </div>
               <div>
                 <div className="text-base font-black text-slate-900 leading-none">

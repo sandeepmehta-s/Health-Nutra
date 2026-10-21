@@ -10,6 +10,7 @@ import fs from "fs";
 import { fileURLToPath } from "url";
 import { initDatabase } from "./services/dbService.js";
 import { startKeepAliveCron } from "./services/cronService.js";
+import { getBrandLogoUrl, isCloudinaryConfigured } from "./services/cloudinaryService.js";
 import publicRoutes from "./routes/publicRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
 import { requireAuth } from "./middleware/auth.js";
@@ -159,6 +160,10 @@ app.get("/api/config", (req, res) => {
     appUrl: APP_URL,
     apiUrl: API_URL,
     pingIntervalMinutes: parseInt(process.env.PING_INTERVAL_MINUTES || "5", 10),
+    brand: {
+      logoUrl: getBrandLogoUrl(),
+      isCloudinaryConfigured: isCloudinaryConfigured(),
+    },
   });
 });
 

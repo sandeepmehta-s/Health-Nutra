@@ -17,6 +17,13 @@ import { requireAuth } from "../middleware/auth.js";
 import { uploadProductImage, verifyImageMagicBytes } from "../middleware/upload.js";
 import { loginRateLimiter } from "../middleware/rateLimiter.js";
 import { cache } from "../services/cacheService.js";
+import {
+  isCloudinaryConfigured,
+  isCloudinaryUrl,
+  uploadImage,
+  deleteImage,
+  getBrandLogoUrl,
+} from "../services/cloudinaryService.js";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -217,7 +224,18 @@ router.post(
             message: "Uploaded file failed binary signature check. Only valid JPEG, PNG, or WebP images are allowed.",
           });
         }
-        imagePath = `/uploads/${req.file.filename}`;
+        if (isCloudinaryConfigured()) {
+          try {
+            const uploadRes = await uploadImage(req.file.path, { folder: "health-nutra/products" });
+            imagePath = uploadRes.url;
+            fs.unlink(req.file.path, () => {});
+          } catch (cloudErr) {
+            console.error("[Cloudinary] Upload failed, falling back to local file:", cloudErr.message);
+            imagePath = `/uploads/${req.file.filename}`;
+          }
+        } else {
+          imagePath = `/uploads/${req.file.filename}`;
+        }
       } else if (imageUrl && sanitize(imageUrl)) {
         imagePath = sanitize(imageUrl);
       } else if (req.body.existingImage) {
@@ -293,7 +311,18 @@ router.put(
             message: "Uploaded file failed binary signature check. Only valid JPEG, PNG, or WebP images are allowed.",
           });
         }
-        updateData.image = `/uploads/${req.file.filename}`;
+        if (isCloudinaryConfigured()) {
+          try {
+            const uploadRes = await uploadImage(req.file.path, { folder: "health-nutra/products" });
+            updateData.image = uploadRes.url;
+            fs.unlink(req.file.path, () => {});
+          } catch (cloudErr) {
+            console.error("[Cloudinary] Upload failed, falling back to local file:", cloudErr.message);
+            updateData.image = `/uploads/${req.file.filename}`;
+          }
+        } else {
+          updateData.image = `/uploads/${req.file.filename}`;
+        }
       } else if (imageUrl && sanitize(imageUrl)) {
         updateData.image = sanitize(imageUrl);
       } else if (req.body.existingImage) {
@@ -356,12 +385,18 @@ router.delete("/products/:id", requireAuth, async (req, res) => {
       return res.status(404).json({ success: false, message: "Product not found." });
     }
 
-    if (deleted.image && deleted.image.startsWith("/uploads/product-")) {
-      const filename = path.basename(deleted.image);
-      const uploadsDir = path.resolve(__dirname, "..", "uploads");
-      const filePath = path.join(uploadsDir, filename);
-      if (filePath.startsWith(uploadsDir) && fs.existsSync(filePath)) {
-        fs.unlink(filePath, () => {});
+    if (deleted.image) {
+      if (isCloudinaryUrl(deleted.image)) {
+        deleteImage(deleted.image).catch((err) => {
+          console.error("[Cloudinary] Failed to delete image asset:", err.message);
+        });
+      } else if (deleted.image.startsWith("/uploads/product-")) {
+        const filename = path.basename(deleted.image);
+        const uploadsDir = path.resolve(__dirname, "..", "uploads");
+        const filePath = path.join(uploadsDir, filename);
+        if (filePath.startsWith(uploadsDir) && fs.existsSync(filePath)) {
+          fs.unlink(filePath, () => {});
+        }
       }
     }
 
@@ -476,6 +511,73 @@ router.delete("/orders/:id", requireAuth, async (req, res) => {
     res.status(500).json({ success: false, message: "Failed to delete order: " + err.message });
   }
 });
+
+// GET /api/admin/brand/logo - Get configured Brand Logo & Cloudinary status
+router.get("/brand/logo", requireAuth, (req, res) => {
+  res.json({
+    success: true,
+    data: {
+      logoUrl: getBrandLogoUrl(),
+      isCloudinaryConfigured: isCloudinaryConfigured(),
+      cloudName: process.env.CLOUDINARY_CLOUD_NAME || "usqwgkl7",
+    },
+  });
+});
+
+// POST /api/admin/brand/logo - Upload Brand Logo to Cloudinary
+router.post(
+  "/brand/logo",
+  requireAuth,
+  (req, res, next) => {
+    uploadProductImage.single("logo")(req, res, (err) => {
+      if (err) {
+        return res.status(400).json({ success: false, message: err.message });
+      }
+      next();
+    });
+  },
+  async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ success: false, message: "Please select an image file to upload as the logo." });
+      }
+
+      if (!verifyImageMagicBytes(req.file.path)) {
+        fs.unlink(req.file.path, () => {});
+        return res.status(400).json({
+          success: false,
+          message: "Uploaded file failed binary signature check. Only valid JPEG, PNG, or WebP images are allowed.",
+        });
+      }
+
+      let logoUrl = "";
+      if (isCloudinaryConfigured()) {
+        try {
+          const uploadRes = await uploadImage(req.file.path, {
+            folder: "health-nutra/brand",
+            public_id: "logo",
+            overwrite: true,
+          });
+          logoUrl = uploadRes.url;
+          fs.unlink(req.file.path, () => {});
+        } catch (cloudErr) {
+          console.error("[Cloudinary] Logo upload failed, saving locally:", cloudErr.message);
+          logoUrl = `/uploads/${req.file.filename}`;
+        }
+      } else {
+        logoUrl = `/uploads/${req.file.filename}`;
+      }
+
+      res.json({
+        success: true,
+        message: "Brand logo updated successfully.",
+        data: { logoUrl },
+      });
+    } catch (err) {
+      res.status(500).json({ success: false, message: "Failed to upload logo: " + err.message });
+    }
+  }
+);
 
 export default router;
 

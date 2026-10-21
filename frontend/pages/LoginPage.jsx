@@ -53,7 +53,7 @@ function LoginPage() {
       <div className="sm:mx-auto sm:w-full sm:max-w-md relative z-10 text-center space-y-3">
         <a href="/" className="inline-flex items-center gap-3">
           <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-brand-500 to-emerald-700 flex items-center justify-center text-white shadow-xl shadow-brand-500/30">
-            <Icon name="leaf" className="w-6 h-6" />
+            {(typeof window !== "undefined" && window?.apiHelper?.config?.brand?.logoUrl) ? (<img src={window.apiHelper.config.brand.logoUrl} alt="Health Nutra" className="w-full h-full object-contain p-1" />) : (<Icon name="leaf" className="w-6 h-6" />)}
           </div>
           <div className="text-left">
             <div className="text-2xl font-black text-white tracking-tight leading-none">

@@ -29,4 +29,12 @@ services:
         generateValue: true
       - key: PING_INTERVAL_MINUTES
         value: 5
+      - key: CLOUDINARY_CLOUD_NAME
+        value: usqwgkl7
+      - key: CLOUDINARY_API_KEY
+        value: 173632714251558
+      - key: CLOUDINARY_API_SECRET
+        sync: false
+      - key: BRAND_LOGO_URL
+        sync: false
 

@@ -17,7 +17,7 @@ function Footer() {
           <div className="lg:col-span-5 space-y-4">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-2xl bg-brand-700 flex items-center justify-center text-white shadow-lg shadow-brand-700/30">
-                <Icon name="leaf" className="w-5 h-5" />
+                {(typeof window !== "undefined" && window?.apiHelper?.config?.brand?.logoUrl) ? (<img src={window.apiHelper.config.brand.logoUrl} alt="Health Nutra" className="w-full h-full object-contain p-1" />) : (<Icon name="leaf" className="w-5 h-5" />)}
               </div>
               <span className="text-xl font-black tracking-tight">
                 HEALTH <span className="text-accent-500">NUTRA</span>
