@@ -90,7 +90,7 @@
             type="text" 
             id="username" 
             name="username" 
-            placeholder="e.g. admin" 
+            placeholder="e.g. healthnutra16@gmail.com or admin" 
             required 
             autocomplete="username"
             class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-700 text-sm font-medium placeholder:text-slate-400"
@@ -195,7 +195,12 @@
           body: JSON.stringify({ username, password })
         });
 
-        const data = await res.json();
+        let data = {};
+        try {
+          data = await res.json();
+        } catch (_) {
+          data = { success: false, message: 'Server returned unexpected response (HTTP ' + res.status + ').' };
+        }
 
         if (res.ok && data.success) {
           alertBox.className = 'p-4 rounded-2xl text-xs font-semibold flex items-center gap-2.5 bg-emerald-50 border border-emerald-200 text-emerald-800';
@@ -224,7 +229,7 @@
         alertBox.className = 'p-4 rounded-2xl text-xs font-semibold flex items-center gap-2.5 bg-rose-50 border border-rose-200 text-rose-800';
         alertBox.innerHTML = `
           <i data-lucide="alert-triangle" class="w-4 h-4 text-rose-600 shrink-0"></i>
-          <span>Connection error. Please verify the server is running.</span>
+          <span>Connection error. Please verify the network or server connectivity.</span>
         `;
         alertBox.classList.remove('hidden');
         submitBtn.disabled = false;

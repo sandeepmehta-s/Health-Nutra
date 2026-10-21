@@ -77,6 +77,8 @@ export async function sendEnquiryNotification(enquiry) {
   const adminEmail = process.env.ADMIN_EMAIL || process.env.VITE_ADMIN_EMAIL || "healthnutra16@gmail.com";
   const subject = `[Health Nutra Lead] New Enquiry from ${enquiry.name} (${enquiry.subject || "General"})`;
 
+  const siteUrl = (process.env.APP_URL || "https://healthnutra.co.in").replace(/\/$/, "");
+
   const htmlContent = `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px; background: #ffffff;">
       <div style="background: #166534; color: #ffffff; padding: 16px 20px; border-radius: 8px; margin-bottom: 20px;">
@@ -91,7 +93,7 @@ export async function sendEnquiryNotification(enquiry) {
         <tr><td style="padding: 8px; font-weight: bold; vertical-align: top;">Message:</td><td style="padding: 8px; white-space: pre-line;">${enquiry.message}</td></tr>
       </table>
       <div style="margin-top: 24px; padding-top: 16px; border-top: 1px solid #e2e8f0; font-size: 12px; color: #64748b; text-align: center;">
-        Health Nutra Administration • Manage enquiries at <a href="https://health-nutra.onrender.com/admin">Admin Console</a>
+        Health Nutra Administration • Manage enquiries at <a href="${siteUrl}/admin">Admin Console</a>
       </div>
     </div>
   `;
@@ -104,6 +106,7 @@ export async function sendEnquiryNotification(enquiry) {
  */
 export async function sendOrderNotifications(order) {
   const adminEmail = process.env.ADMIN_EMAIL || process.env.VITE_ADMIN_EMAIL || "healthnutra16@gmail.com";
+  const siteUrl = (process.env.APP_URL || "https://healthnutra.co.in").replace(/\/$/, "");
 
   // 1. Send confirmation to customer if email provided
   if (order.customerEmail) {
@@ -122,7 +125,7 @@ export async function sendOrderNotifications(order) {
             <div style="font-size: 12px; color: #64748b; margin-top: 4px;">Total Amount: <strong>₹${order.totalAmount}</strong> | Mode: ${order.paymentMethod || "COD"}</div>
             <div style="font-size: 12px; color: #64748b; margin-top: 4px;">Delivery Address: ${order.shippingAddress}, ${order.city || ""} - ${order.pincode || ""}</div>
           </div>
-          <p style="font-size: 12px; color: #64748b;">You can track your live shipment anytime at: <a href="https://health-nutra.onrender.com/">https://health-nutra.onrender.com/</a> using your Order ID <strong>#${order.orderId}</strong>.</p>
+          <p style="font-size: 12px; color: #64748b;">You can track your live shipment anytime at: <a href="${siteUrl}/">${siteUrl}/</a> using your Order ID <strong>#${order.orderId}</strong>.</p>
         </div>
         <div style="border-top: 1px solid #e2e8f0; padding-top: 14px; font-size: 11px; color: #94a3b8; text-align: center;">
           Marketed by: HEALTH NUTRA™ • Shop No/ Plot No.: 247, SLICE-2, SECTOR-A, SCHEME NO 78, INDORE - 452010 Dist.-INDORE (M.P.)<br>
@@ -142,8 +145,9 @@ export async function sendOrderNotifications(order) {
       <p><strong>Customer:</strong> ${order.customerName} (${order.customerPhone})</p>
       <p><strong>Total:</strong> ₹${order.totalAmount} (${order.paymentMethod})</p>
       <p><strong>Address:</strong> ${order.shippingAddress}</p>
-      <p><a href="https://health-nutra.onrender.com/admin" style="display: inline-block; background: #166534; color: #ffffff; padding: 8px 16px; border-radius: 6px; text-decoration: none; font-size: 13px;">View in Admin Portal</a></p>
+      <p><a href="${siteUrl}/admin" style="display: inline-block; background: #166534; color: #ffffff; padding: 8px 16px; border-radius: 6px; text-decoration: none; font-size: 13px;">View in Admin Portal</a></p>
     </div>
   `;
   sendEmail({ to: adminEmail, subject: adminSubject, htmlContent: adminHtml }).catch(() => {});
 }
+

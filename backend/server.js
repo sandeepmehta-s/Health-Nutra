@@ -71,6 +71,9 @@ app.use(
           "'self'",
           APP_URL,
           API_URL,
+          "https://healthnutra.co.in",
+          "https://www.healthnutra.co.in",
+          "https://healthnutra.onrender.com",
           "https://health-nutra.onrender.com",
           "https://unpkg.com",
           "https://cdnjs.cloudflare.com",
@@ -93,23 +96,56 @@ app.use(express.json({ limit: "256kb" }));
 app.use(express.urlencoded({ extended: true, limit: "256kb" }));
 
 // ── Approved CORS Origin Policy ───────────────────────────────
-const allowedOrigins = process.env.ALLOWED_ORIGINS
+const defaultAllowedOrigins = [
+  "https://healthnutra.co.in",
+  "https://www.healthnutra.co.in",
+  "http://healthnutra.co.in",
+  "http://www.healthnutra.co.in",
+  "https://healthnutra.onrender.com",
+  "https://health-nutra.onrender.com",
+  "http://localhost:5000",
+  "http://127.0.0.1:5000",
+  "http://localhost:3000",
+  "http://127.0.0.1:3000",
+];
+
+if (APP_URL && !defaultAllowedOrigins.includes(APP_URL)) {
+  defaultAllowedOrigins.push(APP_URL);
+}
+
+const customAllowedOrigins = process.env.ALLOWED_ORIGINS
   ? process.env.ALLOWED_ORIGINS.split(",").map((s) => s.trim().replace(/\/$/, ""))
-  : [APP_URL, "https://health-nutra.onrender.com", "http://localhost:5000", "http://127.0.0.1:5000"];
+  : [];
+
+const allowedOriginsList = [...new Set([...defaultAllowedOrigins, ...customAllowedOrigins])];
+
+const isOriginAllowed = (origin) => {
+  if (!origin) return true;
+  const cleanOrigin = origin.replace(/\/$/, "");
+  if (allowedOriginsList.includes(cleanOrigin)) return true;
+  if (cleanOrigin.startsWith("http://localhost:") || cleanOrigin.startsWith("http://127.0.0.1:")) return true;
+  try {
+    const parsed = new URL(origin);
+    const host = parsed.hostname.toLowerCase();
+    if (
+      host === "healthnutra.co.in" ||
+      host.endsWith(".healthnutra.co.in") ||
+      host.endsWith(".onrender.com")
+    ) {
+      return true;
+    }
+  } catch (_) {}
+  return false;
+};
 
 app.use(
   cors({
     origin: function (origin, callback) {
-      if (!origin) return callback(null, true);
-      const cleanOrigin = origin.replace(/\/$/, "");
-      if (
-        allowedOrigins.includes(cleanOrigin) ||
-        cleanOrigin.startsWith("http://localhost:") ||
-        cleanOrigin.startsWith("http://127.0.0.1:")
-      ) {
+      if (isOriginAllowed(origin)) {
         return callback(null, true);
       }
-      return callback(new Error("CORS policy does not allow access from the specified origin."), false);
+      // Never throw an unhandled Error that triggers a 500 error; cleanly return false
+      return callback(null, false);
     },
     credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
@@ -190,6 +226,23 @@ app.use((req, res, next) => {
   next();
 });
 
+// Admin & Storefront Web Page Handlers (Registered before generic static directory to avoid 301 trailing-slash redirects)
+app.get("/admin/login", (req, res) => {
+  if (req.session && req.session.adminId) {
+    return res.redirect("/admin");
+  }
+  res.sendFile(path.join(frontendDir, "admin", "login.html"));
+});
+
+app.get(["/admin", "/admin/"], requireAuth, (req, res) => {
+  res.sendFile(path.join(frontendDir, "admin", "admin.html"));
+});
+
+// Root public landing page
+app.get("/", (req, res) => {
+  res.sendFile(path.join(frontendDir, "index.html"));
+});
+
 // Static assets — long-lived cache for images/uploads, short for HTML
 app.use("/uploads", express.static(uploadsDir, { maxAge: "7d", etag: true }));
 app.use("/images", express.static(imagesDir, { maxAge: "7d", etag: true }));
@@ -208,23 +261,6 @@ app.get("/js/:filename", (req, res, next) => {
 // API Endpoints
 app.use("/api", publicRoutes);
 app.use("/api/admin", adminRoutes);
-
-// Admin Web Pages
-app.get("/admin/login", (req, res) => {
-  if (req.session && req.session.adminId) {
-    return res.redirect("/admin");
-  }
-  res.sendFile(path.join(frontendDir, "admin", "login.html"));
-});
-
-app.get("/admin", requireAuth, (req, res) => {
-  res.sendFile(path.join(frontendDir, "admin", "admin.html"));
-});
-
-// Root public landing page
-app.get("/", (req, res) => {
-  res.sendFile(path.join(frontendDir, "index.html"));
-});
 
 // Fallback 404
 app.use((req, res) => {

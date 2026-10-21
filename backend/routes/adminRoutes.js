@@ -366,8 +366,8 @@ router.put(
   }
 );
 
-// PATCH /api/admin/products/:id/toggle-status - Visibility toggle
-router.patch("/products/:id/toggle-status", requireAuth, async (req, res) => {
+// PATCH /api/admin/products/:id/toggle-status (or /status) - Visibility toggle
+router.patch(["/products/:id/toggle-status", "/products/:id/status"], requireAuth, async (req, res) => {
   try {
     const updated = await toggleProductStatus(req.params.id);
     if (!updated) {

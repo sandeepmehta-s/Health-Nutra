@@ -1046,9 +1046,9 @@ function AdminPage() {
                 </div>
 
                 <div className="p-6 rounded-3xl bg-white border border-slate-200/80 shadow-xs space-y-2">
-                  <div className="text-[10px] font-black uppercase tracking-wider text-slate-400">Render Primary URL</div>
-                  <div className="text-sm font-black text-slate-900 truncate">health-nutra.onrender.com</div>
-                  <div className="text-xs text-slate-500">Live Production</div>
+                  <div className="text-[10px] font-black uppercase tracking-wider text-slate-400">Primary Domain</div>
+                  <div className="text-sm font-black text-slate-900 truncate">healthnutra.co.in</div>
+                  <div className="text-xs text-slate-500">Live Production (Render)</div>
                 </div>
               </div>
 

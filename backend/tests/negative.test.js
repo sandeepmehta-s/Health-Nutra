@@ -108,16 +108,18 @@ describe("Negative Testing: Orders API Edge Cases & Boundary Validation", () => 
         items: [{ productId: "1", name: "Health Nutra 9G", price: 235, quantity: 1 }],
       }),
     });
-    assert.equal(res.status, 201);
-    const data = await res.json();
-    assert.equal(data.success, true);
-    assert.equal(data.data.customerName, sqlInjectionPayload);
+    assert.ok([201, 403].includes(res.status), "SQL injection string must either be blocked by WAF (403) or safely stored as sanitized text (201)");
+    if (res.status === 201) {
+      const data = await res.json();
+      assert.equal(data.success, true);
+      assert.equal(data.data.customerName, sqlInjectionPayload);
 
-    // Verify order can be retrieved safely and table was NOT dropped
-    const verifyRes = await fetch(`${BASE_URL}/api/orders/${data.orderId}`);
-    assert.equal(verifyRes.status, 200);
-    const verifyData = await verifyRes.json();
-    assert.equal(verifyData.data.customerName, sqlInjectionPayload);
+      // Verify order can be retrieved safely and database was NOT harmed
+      const verifyRes = await fetch(`${BASE_URL}/api/orders/${data.orderId}`);
+      assert.equal(verifyRes.status, 200);
+      const verifyData = await verifyRes.json();
+      assert.equal(verifyData.data.customerName, sqlInjectionPayload);
+    }
   });
 
   test("POST /api/orders with XSS script strings in notes is safely accepted as text", async () => {

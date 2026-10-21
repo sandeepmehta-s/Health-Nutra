@@ -258,8 +258,8 @@ router.post("/orders", orderRateLimiter, async (req, res) => {
   }
 });
 
-// GET /api/orders/:id - Track order status with strict customer privacy protection
-router.get("/orders/:id", trackingRateLimiter, async (req, res) => {
+// GET /api/orders/:id (or /api/orders/track/:id) - Track order status with strict customer privacy protection
+router.get(["/orders/:id", "/orders/track/:id"], trackingRateLimiter, async (req, res) => {
   try {
     const rawId = (req.params.id || "").trim();
     if (!rawId) {
@@ -309,8 +309,8 @@ router.get("/orders/:id", trackingRateLimiter, async (req, res) => {
   }
 });
 
-// POST /api/contact - Customer Contact Inquiry Form with Input Validation
-router.post("/contact", contactRateLimiter, async (req, res) => {
+// POST /api/contact (or /api/enquiries) - Customer Contact Inquiry Form with Input Validation
+router.post(["/contact", "/enquiries"], contactRateLimiter, async (req, res) => {
   try {
     const { name, email, phone, subject, message } = req.body;
     if (!name || typeof name !== "string" || !name.trim()) {
