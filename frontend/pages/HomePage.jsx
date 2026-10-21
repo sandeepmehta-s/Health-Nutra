@@ -473,7 +473,7 @@ function HomePage() {
 
       {/* Interactive Contact Us Section */}
       <section id="contact" className="py-16 sm:py-20 bg-white border-b border-slate-200 scroll-mt-20">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <ContactForm />
         </div>
       </section>

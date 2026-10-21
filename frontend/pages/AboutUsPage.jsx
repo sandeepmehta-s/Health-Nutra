@@ -254,7 +254,7 @@ function AboutUsPage() {
         {/* INTERACTIVE ENQUIRY FORM */}
         {/* ========================================================= */}
         <section id="contact" className="pt-8 border-t border-slate-200 scroll-mt-20">
-          <div className="max-w-4xl mx-auto">
+          <div className="max-w-7xl mx-auto">
             <ContactForm />
           </div>
         </section>
