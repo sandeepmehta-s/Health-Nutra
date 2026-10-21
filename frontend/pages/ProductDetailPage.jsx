@@ -324,54 +324,61 @@ function ProductDetailPage() {
       />
 
       {/* Real E-Commerce Breadcrumb */}
-      <div className="bg-white border-b border-slate-200/80 py-3 px-4 sm:px-6 lg:px-8 shadow-2xs">
-        <div className="max-w-7xl mx-auto flex items-center flex-wrap gap-2 text-xs font-semibold text-slate-500">
-          <a href="/" className="hover:text-[#166534] transition-colors">Home</a>
-          <span>/</span>
-          <a href="/products" className="hover:text-[#166534] transition-colors">Products</a>
-          <span>/</span>
-          <a
-            href={`/products?category=${encodeURIComponent(product.category)}`}
-            className="hover:text-[#166534] transition-colors"
-          >
-            {product.category}
+      <div className="bg-white border-b border-slate-200/80 py-2.5 px-3 sm:px-6 lg:px-8 shadow-2xs">
+        <div className="max-w-7xl mx-auto flex items-center justify-between text-xs font-semibold text-slate-500">
+          <div className="flex items-center flex-wrap gap-1.5 sm:gap-2">
+            <a href="/" className="hover:text-[#166534] transition-colors">Home</a>
+            <span>/</span>
+            <a href="/products" className="hover:text-[#166534] transition-colors">Products</a>
+            <span>/</span>
+            <a
+              href={`/products?category=${encodeURIComponent(product.category)}`}
+              className="hover:text-[#166534] transition-colors"
+            >
+              {product.category}
+            </a>
+            <span className="hidden sm:inline">/</span>
+            <span className="text-slate-900 font-bold truncate max-w-xs sm:max-w-md hidden sm:inline">
+              {product.shortName}
+            </span>
+          </div>
+
+          <a href="/products" className="sm:hidden text-xs font-bold text-[#166534] flex items-center gap-1">
+            <span>All Products</span>
+            <span>➔</span>
           </a>
-          <span>/</span>
-          <span className="text-slate-900 font-bold truncate max-w-xs sm:max-w-md">
-            {product.shortName}
-          </span>
         </div>
       </div>
 
-      <main className="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-12">
+      <main className="flex-grow max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-12 space-y-8 sm:space-y-12 pb-28 lg:pb-12">
         
         {/* ========================================================= */}
         {/* TOP SECTION: 2-COLUMN REAL E-COMMERCE PRODUCT LAYOUT */}
         {/* ========================================================= */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-12 items-start">
           
           {/* ------------------------------------------------------- */}
           {/* LEFT COLUMN: Large Showcase Image Gallery & Trust Perks */}
           {/* ------------------------------------------------------- */}
-          <div className="lg:col-span-6 space-y-5">
+          <div className="lg:col-span-6 space-y-4 sm:space-y-5">
             
             {/* Primary Main Image Showcase Card */}
-            <div className="relative bg-white rounded-3xl border border-slate-200 p-8 sm:p-12 shadow-md flex items-center justify-center overflow-hidden min-h-[380px] sm:min-h-[460px] group">
+            <div className="relative bg-white rounded-2xl sm:rounded-3xl border border-slate-200 p-4 sm:p-12 shadow-sm flex items-center justify-center overflow-hidden min-h-[250px] sm:min-h-[460px] group">
               
               {/* Category & Certification Badge (Top Left) */}
-              <div className="absolute top-5 left-5 flex flex-col gap-1.5 z-10">
-                <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-black bg-emerald-50 text-[#166534] border border-emerald-200 shadow-2xs">
-                  <Icon name="leaf" className="w-3.5 h-3.5" />
+              <div className="absolute top-3 left-3 sm:top-5 sm:left-5 flex flex-col gap-1 z-10">
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full text-[10px] sm:text-xs font-black bg-emerald-50 text-[#166534] border border-emerald-200 shadow-2xs">
+                  <Icon name="leaf" className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                   <span>{product.category}</span>
                 </span>
-                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-200 shadow-2xs">
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-200 shadow-2xs">
                   ★ WHO-GMP Certified
                 </span>
               </div>
 
               {/* Discount Percentage Badge (Top Right) */}
-              <div className="absolute top-5 right-5 z-10">
-                <span className="px-3 py-1.5 rounded-xl text-xs font-black bg-[#F97316] text-white shadow-sm">
+              <div className="absolute top-3 right-3 sm:top-5 sm:right-5 z-10">
+                <span className="px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg sm:rounded-xl text-[11px] sm:text-xs font-black bg-[#F97316] text-white shadow-sm">
                   {currentPack.discount || "29% OFF"}
                 </span>
               </div>
@@ -380,7 +387,7 @@ function ProductDetailPage() {
               <img
                 src={product.image}
                 alt={product.name}
-                className="max-h-80 sm:max-h-96 w-auto object-contain transform group-hover:scale-105 transition-transform duration-500"
+                className="max-h-56 sm:max-h-96 w-auto object-contain transform group-hover:scale-105 transition-transform duration-500 py-2"
                 onError={(e) => {
                   e.target.onerror = null;
                   e.target.src = "/images/10q.png";
@@ -388,37 +395,37 @@ function ProductDetailPage() {
               />
 
               {/* Bottom Subtle Watermark */}
-              <div className="absolute bottom-4 inset-x-0 text-center pointer-events-none">
-                <span className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">
+              <div className="absolute bottom-2.5 inset-x-0 text-center pointer-events-none">
+                <span className="text-[9px] sm:text-[11px] font-bold text-slate-400 uppercase tracking-widest">
                   100% Genuine Health Nutra Formulation
                 </span>
               </div>
             </div>
 
-            {/* Trust & Dispatch Assurance Strip */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              <div className="bg-white rounded-2xl border border-slate-200/90 p-3.5 text-center flex flex-col items-center space-y-1 shadow-2xs">
-                <Icon name="shield-check" className="w-5 h-5 text-[#166534]" />
-                <span className="text-xs font-black text-slate-800">100% Authentic</span>
-                <span className="text-[10px] text-slate-500 font-medium">Direct Supply</span>
+            {/* Trust & Dispatch Assurance Strip: Compact 4-col mini bar */}
+            <div className="grid grid-cols-4 gap-1.5 sm:gap-3">
+              <div className="bg-white rounded-xl sm:rounded-2xl border border-slate-200/90 p-2 sm:p-3.5 text-center flex flex-col items-center space-y-0.5 sm:space-y-1 shadow-2xs">
+                <Icon name="shield-check" className="w-4 h-4 sm:w-5 sm:h-5 text-[#166534]" />
+                <span className="text-[10px] sm:text-xs font-black text-slate-800 truncate">100% Genuine</span>
+                <span className="text-[8px] sm:text-[10px] text-slate-500 font-medium truncate hidden sm:block">Direct Supply</span>
               </div>
 
-              <div className="bg-white rounded-2xl border border-slate-200/90 p-3.5 text-center flex flex-col items-center space-y-1 shadow-2xs">
-                <Icon name="truck" className="w-5 h-5 text-[#F97316]" />
-                <span className="text-xs font-black text-slate-800">Free Delivery</span>
-                <span className="text-[10px] text-slate-500 font-medium">Orders ₹499+</span>
+              <div className="bg-white rounded-xl sm:rounded-2xl border border-slate-200/90 p-2 sm:p-3.5 text-center flex flex-col items-center space-y-0.5 sm:space-y-1 shadow-2xs">
+                <Icon name="truck" className="w-4 h-4 sm:w-5 sm:h-5 text-[#F97316]" />
+                <span className="text-[10px] sm:text-xs font-black text-slate-800 truncate">Free Delivery</span>
+                <span className="text-[8px] sm:text-[10px] text-slate-500 font-medium truncate hidden sm:block">Orders ₹499+</span>
               </div>
 
-              <div className="bg-white rounded-2xl border border-slate-200/90 p-3.5 text-center flex flex-col items-center space-y-1 shadow-2xs">
-                <Icon name="banknote" className="w-5 h-5 text-[#166534]" />
-                <span className="text-xs font-black text-slate-800">Pay on Delivery</span>
-                <span className="text-[10px] text-slate-500 font-medium">Cash on Delivery</span>
+              <div className="bg-white rounded-xl sm:rounded-2xl border border-slate-200/90 p-2 sm:p-3.5 text-center flex flex-col items-center space-y-0.5 sm:space-y-1 shadow-2xs">
+                <Icon name="banknote" className="w-4 h-4 sm:w-5 sm:h-5 text-[#166534]" />
+                <span className="text-[10px] sm:text-xs font-black text-slate-800 truncate">COD Available</span>
+                <span className="text-[8px] sm:text-[10px] text-slate-500 font-medium truncate hidden sm:block">Pay at Doorstep</span>
               </div>
 
-              <div className="bg-white rounded-2xl border border-slate-200/90 p-3.5 text-center flex flex-col items-center space-y-1 shadow-2xs">
-                <Icon name="refresh-cw" className="w-5 h-5 text-blue-600" />
-                <span className="text-xs font-black text-slate-800">Safe Transit</span>
-                <span className="text-[10px] text-slate-500 font-medium">Damage Cover</span>
+              <div className="bg-white rounded-xl sm:rounded-2xl border border-slate-200/90 p-2 sm:p-3.5 text-center flex flex-col items-center space-y-0.5 sm:space-y-1 shadow-2xs">
+                <Icon name="refresh-cw" className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
+                <span className="text-[10px] sm:text-xs font-black text-slate-800 truncate">Safe Transit</span>
+                <span className="text-[8px] sm:text-[10px] text-slate-500 font-medium truncate hidden sm:block">Damage Cover</span>
               </div>
             </div>
 
@@ -427,69 +434,69 @@ function ProductDetailPage() {
           {/* ------------------------------------------------------- */}
           {/* RIGHT COLUMN: E-Commerce Buy Box, Pack Selector, Pricing */}
           {/* ------------------------------------------------------- */}
-          <div className="lg:col-span-6 space-y-6">
+          <div className="lg:col-span-6 space-y-5 sm:space-y-6">
             
             {/* Title, Brand, Rating & Reference */}
-            <div className="space-y-2">
-              <div className="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-wider">
-                <span>HEALTH NUTRA™ CLINICAL NUTRACEUTICAL</span>
+            <div className="space-y-1.5 sm:space-y-2">
+              <div className="flex items-center gap-1.5 text-[10px] sm:text-xs font-bold text-slate-400 uppercase tracking-wider">
+                <span>HEALTH NUTRA™ CLINICAL</span>
                 <span>•</span>
                 <span className="font-mono text-slate-500">{product.refId}</span>
               </div>
 
-              <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight leading-tight">
+              <h1 className="text-xl sm:text-3xl font-black text-slate-900 tracking-tight leading-snug">
                 {product.name}
               </h1>
 
               {/* Rating Strip */}
-              <div className="flex items-center flex-wrap gap-3 pt-1">
-                <div className="flex items-center gap-1.5 bg-emerald-700 text-white px-2.5 py-0.5 rounded-lg text-xs font-black shadow-2xs">
+              <div className="flex items-center flex-wrap gap-2 pt-0.5">
+                <div className="flex items-center gap-1 bg-emerald-700 text-white px-2 py-0.5 rounded-md text-[11px] sm:text-xs font-black shadow-2xs">
                   <span>★ {product.rating}</span>
                 </div>
                 <span className="text-xs font-bold text-slate-700 underline cursor-pointer hover:text-[#166534]">
-                  {product.reviewCount} Verified Customer Ratings
+                  {product.reviewCount} Ratings
                 </span>
                 <span className="text-slate-300">•</span>
                 <span className="text-xs font-bold text-[#F97316]">
-                  🔥 {product.monthlyDelivered} Delivered This Month
+                  🔥 {product.monthlyDelivered} Delivered
                 </span>
               </div>
             </div>
 
             {/* Special Price & MRP Strikethrough Box */}
-            <div className="bg-emerald-50/60 rounded-2xl border border-emerald-200/80 p-4 sm:p-5 flex items-baseline justify-between flex-wrap gap-3">
+            <div className="bg-emerald-50/70 rounded-2xl border border-emerald-200/80 p-3.5 sm:p-5 flex items-baseline justify-between flex-wrap gap-3">
               <div>
-                <div className="flex items-baseline gap-3">
-                  <span className="text-3xl sm:text-4xl font-black text-[#166534]">
+                <div className="flex items-baseline gap-2.5 sm:gap-3">
+                  <span className="text-2xl sm:text-4xl font-black text-[#166534]">
                     ₹{activePrice}
                   </span>
-                  <span className="text-base sm:text-lg text-slate-400 line-through font-semibold">
+                  <span className="text-sm sm:text-lg text-slate-400 line-through font-semibold">
                     ₹{currentPack.mrp}
                   </span>
-                  <span className="text-xs sm:text-sm font-black text-orange-600 bg-orange-100 px-2.5 py-1 rounded-lg">
+                  <span className="text-xs sm:text-sm font-black text-orange-600 bg-orange-100 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-lg">
                     {currentPack.discount}
                   </span>
                 </div>
-                <p className="text-xs text-slate-500 font-medium mt-1">
+                <p className="text-[11px] sm:text-xs text-slate-500 font-medium mt-1">
                   Inclusive of all taxes • No hidden charges • COD available
                 </p>
               </div>
 
-              <div className="flex items-center gap-1.5 text-xs font-bold text-emerald-800 bg-emerald-100/80 px-3 py-1.5 rounded-xl border border-emerald-300">
+              <div className="flex items-center gap-1.5 text-xs font-bold text-emerald-800 bg-emerald-100/80 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-xl border border-emerald-300">
                 <span className="w-2 h-2 rounded-full bg-emerald-600 animate-pulse"></span>
                 <span>{product.stockStatus}</span>
               </div>
             </div>
 
             {/* Clinical Highlights Bullet Points */}
-            <div className="space-y-2">
-              <div className="text-xs font-black uppercase tracking-wider text-slate-600">
+            <div className="space-y-1.5 sm:space-y-2">
+              <div className="text-[11px] sm:text-xs font-black uppercase tracking-wider text-slate-600">
                 Key Formulation Highlights
               </div>
-              <ul className="space-y-1.5 text-xs sm:text-sm text-slate-700 font-medium">
+              <ul className="space-y-1 sm:space-y-1.5 text-xs sm:text-sm text-slate-700 font-medium">
                 {product.highlights.map((h, i) => (
-                  <li key={i} className="flex items-start gap-2.5">
-                    <svg className="w-4 h-4 text-emerald-700 shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                  <li key={i} className="flex items-start gap-2">
+                    <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-700 shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                     </svg>
                     <span>{h}</span>
@@ -498,14 +505,14 @@ function ProductDetailPage() {
               </ul>
             </div>
 
-            {/* Pack Size / Variant Selector (Amazon / 1mg style) */}
-            <div className="space-y-2.5 pt-1">
+            {/* Pack Size / Variant Selector (3 Horizontal Sleek Cards) */}
+            <div className="space-y-2 pt-1">
               <div className="flex items-center justify-between text-xs font-black uppercase tracking-wider text-slate-700">
                 <span>Select Pack Size</span>
-                <span className="text-emerald-700 font-bold">Pack Discounts Applied</span>
+                <span className="text-emerald-700 font-bold text-[11px]">Best Savings</span>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div className="grid grid-cols-3 gap-2 sm:gap-3">
                 {product.packOptions.map((pack, idx) => {
                   const isSelected = selectedPackIdx === idx;
                   return (
@@ -513,25 +520,28 @@ function ProductDetailPage() {
                       key={idx}
                       type="button"
                       onClick={() => setSelectedPackIdx(idx)}
-                      className={`relative p-3.5 rounded-2xl border text-left transition-all ${
+                      className={`relative p-2.5 sm:p-3.5 rounded-xl sm:rounded-2xl border text-center sm:text-left transition-all cursor-pointer ${
                         isSelected
-                          ? "border-[#166534] bg-emerald-50/70 ring-2 ring-[#166534]/20 shadow-sm"
+                          ? "border-[#166534] bg-emerald-50/80 ring-2 ring-[#166534]/20 shadow-xs"
                           : "border-slate-200 bg-white hover:border-slate-300"
                       }`}
                     >
                       {pack.bestValue && (
-                        <span className="absolute -top-2.5 right-3 px-2 py-0.5 rounded-full text-[9px] font-black bg-[#F97316] text-white uppercase shadow-2xs">
+                        <span className="absolute -top-2 left-1/2 -translate-x-1/2 sm:translate-x-0 sm:left-auto sm:right-2 px-1.5 sm:px-2 py-0.2 rounded-full text-[8px] font-black bg-[#F97316] text-white uppercase shadow-2xs whitespace-nowrap">
                           Best Value
                         </span>
                       )}
-                      <div className="text-xs font-black text-slate-900 leading-tight">
+                      <div className="text-[11px] sm:text-xs font-black text-slate-900 leading-tight">
+                        {pack.count === 1 ? "1 Pack" : `Pack of ${pack.count}`}
+                      </div>
+                      <div className="text-[9px] text-slate-400 truncate hidden sm:block">
                         {pack.label}
                       </div>
-                      <div className="mt-1 flex items-baseline gap-1.5">
-                        <span className="text-base font-black text-[#166534]">₹{pack.price}</span>
-                        <span className="text-[11px] text-slate-400 line-through">₹{pack.mrp}</span>
+                      <div className="mt-1 flex items-baseline justify-center sm:justify-start gap-1">
+                        <span className="text-xs sm:text-base font-black text-[#166534]">₹{pack.price}</span>
+                        <span className="text-[9px] sm:text-[11px] text-slate-400 line-through">₹{pack.mrp}</span>
                       </div>
-                      <div className="text-[10px] font-bold text-orange-600 mt-0.5">
+                      <div className="text-[9px] sm:text-[10px] font-bold text-orange-600 mt-0.5">
                         {pack.discount}
                       </div>
                     </button>
@@ -541,49 +551,51 @@ function ProductDetailPage() {
             </div>
 
             {/* Quantity Selector + Total Subtotal */}
-            <div className="flex items-center justify-between p-4 rounded-2xl bg-white border border-slate-200">
+            <div className="flex items-center justify-between p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-white border border-slate-200">
               <div className="space-y-0.5">
                 <div className="text-xs font-black uppercase tracking-wider text-slate-600">Quantity</div>
-                <div className="text-xs text-slate-500 font-medium">Selected: {currentPack.label}</div>
+                <div className="text-[11px] text-slate-500 font-medium truncate max-w-[150px] sm:max-w-none">
+                  {currentPack.label}
+                </div>
               </div>
 
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2.5 sm:gap-3">
                 <div className="inline-flex items-center rounded-xl border border-slate-200 bg-slate-50 p-1">
                   <button
                     type="button"
                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
                     disabled={quantity <= 1}
-                    className="w-8 h-8 rounded-lg bg-white border border-slate-200 text-slate-700 hover:bg-slate-100 flex items-center justify-center font-bold disabled:opacity-40 transition-colors shadow-2xs"
+                    className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-white border border-slate-200 text-slate-700 hover:bg-slate-100 flex items-center justify-center font-bold disabled:opacity-40 transition-colors shadow-2xs text-xs sm:text-sm"
                   >
                     -
                   </button>
-                  <span className="w-10 text-center font-black text-sm text-slate-800">
+                  <span className="w-8 sm:w-10 text-center font-black text-xs sm:text-sm text-slate-800">
                     {quantity}
                   </span>
                   <button
                     type="button"
                     onClick={() => setQuantity(Math.min(20, quantity + 1))}
-                    className="w-8 h-8 rounded-lg bg-white border border-slate-200 text-slate-700 hover:bg-slate-100 flex items-center justify-center font-bold transition-colors shadow-2xs"
+                    className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-white border border-slate-200 text-slate-700 hover:bg-slate-100 flex items-center justify-center font-bold transition-colors shadow-2xs text-xs sm:text-sm"
                   >
                     +
                   </button>
                 </div>
 
                 <div className="text-right">
-                  <div className="text-[11px] text-slate-400 font-semibold uppercase">Total</div>
-                  <div className="text-xl font-black text-[#166534]">₹{totalPrice}</div>
+                  <div className="text-[10px] text-slate-400 font-semibold uppercase">Total</div>
+                  <div className="text-base sm:text-xl font-black text-[#166534]">₹{totalPrice}</div>
                 </div>
               </div>
             </div>
 
             {/* Pincode & Delivery Availability Checker */}
-            <div className="bg-slate-50 rounded-2xl border border-slate-200 p-4 space-y-2">
+            <div className="bg-slate-50 rounded-xl sm:rounded-2xl border border-slate-200 p-3 sm:p-4 space-y-2">
               <div className="flex items-center justify-between text-xs font-bold text-slate-700">
                 <span className="flex items-center gap-1.5">
                   <Icon name="map-pin" className="w-3.5 h-3.5 text-[#166534]" />
-                  <span>Check Delivery & COD to Pincode</span>
+                  <span>Check Delivery & COD</span>
                 </span>
-                <span className="text-[11px] text-slate-500">Hub: Indore 452010</span>
+                <span className="text-[10px] text-slate-400">Hub: Indore 452010</span>
               </div>
 
               <form onSubmit={handleCheckPincode} className="flex gap-2">
@@ -591,22 +603,22 @@ function ProductDetailPage() {
                   type="text"
                   maxLength={6}
                   value={pincode}
-                  onChange={(e) => setPincode(e.target.value)}
-                  placeholder="Enter 6-digit Pincode (e.g. 452010)"
-                  className="flex-1 px-3.5 py-2 rounded-xl text-xs font-semibold bg-white border border-slate-200 focus:border-[#166534] focus:outline-none"
+                  onChange={(e) => setPincode(e.target.value.replace(/\D/g, ""))}
+                  placeholder="Enter 6-digit Pincode"
+                  className="flex-1 px-3 py-2 rounded-xl text-xs font-semibold bg-white border border-slate-200 focus:border-[#166534] focus:outline-none"
                 />
                 <button
                   type="submit"
                   disabled={checkingPincode}
-                  className="px-4 py-2 rounded-xl text-xs font-bold text-white bg-slate-900 hover:bg-black transition-colors shrink-0"
+                  className="px-4 py-2 rounded-xl text-xs font-bold text-white bg-slate-900 hover:bg-black transition-colors shrink-0 cursor-pointer"
                 >
-                  {checkingPincode ? "Checking..." : "Check"}
+                  {checkingPincode ? "..." : "Check"}
                 </button>
               </form>
 
               {pincodeStatus && (
                 <div
-                  className={`p-2.5 rounded-xl text-xs font-bold flex items-center gap-2 ${
+                  className={`p-2 rounded-xl text-xs font-bold flex items-center gap-2 ${
                     pincodeStatus.valid
                       ? "bg-emerald-100/70 text-emerald-900 border border-emerald-300"
                       : "bg-red-50 text-red-700 border border-red-200"
@@ -621,29 +633,27 @@ function ProductDetailPage() {
               )}
             </div>
 
-            {/* Primary Action Buttons (Real E-Com Buy Box) */}
-            <div className="space-y-3 pt-2">
-              {/* Buy Now Button (Triggers Cash on Delivery Modal) */}
+            {/* Primary Action Buttons (Desktop Buy Box) */}
+            <div className="space-y-2.5 pt-1">
               <button
                 type="button"
                 onClick={handleOpenCheckout}
-                className="w-full py-4 px-6 rounded-2xl text-base font-black text-white bg-[#166534] hover:bg-[#14532d] shadow-lg shadow-emerald-900/20 transition-all flex items-center justify-center gap-3 transform hover:-translate-y-0.5 active:scale-98 cursor-pointer"
+                className="w-full py-3.5 sm:py-4 px-5 rounded-2xl text-sm sm:text-base font-black text-white bg-[#166534] hover:bg-[#14532d] shadow-lg shadow-emerald-900/20 transition-all flex items-center justify-center gap-2.5 cursor-pointer transform hover:-translate-y-0.5 active:scale-98"
               >
-                <Icon name="shopping-bag" className="w-5 h-5" />
+                <Icon name="shopping-bag" className="w-4 h-4 sm:w-5 sm:h-5" />
                 <span>Buy Now • Cash on Delivery (COD)</span>
-                <span className="ml-auto text-sm bg-white/20 px-3 py-1 rounded-lg">
+                <span className="ml-auto text-xs sm:text-sm bg-white/20 px-2.5 py-1 rounded-lg">
                   ₹{totalPrice}
                 </span>
               </button>
 
-              {/* Wholesale / Clinic Bulk Inquiry via WhatsApp */}
               <a
                 href={`https://wa.me/918809672959?text=${encodeURIComponent(
                   `Hello Health Nutra, I am interested in bulk / clinical supply of ${product.name}.`
                 )}`}
                 target="_blank"
                 rel="noreferrer"
-                className="w-full py-3 px-5 rounded-2xl text-xs sm:text-sm font-bold text-slate-800 bg-white hover:bg-slate-50 border border-slate-300 transition-all flex items-center justify-center gap-2 shadow-2xs hover:border-[#166534]"
+                className="w-full py-2.5 sm:py-3 px-4 rounded-xl sm:rounded-2xl text-xs sm:text-sm font-bold text-slate-700 bg-white hover:bg-slate-50 border border-slate-300 transition-all flex items-center justify-center gap-2 shadow-2xs hover:border-[#166534]"
               >
                 <Icon name="message-circle" className="w-4 h-4 text-emerald-600" />
                 <span>Enquire Bulk Supply / Dealership on WhatsApp</span>
@@ -977,6 +987,31 @@ function ProductDetailPage() {
         </section>
 
       </main>
+
+      {/* Mobile Floating Sticky Buy Bar (Visible on phones only) */}
+      <div className="fixed bottom-0 inset-x-0 bg-white/95 backdrop-blur-md border-t border-slate-200/90 p-3 z-40 lg:hidden shadow-[0_-8px_25px_rgba(0,0,0,0.1)] flex items-center justify-between gap-3">
+        <div className="pl-1">
+          <div className="flex items-baseline gap-1.5 leading-none">
+            <span className="text-xl font-black text-[#166534]">₹{totalPrice}</span>
+            <span className="text-xs text-slate-400 line-through font-semibold">
+              ₹{currentPack.mrp * quantity}
+            </span>
+          </div>
+          <div className="text-[10px] font-bold text-emerald-700 flex items-center gap-1 mt-1">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span>Free Delivery • COD</span>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          onClick={handleOpenCheckout}
+          className="flex-grow max-w-[210px] py-3 px-4 rounded-xl text-xs sm:text-sm font-black text-white bg-[#166534] hover:bg-[#14532d] shadow-md shadow-emerald-900/20 flex items-center justify-center gap-1.5 active:scale-95 transition-transform cursor-pointer"
+        >
+          <Icon name="shopping-bag" className="w-4 h-4" />
+          <span>Buy Now (COD)</span>
+        </button>
+      </div>
 
       {/* Footer */}
       <Footer />

@@ -34,11 +34,11 @@ function Navbar({ onOpenSearch, onOpenTrackOrder, orderCount = 0, initialSearchQ
   return (
     <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 transition-all shadow-xs">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-20 gap-3 lg:gap-6">
+        <div className="flex items-center justify-between h-16 sm:h-20 gap-2 sm:gap-6">
           
           {/* Brand Logo (Circular Emblem + Clean Bold Wordmark) */}
-          <a href="/" className="flex items-center gap-3 group shrink-0">
-            <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-full border border-amber-400/80 shadow-xs flex items-center justify-center overflow-hidden bg-white group-hover:scale-105 transition-transform">
+          <a href="/" className="flex items-center gap-2.5 sm:gap-3 group shrink-0">
+            <div className="w-9 h-9 sm:w-12 sm:h-12 rounded-full border border-amber-400/80 shadow-xs flex items-center justify-center overflow-hidden bg-white group-hover:scale-105 transition-transform">
               <img
                 src={(typeof window !== "undefined" && window?.apiHelper?.config?.brand?.logoUrl) || "https://res.cloudinary.com/usqwgkl7/image/upload/v1792576055/logo.jpg"}
                 alt="Health Nutra"
@@ -48,9 +48,9 @@ function Navbar({ onOpenSearch, onOpenTrackOrder, orderCount = 0, initialSearchQ
                   if (e.target.nextElementSibling) e.target.nextElementSibling.style.display = "block";
                 }}
               />
-              <Icon name="leaf" className="w-6 h-6 text-emerald-700 hidden" />
+              <Icon name="leaf" className="w-5 h-5 text-emerald-700 hidden" />
             </div>
-            <div className="text-xl sm:text-2xl font-black tracking-tight leading-none">
+            <div className="text-lg sm:text-2xl font-black tracking-tight leading-none">
               <span className="text-[#166534]">HEALTH</span>{" "}
               <span className="text-[#F97316]">NUTRA</span>
             </div>
@@ -144,10 +144,17 @@ function Navbar({ onOpenSearch, onOpenTrackOrder, orderCount = 0, initialSearchQ
           </div>
 
           {/* Mobile Actions & Hamburger */}
-          <div className="flex sm:hidden items-center gap-2">
+          <div className="flex sm:hidden items-center gap-1.5">
             <a
               href="#contact"
-              className="px-3 py-1.5 rounded-lg text-xs font-bold text-white bg-[#F97316] flex items-center gap-1 shadow-xs"
+              onClick={(e) => {
+                const el = document.getElementById("contact");
+                if (el) {
+                  e.preventDefault();
+                  el.scrollIntoView({ behavior: "smooth" });
+                }
+              }}
+              className="px-2.5 py-1.5 rounded-lg text-xs font-bold text-white bg-[#F97316] flex items-center gap-1 shadow-xs"
             >
               <span>Enquiry</span>
             </a>
@@ -155,10 +162,10 @@ function Navbar({ onOpenSearch, onOpenTrackOrder, orderCount = 0, initialSearchQ
             <button
               type="button"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 focus:outline-none"
+              className="p-1.5 rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 focus:outline-none"
               aria-label="Toggle Navigation"
             >
-              <Icon name={mobileMenuOpen ? "x" : "menu"} className="w-6 h-6" />
+              <Icon name={mobileMenuOpen ? "x" : "menu"} className="w-5 h-5" />
             </button>
           </div>
         </div>
