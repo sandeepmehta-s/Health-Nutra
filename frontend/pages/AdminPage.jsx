@@ -244,8 +244,9 @@ function AdminPage() {
     try {
       const res = await window.apiHelper.toggleProductStatus(id);
       if (res && res.success) {
+        const newStatus = res.status || res.product?.status || res.data?.status || "active";
         setProducts((prev) =>
-          prev.map((p) => (p.id === id ? { ...p, status: res.product.status } : p))
+          prev.map((p) => (p.id === id ? { ...p, status: newStatus } : p))
         );
       }
     } catch (e) {
@@ -725,23 +726,25 @@ function AdminPage() {
 
                         {/* Status Dropdown */}
                         <select
-                          value={ord.status || "Pending"}
+                          value={(ord.status || ord.orderStatus || "pending").toLowerCase()}
                           onChange={(e) => handleUpdateOrderStatus(ord.id, e.target.value)}
                           className={`text-xs font-bold rounded-xl px-2.5 py-1.5 border focus:outline-none cursor-pointer ${
-                            ord.status === "Delivered"
+                            (ord.status || ord.orderStatus || "").toLowerCase() === "delivered"
                               ? "bg-emerald-50 text-emerald-800 border-emerald-200"
-                              : ord.status === "Cancelled"
+                              : (ord.status || ord.orderStatus || "").toLowerCase() === "cancelled"
                               ? "bg-red-50 text-red-800 border-red-200"
-                              : ord.status === "Shipped"
+                              : (ord.status || ord.orderStatus || "").toLowerCase() === "shipped"
                               ? "bg-blue-50 text-blue-800 border-blue-200"
-                              : "bg-orange-50 text-orange-800 border-orange-200"
+                              : (ord.status || ord.orderStatus || "").toLowerCase() === "processing"
+                              ? "bg-indigo-50 text-indigo-800 border-indigo-200"
+                              : "bg-amber-50 text-amber-800 border-amber-200"
                           }`}
                         >
-                          <option value="Pending">Pending</option>
-                          <option value="Confirmed">Confirmed</option>
-                          <option value="Shipped">Shipped</option>
-                          <option value="Delivered">Delivered</option>
-                          <option value="Cancelled">Cancelled</option>
+                          <option value="pending">Pending</option>
+                          <option value="processing">Processing</option>
+                          <option value="shipped">Shipped</option>
+                          <option value="delivered">Delivered</option>
+                          <option value="cancelled">Cancelled</option>
                         </select>
                       </div>
 

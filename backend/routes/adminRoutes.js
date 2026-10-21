@@ -469,7 +469,14 @@ router.get("/orders/:id", requireAuth, async (req, res) => {
 // PATCH / POST /api/admin/orders/:id/status - Update order status, payment status, notes
 const handleUpdateStatus = async (req, res) => {
   try {
-    const { orderStatus, paymentStatus, notes } = req.body;
+    const rawOrderStatus = req.body.orderStatus || req.body.status;
+    let orderStatus = rawOrderStatus ? String(rawOrderStatus).trim().toLowerCase() : undefined;
+    if (orderStatus === "confirmed") orderStatus = "processing"; // Normalise confirmed to processing
+
+    const rawPaymentStatus = req.body.paymentStatus || req.body.payment;
+    const paymentStatus = rawPaymentStatus ? String(rawPaymentStatus).trim().toLowerCase() : undefined;
+    const notes = req.body.notes;
+
     const validOrderStatuses = ["pending", "processing", "shipped", "delivered", "cancelled"];
     const validPaymentStatuses = ["pending", "paid", "cod", "failed", "refunded"];
 
@@ -501,6 +508,7 @@ const handleUpdateStatus = async (req, res) => {
       success: true,
       message: `Order #${updated.orderId} updated successfully.`,
       data: updated,
+      order: updated,
     });
   } catch (err) {
     res.status(500).json({ success: false, message: "Failed to update order: " + err.message });

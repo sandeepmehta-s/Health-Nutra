@@ -473,7 +473,7 @@ function renderProductsTable(products) {
           </button>
           <button 
             type="button" 
-            onclick="promptDeleteProduct('${id}', '${p.name.replace(/'/g, "\\'")}')" 
+            onclick="promptDeleteProduct('${id}')" 
             class="p-2 rounded-xl text-slate-500 hover:text-rose-600 hover:bg-rose-50 transition-colors"
             title="Delete Formulation"
           >
@@ -489,10 +489,11 @@ function renderProductsTable(products) {
 
 window.toggleStatus = async function(id) {
   try {
-    const res = await fetch(`/api/admin/products/${id}/toggle-status`, { method: 'PATCH' });
+    const res = await fetch(`/api/admin/products/${encodeURIComponent(id)}/toggle-status`, { method: 'PATCH' });
     const result = await res.json();
     if (res.ok && result.success) {
-      showToast(`Status updated to: ${result.data.status}`);
+      const statusText = result.status || result.data?.status || result.product?.status || 'updated';
+      showToast(`Status updated to: ${statusText}`);
       await loadProducts();
     } else {
       showToast(result.message || 'Status toggle failed.', 'error');
@@ -603,21 +604,27 @@ async function handleProductSubmit(e) {
   }
 }
 
-window.promptDeleteProduct = function(id, name) {
+window.promptDeleteProduct = function(id) {
+  const p = productsList.find((item) => (item.id || item._id) === id);
+  const name = p ? p.name : 'this formulation';
   productToDeleteId = id;
-  deleteProductName.textContent = `"${name}"`;
-  deleteModal.classList.remove('hidden');
+  if (deleteProductName) deleteProductName.textContent = `"${name}"`;
+  if (deleteModal) {
+    deleteModal.classList.remove('hidden');
+  } else if (confirm(`Are you sure you want to permanently delete "${name}"?`)) {
+    executeDeleteProduct();
+  }
 };
 
 function closeDeleteModal() {
   productToDeleteId = null;
-  deleteModal.classList.add('hidden');
+  if (deleteModal) deleteModal.classList.add('hidden');
 }
 
 async function executeDeleteProduct() {
   if (!productToDeleteId) return;
   try {
-    const res = await fetch(`/api/admin/products/${productToDeleteId}`, { method: 'DELETE' });
+    const res = await fetch(`/api/admin/products/${encodeURIComponent(productToDeleteId)}`, { method: 'DELETE' });
     const result = await res.json();
     if (res.ok && result.success) {
       showToast(result.message || 'Product removed successfully.');
@@ -766,16 +773,28 @@ function renderOrdersTable(orders) {
           </span>
         </td>
 
-        <!-- Order Status -->
+        <!-- Order Status Dropdown (Customer Enquiries Style) -->
         <td class="py-3.5 px-4 whitespace-nowrap">
-          <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold uppercase border ${
-            statusBadges[o.orderStatus] || 'bg-slate-100 text-slate-700 border-slate-200'
-          }">
-            <span class="w-1.5 h-1.5 rounded-full ${
-              o.orderStatus === 'delivered' ? 'bg-emerald-500' : o.orderStatus === 'shipped' ? 'bg-blue-500' : 'bg-amber-500'
-            }"></span>
-            ${o.orderStatus || 'pending'}
-          </span>
+          <select
+            onchange="updateOrderStatusDirect('${orderId}', this.value)"
+            class="text-xs font-bold rounded-xl px-2.5 py-1.5 border focus:outline-none cursor-pointer ${
+              o.orderStatus === 'delivered'
+                ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
+                : o.orderStatus === 'shipped'
+                ? 'bg-blue-50 text-blue-800 border-blue-200'
+                : o.orderStatus === 'processing'
+                ? 'bg-indigo-50 text-indigo-800 border-indigo-200'
+                : o.orderStatus === 'cancelled'
+                ? 'bg-rose-50 text-rose-800 border-rose-200'
+                : 'bg-amber-50 text-amber-800 border-amber-200'
+            }"
+          >
+            <option value="pending" ${o.orderStatus === 'pending' ? 'selected' : ''}>Pending</option>
+            <option value="processing" ${o.orderStatus === 'processing' ? 'selected' : ''}>Processing</option>
+            <option value="shipped" ${o.orderStatus === 'shipped' ? 'selected' : ''}>Shipped</option>
+            <option value="delivered" ${o.orderStatus === 'delivered' ? 'selected' : ''}>Delivered</option>
+            <option value="cancelled" ${o.orderStatus === 'cancelled' ? 'selected' : ''}>Cancelled</option>
+          </select>
         </td>
 
         <!-- Actions -->
@@ -783,7 +802,7 @@ function renderOrdersTable(orders) {
           <button 
             type="button" 
             onclick="downloadOrderInvoice('${orderId}')" 
-            class="px-2.5 py-1.5 rounded-xl text-xs font-bold text-slate-700 bg-slate-100 hover:bg-brand-50 hover:text-brand-800 transition-colors inline-flex items-center gap-1"
+            class="px-2.5 py-1.5 rounded-xl text-xs font-bold text-slate-700 bg-slate-100 hover:bg-brand-50 hover:text-brand-800 transition-colors inline-flex items-center gap-1 cursor-pointer"
             title="Download / Print PDF Invoice"
           >
             <i data-lucide="download" class="w-3.5 h-3.5 text-brand-700"></i>
@@ -792,7 +811,7 @@ function renderOrdersTable(orders) {
           <button 
             type="button" 
             onclick="viewOrderDetails('${orderId}')" 
-            class="px-3 py-1.5 rounded-xl text-xs font-bold text-brand-700 bg-brand-50 hover:bg-brand-100 transition-colors inline-flex items-center gap-1"
+            class="px-3 py-1.5 rounded-xl text-xs font-bold text-brand-700 bg-brand-50 hover:bg-brand-100 transition-colors inline-flex items-center gap-1 cursor-pointer"
           >
             <i data-lucide="eye" class="w-3.5 h-3.5"></i>
             <span>Details</span>
@@ -800,7 +819,7 @@ function renderOrdersTable(orders) {
           <button 
             type="button" 
             onclick="promptDeleteOrder('${orderId}')" 
-            class="p-1.5 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors"
+            class="p-1.5 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
             title="Delete Order Record"
           >
             <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
@@ -813,53 +832,236 @@ function renderOrdersTable(orders) {
   if (window.lucide) window.lucide.createIcons();
 }
 
+window.updateOrderStatusDirect = async function(orderId, newStatus) {
+  try {
+    const cleanId = encodeURIComponent(orderId);
+    const res = await fetch(`/api/admin/orders/${cleanId}/status`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ orderStatus: newStatus, status: newStatus }),
+    });
+    const result = await res.json();
+    if (res.ok && result.success) {
+      showToast(result.message || `Order #${orderId} updated to "${newStatus}"`);
+      await loadOrders();
+    } else {
+      showToast(result.message || 'Status update failed', 'error');
+    }
+  } catch {
+    showToast('Network error while updating order status', 'error');
+  }
+};
+
+function generateInvoiceHtml(order) {
+  const orderId = order.orderId || order.id || 'HN-ORD-PENDING';
+  const customerName = order.customerName || 'Valued Customer';
+  const customerPhone = order.customerPhone || 'Not provided';
+  const customerEmail = order.customerEmail || 'Not provided';
+  const shippingAddress = order.shippingAddress || 'Customer Delivery Address';
+  const paymentMethod = order.paymentMethod || 'Cash on Delivery (COD)';
+  const totalAmount = order.totalAmount || 0;
+  const createdAt = order.createdAt ? new Date(order.createdAt).toLocaleString('en-IN', { dateStyle: 'long', timeStyle: 'short' }) : new Date().toLocaleString('en-IN');
+  const items = Array.isArray(order.items) && order.items.length > 0 ? order.items : [
+    { name: order.productName || 'Health Nutra Formulation', quantity: order.quantity || 1, price: order.totalAmount || 0, unit: 'Unit' }
+  ];
+
+  return `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Health Nutra - Tax Invoice #${orderId}</title>
+  <style>
+    @page { size: A4; margin: 15mm; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; color: #1e293b; background: #fff; margin: 0; padding: 25px; font-size: 13px; line-height: 1.5; }
+    .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #166534; padding-bottom: 15px; margin-bottom: 20px; }
+    .logo-box { display: flex; align-items: center; gap: 12px; }
+    .logo-img { width: 56px; height: 56px; object-fit: contain; border-radius: 8px; border: 1px solid #e2e8f0; }
+    .brand-title { font-size: 20px; font-weight: 900; color: #166534; margin: 0; }
+    .brand-sub { font-size: 10px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; color: #64748b; margin: 2px 0 0 0; }
+    .invoice-badge { text-align: right; }
+    .invoice-title { font-size: 18px; font-weight: 900; color: #0f172a; margin: 0; }
+    .invoice-id { font-size: 13px; font-weight: 700; color: #166534; font-family: monospace; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+    .card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px 16px; }
+    .card-title { font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; color: #64748b; margin-bottom: 6px; }
+    table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+    th { background: #f1f5f9; color: #475569; font-size: 11px; text-transform: uppercase; font-weight: 800; padding: 10px 12px; text-align: left; border-bottom: 2px solid #cbd5e1; }
+    td { padding: 10px 12px; border-bottom: 1px solid #e2e8f0; font-size: 12px; }
+    .total-row { font-size: 15px; font-weight: 900; color: #166534; }
+    .footer { margin-top: 30px; padding-top: 15px; border-top: 1px solid #e2e8f0; text-align: center; font-size: 11px; color: #64748b; }
+    .print-btn { background: #166534; color: white; padding: 8px 18px; border-radius: 6px; border: none; font-weight: bold; cursor: pointer; margin-bottom: 20px; font-size: 13px; }
+    @media print { .print-btn { display: none; } }
+  </style>
+</head>
+<body>
+  <button class="print-btn" onclick="window.print()">🖨️ Print / Save as PDF</button>
+  <div class="header">
+    <div class="logo-box">
+      <img src="https://res.cloudinary.com/usqwgkl7/image/upload/v1792576055/logo.jpg" alt="Health Nutra" class="logo-img" />
+      <div>
+        <h1 class="brand-title">HEALTH NUTRA™</h1>
+        <p class="brand-sub">Pharmaceutical & Botanical Formulations</p>
+      </div>
+    </div>
+    <div class="invoice-badge">
+      <h2 class="invoice-title">TAX INVOICE</h2>
+      <div class="invoice-id">#${orderId}</div>
+      <div style="font-size: 11px; color: #64748b; margin-top: 2px;">Date: ${createdAt}</div>
+    </div>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <div class="card-title">Marketed & Dispatched By</div>
+      <strong style="color: #0f172a;">HEALTH NUTRA™</strong><br>
+      Shop No/ Plot No.: 247, SLICE-2, SECTOR-A, SCHEME NO 78,<br>
+      INDORE - 452010 Dist.-INDORE (M.P.)<br>
+      <strong>Hotline:</strong> +91-7024308660<br>
+      <strong>Email:</strong> healthnutra16@gmail.com
+    </div>
+    <div class="card">
+      <div class="card-title">Customer & Delivery Info</div>
+      <strong style="color: #0f172a;">${customerName}</strong><br>
+      <strong>Phone:</strong> ${customerPhone}<br>
+      <strong>Email:</strong> ${customerEmail}<br>
+      <strong>Address:</strong> ${shippingAddress}
+    </div>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 50%;">Formulation Description</th>
+        <th style="text-align: center;">Unit</th>
+        <th style="text-align: right;">Price (₹)</th>
+        <th style="text-align: center;">Qty</th>
+        <th style="text-align: right;">Amount (₹)</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${items.map(it => {
+        const p = parseFloat(it.price) || 0;
+        const q = parseInt(it.quantity, 10) || 1;
+        return `
+          <tr>
+            <td><strong>${it.name || 'Health Nutra Product'}</strong></td>
+            <td style="text-align: center;">${it.unit || 'Strip'}</td>
+            <td style="text-align: right;">₹${p.toFixed(2)}</td>
+            <td style="text-align: center;">${q}</td>
+            <td style="text-align: right; font-weight: bold;">₹${(p * q).toFixed(2)}</td>
+          </tr>
+        `;
+      }).join('')}
+      <tr class="total-row">
+        <td colspan="4" style="text-align: right; padding-top: 15px;">Grand Total (${paymentMethod}):</td>
+        <td style="text-align: right; padding-top: 15px;">₹${parseFloat(totalAmount).toFixed(2)}</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="footer">
+    <p>This is a computer-generated tax invoice and requires no physical signature.</p>
+    <p>Marketed by: HEALTH NUTRA™ • TM TRADEMARK APPLIED FOR • Customer Care: +91-7024308660</p>
+  </div>
+</body>
+</html>`;
+}
+
 window.downloadOrderInvoice = function(orderId) {
   const o = ordersList.find((item) => item.orderId === orderId || item.id === orderId);
-  if (!o) return;
-  if (window.downloadOrderInvoicePDF) {
-    window.downloadOrderInvoicePDF(o);
+  if (!o) {
+    showToast('Order record not found', 'error');
+    return;
+  }
+
+  try {
+    const html = generateInvoiceHtml(o);
+    // 1. Try opening print window
+    const printWindow = window.open('', '_blank');
+    if (printWindow) {
+      printWindow.document.open();
+      printWindow.document.write(html);
+      printWindow.document.close();
+      showToast(`Invoice #${orderId} opened for printing!`);
+    } else {
+      // 2. Direct download fallback
+      const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Invoice-${orderId}.html`;
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(() => {
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }, 500);
+      showToast(`Invoice #${orderId} downloaded successfully!`);
+    }
+  } catch (err) {
+    showToast('Error generating invoice: ' + err.message, 'error');
   }
 };
 
 window.viewOrderDetails = function(orderId) {
   const o = ordersList.find((item) => item.orderId === orderId || item.id === orderId);
-  if (!o) return;
+  if (!o) {
+    showToast('Order details not found', 'error');
+    return;
+  }
 
-  orderModalTitle.innerHTML = `<i data-lucide="shopping-bag" class="w-5 h-5 text-brand-700"></i><span>#${o.orderId}</span>`;
-  orderCustomerName.textContent = o.customerName;
-  orderCustomerPhone.innerHTML = `${o.customerPhone} &bull; <a href="https://wa.me/${o.customerPhone.replace(/[^0-9]/g, '')}" target="_blank" class="text-emerald-700 underline font-bold">WhatsApp</a>`;
-  orderShippingAddress.textContent = `${o.shippingAddress}${o.city ? ', ' + o.city : ''}${o.pincode ? ' - ' + o.pincode : ''}`;
+  const phone = String(o.customerPhone || '').trim();
+  const digits = phone.replace(/[^0-9]/g, '');
 
-  orderGrandTotal.textContent = `₹${o.totalAmount}`;
-  editOrderId.value = o.orderId || o.id;
-  editOrderStatus.value = o.orderStatus || 'pending';
-  editPaymentStatus.value = o.paymentStatus || 'pending';
-  editOrderNotes.value = o.notes || '';
+  if (orderModalTitle) orderModalTitle.innerHTML = `<i data-lucide="shopping-bag" class="w-5 h-5 text-brand-700"></i><span>#${o.orderId || orderId}</span>`;
+  if (orderCustomerName) orderCustomerName.textContent = o.customerName || 'Valued Customer';
+  if (orderCustomerPhone) {
+    orderCustomerPhone.innerHTML = `${phone || 'Not provided'} ${digits ? `&bull; <a href="https://wa.me/${digits}" target="_blank" class="text-emerald-700 underline font-bold">WhatsApp</a>` : ''}`;
+  }
+  if (orderShippingAddress) {
+    orderShippingAddress.textContent = `${o.shippingAddress || ''}${o.city ? ', ' + o.city : ''}${o.pincode ? ' - ' + o.pincode : ''}` || 'Not provided';
+  }
 
-  // Render items
-  orderItemsTableBody.innerHTML = (o.items || []).map((it) => `
-    <tr>
-      <td class="py-2.5 px-3">
-        <div class="flex items-center gap-2">
-          <img src="${it.image || '/uploads/9g.png'}" class="w-8 h-8 rounded-lg object-contain bg-slate-50 border border-slate-200">
-          <div>
-            <p class="font-bold text-slate-900">${it.name}</p>
-            <span class="text-[10px] text-slate-400">${it.unit || 'Strip'}</span>
-          </div>
-        </div>
-      </td>
-      <td class="py-2.5 px-3 font-semibold text-slate-700">₹${it.price}</td>
-      <td class="py-2.5 px-3 font-bold text-slate-900">${it.quantity}</td>
-      <td class="py-2.5 px-3 text-right font-black text-brand-800">₹${(it.price * it.quantity).toFixed(2)}</td>
-    </tr>
-  `).join('');
+  if (orderGrandTotal) orderGrandTotal.textContent = `₹${o.totalAmount || 0}`;
+  if (editOrderId) editOrderId.value = o.orderId || o.id;
+  if (editOrderStatus) editOrderStatus.value = o.orderStatus || 'pending';
+  if (editPaymentStatus) editPaymentStatus.value = o.paymentStatus || 'pending';
+  if (editOrderNotes) editOrderNotes.value = o.notes || '';
 
-  orderModal.classList.remove('hidden');
+  // Render items safely
+  if (orderItemsTableBody) {
+    const items = Array.isArray(o.items) && o.items.length > 0 ? o.items : [
+      { name: o.productName || 'Health Nutra Formulation', price: o.totalAmount || 0, quantity: o.quantity || 1, unit: 'Unit' }
+    ];
+    orderItemsTableBody.innerHTML = items.map((it) => {
+      const price = parseFloat(it.price) || 0;
+      const qty = parseInt(it.quantity, 10) || 1;
+      const subtotal = (price * qty).toFixed(2);
+      return `
+        <tr>
+          <td class="py-2.5 px-3">
+            <div class="flex items-center gap-2">
+              <img src="${it.image || '/uploads/9g.png'}" class="w-8 h-8 rounded-lg object-contain bg-slate-50 border border-slate-200" onerror="this.src='/uploads/9g.png'">
+              <div>
+                <p class="font-bold text-slate-900">${it.name || 'Formulation'}</p>
+                <span class="text-[10px] text-slate-400">${it.unit || 'Strip'}</span>
+              </div>
+            </div>
+          </td>
+          <td class="py-2.5 px-3 font-semibold text-slate-700">₹${price}</td>
+          <td class="py-2.5 px-3 font-bold text-slate-900">${qty}</td>
+          <td class="py-2.5 px-3 text-right font-black text-brand-800">₹${subtotal}</td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  if (orderModal) orderModal.classList.remove('hidden');
   if (window.lucide) window.lucide.createIcons();
 };
 
 function closeOrderModal() {
-  orderModal.classList.add('hidden');
+  if (orderModal) orderModal.classList.add('hidden');
 }
 
 async function handleOrderStatusUpdate(e) {
@@ -870,11 +1072,12 @@ async function handleOrderStatusUpdate(e) {
   const notes = editOrderNotes.value.trim();
 
   try {
-    const res = await fetch(`/api/admin/orders/${id}/status`, {
+    const res = await fetch(`/api/admin/orders/${encodeURIComponent(id)}/status`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         orderStatus: status,
+        status: status,
         paymentStatus: payment,
         notes,
       }),
@@ -894,19 +1097,23 @@ async function handleOrderStatusUpdate(e) {
 
 window.promptDeleteOrder = function(orderId) {
   orderToDeleteId = orderId;
-  deleteOrderNumber.textContent = `#${orderId}`;
-  deleteOrderModal.classList.remove('hidden');
+  if (deleteOrderNumber) deleteOrderNumber.textContent = `#${orderId}`;
+  if (deleteOrderModal) {
+    deleteOrderModal.classList.remove('hidden');
+  } else if (confirm(`Are you sure you want to permanently delete order #${orderId}?`)) {
+    executeDeleteOrder();
+  }
 };
 
 function closeDeleteOrderModal() {
   orderToDeleteId = null;
-  deleteOrderModal.classList.add('hidden');
+  if (deleteOrderModal) deleteOrderModal.classList.add('hidden');
 }
 
 async function executeDeleteOrder() {
   if (!orderToDeleteId) return;
   try {
-    const res = await fetch(`/api/admin/orders/${orderToDeleteId}`, { method: 'DELETE' });
+    const res = await fetch(`/api/admin/orders/${encodeURIComponent(orderToDeleteId)}`, { method: 'DELETE' });
     const result = await res.json();
     if (res.ok && result.success) {
       showToast(result.message || 'Order record deleted.');
@@ -1074,8 +1281,8 @@ function renderEnquiries(list) {
       </td>
       <td class="py-4 px-4 text-right whitespace-nowrap">
         <button
-          onclick="promptDeleteEnquiry('${item.id}', '${safeName}')"
-          class="p-2 rounded-xl text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+          onclick="promptDeleteEnquiry('${item.id}')"
+          class="p-2 rounded-xl text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
           title="Delete Enquiry"
         >
           <i data-lucide="trash-2" class="w-4 h-4"></i>
@@ -1090,7 +1297,7 @@ function renderEnquiries(list) {
 
 window.updateEnquiryStatus = async function(id, newStatus) {
   try {
-    const res = await fetch(`/api/admin/enquiries/${id}/status`, {
+    const res = await fetch(`/api/admin/enquiries/${encodeURIComponent(id)}/status`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ status: newStatus }),
@@ -1107,10 +1314,12 @@ window.updateEnquiryStatus = async function(id, newStatus) {
   }
 };
 
-window.promptDeleteEnquiry = async function(id, name) {
+window.promptDeleteEnquiry = async function(id) {
+  const item = enquiriesList.find((e) => (e.id || e._id) === id);
+  const name = item ? item.name : 'this contact lead';
   if (!confirm(`Are you sure you want to delete inquiry from "${name}"?`)) return;
   try {
-    const res = await fetch(`/api/admin/enquiries/${id}`, { method: 'DELETE' });
+    const res = await fetch(`/api/admin/enquiries/${encodeURIComponent(id)}`, { method: 'DELETE' });
     const result = await res.json();
     if (res.ok && result.success) {
       showToast(result.message || 'Enquiry deleted');
@@ -1123,5 +1332,9 @@ window.promptDeleteEnquiry = async function(id, name) {
   }
 };
 
-// Run
-document.addEventListener('DOMContentLoaded', init);
+// Run immediately if DOM is already parsed, or wait for DOMContentLoaded
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', init);
+} else {
+  init();
+}

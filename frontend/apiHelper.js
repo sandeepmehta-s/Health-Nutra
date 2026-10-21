@@ -316,7 +316,7 @@ class ApiHelper {
     const url = this.resolveUrl("adminOrderStatus", { id: orderId });
     const res = await this.request(url, {
       method: "PATCH",
-      body: JSON.stringify({ status }),
+      body: JSON.stringify({ orderStatus: status, status }),
     });
     return res.data;
   }
@@ -358,7 +358,7 @@ class ApiHelper {
     const url = this.resolveUrl("adminEnquiryStatus", { id: enquiryId });
     const res = await this.request(url, {
       method: "PATCH",
-      body: JSON.stringify({ status }),
+      body: JSON.stringify({ orderStatus: status, status }),
     });
     return res.data;
   }
