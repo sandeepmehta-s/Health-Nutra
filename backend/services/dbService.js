@@ -2,8 +2,14 @@ import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 import path from "path";
 import fs from "fs";
+import dns from "dns";
 import { fileURLToPath } from "url";
 import { DatabaseSync } from "node:sqlite";
+
+// Ensure DNS SRV records resolve reliably for MongoDB Atlas on all environments
+try {
+  dns.setServers(["8.8.8.8", "1.1.1.1"]);
+} catch {}
 import { Product } from "../models/Product.js";
 import { Admin } from "../models/Admin.js";
 import { Order } from "../models/Order.js";
@@ -407,8 +413,28 @@ export async function getActiveProducts(category = null) {
 }
 
 export async function getProductById(id) {
+  if (!id) return null;
   if (useMongo) {
-    const p = await Product.findById(id);
+    let p = null;
+    const isHex24 = typeof id === "string" && id.length === 24 && /^[0-9a-fA-F]{24}$/.test(id);
+    if (isHex24 && mongoose.Types.ObjectId.isValid(id)) {
+      p = await Product.findById(id).catch(() => null);
+    }
+    if (!p) {
+      // Support matching by numeric starter ID ("1", "2", "3", "4") or custom id
+      const num = parseInt(id, 10);
+      const STARTER_NAMES = ["Health Nutra 9G", "Health Nutra 10Q Syrup", "Omega-3 Capsules", "Green Tea Extract"];
+      if (!isNaN(num) && num >= 1 && num <= STARTER_NAMES.length) {
+        p = await Product.findOne({ name: STARTER_NAMES[num - 1] }).catch(() => null);
+      }
+      if (!p && !isNaN(num) && num > 0) {
+        const all = await Product.find({ status: "active" }).sort({ createdAt: 1 });
+        if (all[num - 1]) p = all[num - 1];
+      }
+      if (!p) {
+        p = await Product.findOne({ name: id }).catch(() => null);
+      }
+    }
     return p ? formatProduct(p) : null;
   } else {
     const p = sqliteDb.prepare("SELECT * FROM products WHERE id = ?").get(id);
@@ -658,7 +684,7 @@ export async function syncAdminPassword(username, newPassword) {
     await Admin.findOneAndUpdate(
       { username: u },
       { username: u, password: hashed, name: "Health Nutra Administrator" },
-      { upsert: true, new: true }
+      { upsert: true, returnDocument: "after" }
     );
   } else if (sqliteDb) {
     const existing = sqliteDb.prepare("SELECT * FROM admins WHERE username = ?").get(u);
@@ -752,10 +778,12 @@ export async function createOrder(data) {
 }
 
 export async function getOrderById(idOrOrderId) {
+  if (!idOrOrderId) return null;
   if (useMongo) {
-    let order = await Order.findOne({ orderId: idOrOrderId });
-    if (!order && mongoose.Types.ObjectId.isValid(idOrOrderId)) {
-      order = await Order.findById(idOrOrderId);
+    let order = await Order.findOne({ orderId: idOrOrderId }).catch(() => null);
+    const isHex24 = typeof idOrOrderId === "string" && idOrOrderId.length === 24 && /^[0-9a-fA-F]{24}$/.test(idOrOrderId);
+    if (!order && isHex24 && mongoose.Types.ObjectId.isValid(idOrOrderId)) {
+      order = await Order.findById(idOrOrderId).catch(() => null);
     }
     return order ? formatOrder(order) : null;
   } else {
@@ -890,9 +918,10 @@ export async function getAllOrdersAdmin({ search = "", status = "", page, limit 
 export async function updateOrderStatus(idOrOrderId, updates = {}) {
   const now = new Date().toISOString();
   if (useMongo) {
-    let order = await Order.findOne({ orderId: idOrOrderId });
-    if (!order && mongoose.Types.ObjectId.isValid(idOrOrderId)) {
-      order = await Order.findById(idOrOrderId);
+    let order = await Order.findOne({ orderId: idOrOrderId }).catch(() => null);
+    const isHex24 = typeof idOrOrderId === "string" && idOrOrderId.length === 24 && /^[0-9a-fA-F]{24}$/.test(idOrOrderId);
+    if (!order && isHex24 && mongoose.Types.ObjectId.isValid(idOrOrderId)) {
+      order = await Order.findById(idOrOrderId).catch(() => null);
     }
     if (!order) return null;
 
@@ -923,9 +952,10 @@ export async function updateOrderStatus(idOrOrderId, updates = {}) {
 
 export async function deleteOrder(idOrOrderId) {
   if (useMongo) {
-    let order = await Order.findOneAndDelete({ orderId: idOrOrderId });
-    if (!order && mongoose.Types.ObjectId.isValid(idOrOrderId)) {
-      order = await Order.findByIdAndDelete(idOrOrderId);
+    let order = await Order.findOneAndDelete({ orderId: idOrOrderId }).catch(() => null);
+    const isHex24 = typeof idOrOrderId === "string" && idOrOrderId.length === 24 && /^[0-9a-fA-F]{24}$/.test(idOrOrderId);
+    if (!order && isHex24 && mongoose.Types.ObjectId.isValid(idOrOrderId)) {
+      order = await Order.findByIdAndDelete(idOrOrderId).catch(() => null);
     }
     return order ? formatOrder(order) : null;
   } else {
