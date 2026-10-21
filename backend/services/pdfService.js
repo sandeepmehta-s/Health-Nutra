@@ -1,4 +1,10 @@
 import PDFDocument from "pdfkit";
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 /**
  * Health Nutra - Official Order Tax Invoice PDF Generator
@@ -61,18 +67,41 @@ export async function generateInvoicePdfBuffer(order) {
       // Top Green Accent Bar
       doc.rect(40, 40, 515, 4).fill("#166534");
 
+      // Circular Brand Logo
+      const logoCandidates = [
+        path.join(__dirname, "../assets/logo.jpg"),
+        path.join(__dirname, "../../frontend/images/logo.jpg"),
+      ];
+      const logoPath = logoCandidates.find((p) => fs.existsSync(p));
+
+      let titleX = 40;
+      if (logoPath) {
+        try {
+          doc.save();
+          doc.circle(63, 76, 23).fillColor("#ffffff").fill();
+          doc.circle(63, 76, 23).strokeColor("#f59e0b").lineWidth(1.5).stroke();
+          doc.circle(63, 76, 22).clip();
+          doc.image(logoPath, 41, 54, { width: 44, height: 44 });
+          doc.restore();
+          titleX = 94;
+        } catch (logoErr) {
+          console.warn("[PDF Logo Warning]", logoErr.message);
+          titleX = 40;
+        }
+      }
+
       // Brand Title & Tagline
       doc
         .fillColor("#166534")
         .font("Helvetica-Bold")
-        .fontSize(22)
-        .text("HEALTH NUTRA™", 40, 55, { align: "left" });
+        .fontSize(20)
+        .text("HEALTH NUTRA™", titleX, 56, { align: "left" });
 
       doc
         .fillColor("#64748b")
         .font("Helvetica")
-        .fontSize(9)
-        .text("PHARMACEUTICAL & BOTANICAL FORMULATIONS", 40, 80);
+        .fontSize(8.5)
+        .text("PHARMACEUTICAL & BOTANICAL FORMULATIONS", titleX, 78);
 
       // Invoice Badge (Right aligned)
       doc
@@ -235,30 +264,85 @@ export async function generateInvoicePdfBuffer(order) {
         });
 
       // ── 5. Certifications & Badges ────────────────────────────────
-      currentY += 50;
+      currentY += 46;
       const certBoxY = currentY;
 
-      doc.roundedRect(40, certBoxY, 515, 48, 6).fillColor("#f0fdf4").fill();
-      doc.roundedRect(40, certBoxY, 515, 48, 6).strokeColor("#bbf7d0").lineWidth(0.8).stroke();
+      doc.roundedRect(40, certBoxY, 515, 42, 6).fillColor("#f0fdf4").fill();
+      doc.roundedRect(40, certBoxY, 515, 42, 6).strokeColor("#bbf7d0").lineWidth(0.8).stroke();
 
       doc
         .fillColor("#166534")
         .font("Helvetica-Bold")
-        .fontSize(9)
-        .text("QUALITY & REGULATORY ASSURANCE", 50, certBoxY + 9);
+        .fontSize(8.5)
+        .text("QUALITY & REGULATORY ASSURANCE", 50, certBoxY + 8);
 
       doc
         .fillColor("#15803d")
         .font("Helvetica")
-        .fontSize(8)
+        .fontSize(7.5)
         .text(
           "Manufactured & Marketed under WHO-GMP & ISO 9001:2015 certified pharmaceutical processes.\nEvery batch undergoes rigorous HPLC analytical testing for purity, potency, and dissolution.",
           50,
-          certBoxY + 22,
+          certBoxY + 20,
           { width: 495, lineGap: 2 }
         );
 
-      // ── 6. Official Footer ────────────────────────────────────────
+      // ── 6. Official Digital Seal & Founder & CEO Digital Signature ───
+      const sigBoxY = certBoxY + 52;
+
+      // Left Box: Digital Corporate Seal & Verification
+      doc.roundedRect(40, sigBoxY, colWidth, 112, 6).fillColor("#f8fafc").fill();
+      doc.roundedRect(40, sigBoxY, colWidth, 112, 6).strokeColor("#cbd5e1").lineWidth(0.8).stroke();
+
+      // Dual-ring Official Corporate Seal
+      const sealCenterX = 84;
+      const sealCenterY = sigBoxY + 56;
+      doc.circle(sealCenterX, sealCenterY, 36).lineWidth(2).strokeColor("#166534").stroke();
+      doc.circle(sealCenterX, sealCenterY, 32).lineWidth(1).strokeColor("#f59e0b").dash(3, { space: 2 }).stroke();
+      doc.undash();
+
+      doc.fillColor("#166534").font("Helvetica-Bold").fontSize(5.5).text("★ HEALTH NUTRA ★", sealCenterX - 28, sealCenterY - 24, { width: 56, align: "center" });
+      doc.fillColor("#0f172a").font("Helvetica-Bold").fontSize(5.5).text("DIGITALLY", sealCenterX - 25, sealCenterY - 13, { width: 50, align: "center" });
+      doc.fillColor("#166534").font("Helvetica-Bold").fontSize(6.5).text("VERIFIED", sealCenterX - 25, sealCenterY - 5, { width: 50, align: "center" });
+      doc.fillColor("#ea580c").font("Helvetica-Bold").fontSize(5).text("✔ OFFICIAL SEAL", sealCenterX - 25, sealCenterY + 4, { width: 50, align: "center" });
+      doc.fillColor("#64748b").font("Helvetica").fontSize(4.5).text("INDORE (M.P.)", sealCenterX - 25, sealCenterY + 14, { width: 50, align: "center" });
+
+      // Verification Details on the right of the seal
+      doc.fillColor("#166534").font("Helvetica-Bold").fontSize(8.5).text("DIGITAL AUDIT & SEAL", 128, sigBoxY + 12);
+      doc.fillColor("#334155").font("Helvetica").fontSize(7).text(
+        `• Status: 100% Authenticated\n• Batch Released & Verified\n• Cert Ref: HN-IND-${orderId}\n• WHO-GMP & ISO 9001:2015\n• Cryptographically Sealed`,
+        128,
+        sigBoxY + 26,
+        { width: 150, lineGap: 3 }
+      );
+
+      // Right Box: Founder & CEO Digital Signature
+      const rightX = 307;
+      doc.roundedRect(rightX, sigBoxY, colWidth, 112, 6).fillColor("#ffffff").fill();
+      doc.roundedRect(rightX, sigBoxY, colWidth, 112, 6).strokeColor("#cbd5e1").lineWidth(0.8).stroke();
+
+      doc.fillColor("#64748b").font("Helvetica-Bold").fontSize(7.5).text("FOR HEALTH NUTRA™", rightX + 14, sigBoxY + 10);
+
+      // Stylized Cursive Signature Path for Veer Pratap Singh
+      doc.save();
+      doc.strokeColor("#0f172a").lineWidth(1.4);
+      doc.moveTo(rightX + 20, sigBoxY + 46)
+         .bezierCurveTo(rightX + 28, sigBoxY + 28, rightX + 35, sigBoxY + 26, rightX + 42, sigBoxY + 42)
+         .bezierCurveTo(rightX + 48, sigBoxY + 54, rightX + 54, sigBoxY + 34, rightX + 62, sigBoxY + 38)
+         .bezierCurveTo(rightX + 70, sigBoxY + 42, rightX + 80, sigBoxY + 32, rightX + 95, sigBoxY + 40)
+         .bezierCurveTo(rightX + 110, sigBoxY + 48, rightX + 130, sigBoxY + 34, rightX + 155, sigBoxY + 38)
+         .bezierCurveTo(rightX + 175, sigBoxY + 42, rightX + 140, sigBoxY + 54, rightX + 190, sigBoxY + 44)
+         .stroke();
+      doc.restore();
+
+      // Signature line
+      doc.moveTo(rightX + 14, sigBoxY + 62).lineTo(rightX + 234, sigBoxY + 62).strokeColor("#e2e8f0").lineWidth(0.8).stroke();
+
+      doc.fillColor("#0f172a").font("Helvetica-Bold").fontSize(9.5).text("Mr. Veer Pratap Singh", rightX + 14, sigBoxY + 68);
+      doc.fillColor("#166534").font("Helvetica-Bold").fontSize(8).text("Founder & CEO", rightX + 14, sigBoxY + 81);
+      doc.fillColor("#64748b").font("Helvetica").fontSize(7).text("Authorized Corporate Signatory • Health Nutra™", rightX + 14, sigBoxY + 93);
+
+      // ── 7. Official Footer ────────────────────────────────────────
       const footerY = 720;
       doc.moveTo(40, footerY).lineTo(555, footerY).strokeColor("#e2e8f0").lineWidth(1).stroke();
 

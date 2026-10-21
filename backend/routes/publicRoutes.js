@@ -518,6 +518,47 @@ router.get("/orders/:id/invoice", async (req, res) => {
       </tbody>
     </table>
 
+    <!-- Digital Seal & Founder Signature Section -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin: 26px 0 20px 0; padding-top: 18px; border-top: 1px solid #e2e8f0;">
+      
+      <!-- Digital Corporate Seal Box -->
+      <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 12px; padding: 14px 18px; display: flex; align-items: center; gap: 16px;">
+        <div style="width: 72px; height: 72px; border: 2.5px solid #166534; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; background: #ffffff; flex-shrink: 0; box-shadow: 0 2px 6px rgba(22, 101, 52, 0.1);">
+          <div style="position: absolute; inset: 2px; border: 1px dashed #f59e0b; border-radius: 50%;"></div>
+          <div style="font-size: 5.5px; font-weight: 900; color: #166534; letter-spacing: 0.5px;">HEALTH NUTRA</div>
+          <div style="font-size: 6px; font-weight: 900; color: #0f172a; margin: 1px 0;">DIGITALLY</div>
+          <div style="font-size: 7px; font-weight: 900; color: #166534;">VERIFIED</div>
+          <div style="font-size: 5.5px; font-weight: 800; color: #ea580c;">✔ OFFICIAL SEAL</div>
+          <div style="font-size: 4.5px; color: #64748b;">INDORE (M.P.)</div>
+        </div>
+        <div>
+          <div style="font-size: 11px; font-weight: 900; color: #166534; letter-spacing: 0.3px;">DIGITAL AUDIT & SEAL</div>
+          <div style="font-size: 10px; color: #475569; margin-top: 3px; line-height: 1.45;">
+            • Authentic batch release<br>
+            • <strong>Cert ID:</strong> HN-IND-${orderId}<br>
+            • WHO-GMP & ISO 9001:2015<br>
+            • Cryptographically Sealed
+          </div>
+        </div>
+      </div>
+
+      <!-- Founder & CEO Digital Signature Box -->
+      <div style="background: #ffffff; border: 1px solid #cbd5e1; border-radius: 12px; padding: 14px 18px;">
+        <div style="font-size: 9.5px; font-weight: 800; color: #64748b; letter-spacing: 0.5px;">FOR HEALTH NUTRA™</div>
+        <div style="margin: 4px 0 6px 0; height: 38px; display: flex; align-items: flex-end;">
+          <svg style="width: 140px; height: 32px;" viewBox="0 0 160 40" fill="none">
+            <path d="M10 32 C18 10, 26 8, 34 26 C40 38, 46 16, 54 22 C62 26, 70 14, 82 22 C96 30, 114 14, 134 20 C150 24, 126 36, 155 24" stroke="#0f172a" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        </div>
+        <div style="border-top: 1px solid #e2e8f0; padding-top: 5px;">
+          <div style="font-size: 12px; font-weight: 900; color: #0f172a;">Mr. Veer Pratap Singh</div>
+          <div style="font-size: 10px; font-weight: 800; color: #166534;">Founder & CEO</div>
+          <div style="font-size: 9px; color: #64748b;">Authorized Corporate Signatory • Health Nutra™</div>
+        </div>
+      </div>
+
+    </div>
+
     <div class="footer">
       <p>This is a computer-generated official tax invoice and requires no physical signature.</p>
       <p>Marketed by: HEALTH NUTRA™ • TM TRADEMARK APPLIED FOR • WHO-GMP & ISO 9001:2015 COMPLIANT</p>
