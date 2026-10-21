@@ -1,6 +1,7 @@
 import express from "express";
 import session from "express-session";
 import MongoStore from "connect-mongo";
+import mongoose from "mongoose";
 import cors from "cors";
 import compression from "compression";
 import helmet from "helmet";
@@ -114,14 +115,14 @@ if (isProduction && !process.env.SESSION_SECRET) {
   console.warn("[Security Notice] SESSION_SECRET not set in environment! Set a strong secret in production.");
 }
 
-const mongoUri = process.env.MONGODB_URI;
+// Session store helper: reuses active Mongoose connection if MongoDB is connected
 const sessionStore =
-  mongoUri && !mongoUri.includes("127.0.0.1:27017") && !mongoUri.includes("localhost:27017")
+  mongoose.connection.readyState === 1
     ? MongoStore.create({
-        mongoUrl: mongoUri,
+        client: mongoose.connection.getClient(),
         ttl: 7 * 24 * 60 * 60, // 7 days
         autoRemove: "native",
-        touchAfter: 24 * 3600, // lazy session update once per 24 hours unless data changed
+        touchAfter: 24 * 3600,
         crypto: {
           secret: process.env.SESSION_SECRET || "health-nutra-super-secret-key-987654",
         },

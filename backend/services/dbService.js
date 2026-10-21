@@ -280,11 +280,17 @@ async function seedSQLite() {
 
     const existingAdmin = sqliteDb.prepare("SELECT * FROM admins WHERE username = ?").get(u);
     if (!existingAdmin) {
-      const id = "admin-1";
-      sqliteDb
-        .prepare("INSERT INTO admins (id, username, password, name, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?, ?)")
-        .run(id, u, hashed, "Health Nutra Administrator", now, now);
-      console.log(`[Seed] Created default SQLite admin: "${u}"`);
+      const anyAdmin = sqliteDb.prepare("SELECT * FROM admins LIMIT 1").get();
+      if (anyAdmin && (process.env.FORCE_ADMIN_SYNC === "true" || anyAdmin.username === "admin")) {
+        sqliteDb.prepare("UPDATE admins SET username = ?, password = ?, updatedAt = ? WHERE id = ?").run(u, hashed, now, anyAdmin.id);
+        console.log(`[Seed] Updated existing SQLite admin credentials for: "${u}"`);
+      } else {
+        const id = "admin-" + Date.now();
+        sqliteDb
+          .prepare("INSERT INTO admins (id, username, password, name, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?, ?)")
+          .run(id, u, hashed, "Health Nutra Administrator", now, now);
+        console.log(`[Seed] Created default SQLite admin: "${u}"`);
+      }
     } else if (process.env.FORCE_ADMIN_SYNC === "true") {
       sqliteDb.prepare("UPDATE admins SET password = ?, updatedAt = ? WHERE username = ?").run(hashed, now, u);
       console.log(`[Seed] Synced SQLite admin credentials via FORCE_ADMIN_SYNC for: "${u}"`);
@@ -659,9 +665,10 @@ export async function syncAdminPassword(username, newPassword) {
     if (existing) {
       sqliteDb.prepare("UPDATE admins SET password = ?, updatedAt = ? WHERE username = ?").run(hashed, now, u);
     } else {
+      const id = "admin-" + Date.now();
       sqliteDb
         .prepare("INSERT INTO admins (id, username, password, name, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?, ?)")
-        .run("admin-1", u, hashed, "Health Nutra Administrator", now, now);
+        .run(id, u, hashed, "Health Nutra Administrator", now, now);
     }
   }
 }
