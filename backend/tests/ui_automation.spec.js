@@ -77,8 +77,9 @@ test.describe("🏠 Storefront – Home Page & Customer Journey", () => {
   });
 
   test("1.5 Product Details modal opens and displays clinical specifications", async ({ page }) => {
+    await page.waitForTimeout(1000);
     const detailsBtn = page.locator("button:has-text('Details')").first();
-    await detailsBtn.scrollIntoViewIfNeeded();
+    await expect(detailsBtn).toBeVisible({ timeout: 10000 });
     await detailsBtn.click();
 
     const modalDialog = page.locator("div.fixed.inset-0.z-50").first();
@@ -86,12 +87,13 @@ test.describe("🏠 Storefront – Home Page & Customer Journey", () => {
     await snap(page, "05-product-detail-modal-open");
 
     await page.keyboard.press("Escape");
-    await page.waitForTimeout(400);
+    await page.waitForTimeout(600);
   });
 
   test("1.6 Order Now button opens Checkout modal with dynamic quantity and pricing", async ({ page }) => {
+    await page.waitForTimeout(800);
     const orderNowBtn = page.locator("button:has-text('Order Now')").first();
-    await orderNowBtn.scrollIntoViewIfNeeded();
+    await expect(orderNowBtn).toBeVisible({ timeout: 10000 });
     await orderNowBtn.click();
 
     const checkoutModal = page.locator("div.fixed.inset-0").filter({ hasText: "Direct Formulation Order" });
@@ -99,12 +101,13 @@ test.describe("🏠 Storefront – Home Page & Customer Journey", () => {
     await snap(page, "06-checkout-modal-open");
 
     await page.keyboard.press("Escape");
-    await page.waitForTimeout(400);
+    await page.waitForTimeout(600);
   });
 
   test("1.7 Complete order placement workflow (Cash on Delivery)", async ({ page }) => {
+    await page.waitForTimeout(800);
     const orderNowBtn = page.locator("button:has-text('Order Now')").first();
-    await orderNowBtn.scrollIntoViewIfNeeded();
+    await expect(orderNowBtn).toBeVisible({ timeout: 10000 });
     await orderNowBtn.click();
 
     // Target inputs strictly inside the Checkout Modal
