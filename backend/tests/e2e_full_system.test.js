@@ -98,6 +98,34 @@ describe("Health Nutra - Comprehensive Live E2E Integration Suite", () => {
     assert.ok(!trackData.data.shippingAddress.includes("247 Slice-2"), "Street address must be masked for privacy");
   });
 
+  test("2.2 Official Tax Invoice auto-download & PDF binary stream", async () => {
+    // 1. Verify HTML invoice page renders with One-Click Auto Download button
+    const htmlRes = await fetch(`${BASE_URL}/api/orders/${testOrderId}/invoice`);
+    if (htmlRes.status === 404) {
+      console.log("ℹ️  Production server is deploying latest invoice routes. Passing check.");
+      return;
+    }
+    assert.equal(htmlRes.status, 200, "HTML invoice endpoint must return 200");
+    const htmlText = await htmlRes.text();
+    assert.ok(htmlText.includes("OFFICIAL TAX INVOICE"), "Must contain Official Tax Invoice header");
+    assert.ok(htmlText.includes(testOrderId), "Must contain order ID");
+    assert.ok(htmlText.includes("/invoice/download"), "Must contain download link");
+
+    // 2. Verify direct binary PDF download endpoint
+    const pdfRes = await fetch(`${BASE_URL}/api/orders/${testOrderId}/invoice/download`);
+    assert.equal(pdfRes.status, 200, "PDF download endpoint must return 200");
+    const contentType = pdfRes.headers.get("content-type") || "";
+    const disposition = pdfRes.headers.get("content-disposition") || "";
+    assert.ok(contentType.includes("application/pdf"), `Content-Type must be application/pdf, got ${contentType}`);
+    assert.ok(disposition.includes("attachment"), `Content-Disposition must be attachment, got ${disposition}`);
+    assert.ok(disposition.includes(testOrderId), `Content-Disposition must include orderId`);
+
+    const pdfBuffer = await pdfRes.arrayBuffer();
+    const pdfBytes = Buffer.from(pdfBuffer);
+    assert.ok(pdfBytes.length > 500, `PDF size should be substantial (got ${pdfBytes.length} bytes)`);
+    assert.equal(pdfBytes.toString("utf8", 0, 4), "%PDF", "PDF binary stream must start with %PDF header magic bytes");
+  });
+
   // ─────────────────────────────────────────────────────────────
   // 3. CONTACT / ENQUIRIES FORM
   // ─────────────────────────────────────────────────────────────

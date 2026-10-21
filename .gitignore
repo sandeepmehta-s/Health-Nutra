@@ -9,7 +9,7 @@ build/
 
 backend/playwright-report/
 backend/test-results/
-
+backend/tests/
 # Private admin credentials scripts (never push to GitHub)
 backend/create-admin.js
 backend/createAdmin.js
@@ -20,4 +20,5 @@ createAdmin.js
 scripts/
 *.private.js
 *.secret.js
-
+backend/test-results/
+backend/test-results/

@@ -33,3 +33,5 @@ createAdmin.js
 scripts/
 *.private.js
 *.secret.js
+backend/test-results/
+backend/tests/

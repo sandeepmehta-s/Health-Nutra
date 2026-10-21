@@ -1,0 +1,990 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Health Nutra – End-to-End Browser UI Audit Report</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+  </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen p-4 sm:p-8">
+  <div class="max-w-6xl mx-auto space-y-8">
+    
+    <!-- Header Card -->
+    <div class="bg-slate-800/90 border border-slate-700/80 rounded-3xl p-6 sm:p-8 backdrop-blur-md shadow-2xl">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-700/60 pb-6">
+        <div>
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-black bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 mb-2">
+            <i class="fa-solid fa-robot"></i>
+            <span>PLAYWRIGHT BROWSER AUTOMATION</span>
+          </div>
+          <h1 class="text-2xl sm:text-3xl font-black text-white tracking-tight">Health Nutra – UI Functionality Audit</h1>
+          <p class="text-xs sm:text-sm text-slate-400 mt-1">
+            Target: <a href="https://healthnutra.co.in" target="_blank" class="text-emerald-400 hover:underline font-bold">https://healthnutra.co.in</a> &nbsp;•&nbsp; 
+            Admin Panel: <a href="https://healthnutra.co.in/admin" target="_blank" class="text-emerald-400 hover:underline font-bold">/admin</a>
+          </p>
+        </div>
+        <div class="flex items-center gap-3">
+          <div class="text-right">
+            <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Executed At</div>
+            <div class="text-xs font-mono font-bold text-slate-200">21/10/2026, 8:54:04 pm IST</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Metrics Counter -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-6">
+        <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-700/60 text-center">
+          <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Total Tests</span>
+          <span class="text-2xl sm:text-3xl font-black text-white mt-1 block">27</span>
+        </div>
+        <div class="p-4 rounded-2xl bg-emerald-950/40 border border-emerald-700/40 text-center">
+          <span class="text-xs font-bold text-emerald-400 uppercase tracking-wider block">Working / Passing</span>
+          <span class="text-2xl sm:text-3xl font-black text-emerald-400 mt-1 block">24</span>
+        </div>
+        <div class="p-4 rounded-2xl bg-rose-950/40 border border-rose-700/40 text-center">
+          <span class="text-xs font-bold text-rose-400 uppercase tracking-wider block">Not Working / Failed</span>
+          <span class="text-2xl sm:text-3xl font-black text-rose-400 mt-1 block">3</span>
+        </div>
+        <div class="p-4 rounded-2xl bg-amber-950/40 border border-amber-700/40 text-center">
+          <span class="text-xs font-bold text-amber-400 uppercase tracking-wider block">Health Score</span>
+          <span class="text-2xl sm:text-3xl font-black text-amber-400 mt-1 block">89%</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Test Results Table -->
+    <div class="bg-slate-800/90 border border-slate-700/80 rounded-3xl p-6 sm:p-8 backdrop-blur-md shadow-2xl">
+      <div class="flex items-center justify-between mb-6">
+        <h2 class="text-lg sm:text-xl font-black text-white flex items-center gap-2">
+          <i class="fa-solid fa-list-check text-emerald-400"></i>
+          <span>Live Feature Execution Breakdown</span>
+        </h2>
+        <span class="text-xs font-bold text-slate-400">27 Verified Scenarios</span>
+      </div>
+
+      <div class="overflow-x-auto rounded-2xl border border-slate-700/60">
+        <table class="w-full text-left text-xs sm:text-sm">
+          <thead class="bg-slate-900/80 text-slate-400 uppercase text-[10px] font-black tracking-wider border-b border-slate-700/60">
+            <tr>
+              <th class="py-3 px-4">Feature / Scenario</th>
+              <th class="py-3 px-4">Module / Page</th>
+              <th class="py-3 px-4 text-center">Status</th>
+              <th class="py-3 px-4 text-right">Time</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-700/50 font-medium">
+            
+              <tr class="hover:bg-slate-700/30 transition-colors">
+                <td class="py-3 px-4">
+                  <div class="font-bold text-slate-100">1.1 Page loads – Header, Hero banner, and certified formulations visible</div>
+                  
+                </td>
+                <td class="py-3 px-4 text-slate-400 whitespace-nowrap text-xs">ui_automation.spec.js › 🏠 Storefront – Home Page & Customer Journey</td>
+                <td class="py-3 px-4 text-center whitespace-nowrap">
+                  <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+                    <i class="fa-solid fa-circle-check text-emerald-400"></i>
+                    <span>WORKING</span>
+                  </span>
+                </td>
+                <td class="py-3 px-4 text-right text-slate-400 font-mono text-xs whitespace-nowrap">7.5s</td>
+              </tr>
+            
+              <tr class="hover:bg-slate-700/30 transition-colors">
+                <td class="py-3 px-4">
+                  <div class="font-bold text-slate-100">1.2 Catalog loads active products with price and stock indicators</div>
+                  
+                </td>
+                <td class="py-3 px-4 text-slate-400 whitespace-nowrap text-xs">ui_automation.spec.js › 🏠 Storefront – Home Page & Customer Journey</td>
+                <td class="py-3 px-4 text-center whitespace-nowrap">
+                  <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+                    <i class="fa-solid fa-circle-check text-emerald-400"></i>
+                    <span>WORKING</span>
+                  </span>
+                </td>
+                <td class="py-3 px-4 text-right text-slate-400 font-mono text-xs whitespace-nowrap">3.8s</td>
+              </tr>
+            
+              <tr class="hover:bg-slate-700/30 transition-colors">
+                <td class="py-3 px-4">
+                  <div class="font-bold text-slate-100">1.3 Search optimization – filtering products dynamically</div>
+                  
+                </td>
+                <td class="py-3 px-4 text-slate-400 whitespace-nowrap text-xs">ui_automation.spec.js › 🏠 Storefront – Home Page & Customer Journey</td>
+                <td class="py-3 px-4 text-center whitespace-nowrap">
+                  <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+                    <i class="fa-solid fa-circle-check text-emerald-400"></i>
+                    <span>WORKING</span>
+                  </span>
+                </td>
+                <td class="py-3 px-4 text-right text-slate-400 font-mono text-xs whitespace-nowrap">5.2s</td>
+              </tr>
+            
+              <tr class="hover:bg-slate-700/30 transition-colors">
+                <td class="py-3 px-4">
+                  <div class="font-bold text-slate-100">1.4 Category filter pills switch categories</div>
+                  
+                </td>
+                <td class="py-3 px-4 text-slate-400 whitespace-nowrap text-xs">ui_automation.spec.js › 🏠 Storefront – Home Page & Customer Journey</td>
+                <td class="py-3 px-4 text-center whitespace-nowrap">
+                  <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+                    <i class="fa-solid fa-circle-check text-emerald-400"></i>
+                    <span>WORKING</span>
+                  </span>
+                </td>
+                <td class="py-3 px-4 text-right text-slate-400 font-mono text-xs whitespace-nowrap">6.7s</td>
+              </tr>
+            
+              <tr class="hover:bg-slate-700/30 transition-colors">
+                <td class="py-3 px-4">
+                  <div class="font-bold text-slate-100">1.5 Product Details modal opens and displays clinical specifications</div>
+                  <div class="text-[11px] text-rose-400 font-mono mt-1 whitespace-pre-wrap">Error: locator.scrollIntoViewIfNeeded: Element is not attached to the DOM
+Call log:
+[2m  - attempting scroll into view action[22m
+[2m    - waiting for elemen...</div>
+                </td>
+                <td class="py-3 px-4 text-slate-400 whitespace-nowrap text-xs">ui_automation.spec.js › 🏠 Storefront – Home Page & Customer Journey</td>
+                <td class="py-3 px-4 text-center whitespace-nowrap">
+                  <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black bg-rose-500/10 text-rose-400 border border-rose-500/30">
+                    <i class="fa-solid fa-circle-xmark text-rose-400"></i>
+                    <span>ISSUE DETECTED</span>
+                  </span>
+                </td>
+                <td class="py-3 px-4 text-right text-slate-400 font-mono text-xs whitespace-nowrap">5.7s</td>
+              </tr>
+            
+              <tr class="hover:bg-slate-700/30 transition-colors">
+                <td class="py-3 px-4">
+                  <div class="font-bold text-slate-100">1.6 Order Now button opens Checkout modal with dynamic quantity and pricing</div>
+                  <div class="text-[11px] text-rose-400 font-mono mt-1 whitespace-pre-wrap">Error: locator.scrollIntoViewIfNeeded: Element is not attached to the DOM
+Call log:
+[2m  - attempting scroll into view action[22m
+[2m    - waiting for elemen...</div>
+                </td>
+                <td class="py-3 px-4 text-slate-400 whitespace-nowrap text-xs">ui_automation.spec.js › 🏠 Storefront – Home Page & Customer Journey</td>
+                <td class="py-3 px-4 text-center whitespace-nowrap">
+                  <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black bg-rose-500/10 text-rose-400 border border-rose-500/30">
+                    <i class="fa-solid fa-circle-xmark text-rose-400"></i>
+                    <span>ISSUE DETECTED</span>
+                  </span>
+                </td>
+                <td class="py-3 px-4 text-right text-slate-400 font-mono text-xs whitespace-nowrap">3.9s</td>
+              </tr>
+            
+              <tr class="hover:bg-slate-700/30 transition-colors">
+                <td class="py-3 px-4">
+                  <div class="font-bold text-slate-100">1.7 Complete order placement workflow (Cash on Delivery)</div>
+                  <div class="text-[11px] text-rose-400 font-mono mt-1 whitespace-pre-wrap">Error: locator.scrollIntoViewIfNeeded: Element is not attached to the DOM
+Call log:
+[2m  - attempting scroll into view action[22m
+[2m    - waiting for elemen...</div>
+                </td>
+                <td class="py-3 px-4 text-slate-400 whitespace-nowrap text-xs">ui_automation.spec.js › 🏠 Storefront – Home Page & Customer Journey</td>
+                <td class="py-3 px-4 text-center whitespace-nowrap">
+                  <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black bg-rose-500/10 text-rose-400 border border-rose-500/30">
+                    <i class="fa-solid fa-circle-xmark text-rose-400"></i>
+                    <span>ISSUE DETECTED</span>
+                  </span>
+                </td>
+                <td class="py-3 px-4 text-right text-slate-400 font-mono text-xs whitespace-nowrap">4.2s</td>
+              </tr>
+            
+              <tr class="hover:bg-slate-700/30 transition-colors">
+                <td class="py-3 px-4">
+                  <div class="font-bold text-slate-100">1.8 Track Order modal opens and searches order status</div>
+                  
+                </td>
+                <td class="py-3 px-4 text-slate-400 whitespace-nowrap text-xs">ui_automation.spec.js › 🏠 Storefront – Home Page & Customer Journey</td>
+                <td class="py-3 px-4 text-center whitespace-nowrap">
+                  <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+                    <i class="fa-solid fa-circle-check text-emerald-400"></i>
+                    <span>WORKING</span>
+                  </span>
+                </td>
+                <td class="py-3 px-4 text-right text-slate-400 font-mono text-xs whitespace-nowrap">5.8s</td>
+              </tr>
+            
+              <tr class="hover:bg-slate-700/30 transition-colors">
+                <td class="py-3 px-4">
+                  <div class="font-bold text-slate-100">1.9 Contact Us inquiry form submission</div>
+                  
+                </td>
+                <td class="py-3 px-4 text-slate-400 whitespace-nowrap text-xs">ui_automation.spec.js › 🏠 Storefront – Home Page & Customer Journey</td>
+                <td class="py-3 px-4 text-center whitespace-nowrap">
+                  <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+                    <i class="fa-solid fa-circle-check text-emerald-400"></i>
+                    <span>WORKING</span>
+                  </span>
+                </td>
+                <td class="py-3 px-4 text-right text-slate-400 font-mono text-xs whitespace-nowrap">4.7s</td>
+              </tr>
+            
+              <tr class="hover:bg-slate-700/30 transition-colors">
+                <td class="py-3 px-4">
+                  <div class="font-bold text-slate-100">1.10 Footer renders company credentials, contact info and phone number</div>
+                  
+                </td>
+                <td class="py-3 px-4 text-slate-400 whitespace-nowrap text-xs">ui_automation.spec.js › 🏠 Storefront – Home Page & Customer Journey</td>
+                <td class="py-3 px-4 text-center whitespace-nowrap">
+                  <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+                    <i class="fa-solid fa-circle-check text-emerald-400"></i>
+                    <span>WORKING</span>
+                  </span>
+                </td>
+                <td class="py-3 px-4 text-right text-slate-400 font-mono text-xs whitespace-nowrap">4.0s</td>
+              </tr>
+            
+              <tr class="hover:bg-slate-700/30 transition-colors">
+                <td class="py-3 px-4">
+                  <div class="font-bold text-slate-100">2.1 Login page renders securely</div>
+                  
+                </td>
+                <td class="py-3 px-4 text-slate-400 whitespace-nowrap text-xs">ui_automation.spec.js › 🔐 Admin Authentication</td>
+                <td class="py-3 px-4 text-center whitespace-nowrap">
+                  <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+                    <i class="fa-solid fa-circle-check text-emerald-400"></i>
+                    <span>WORKING</span>
+                  </span>
+                </td>
+                <td class="py-3 px-4 text-right text-slate-400 font-mono text-xs whitespace-nowrap">1.8s</td>
+              </tr>
+            
+              <tr class="hover:bg-slate-700/30 transition-colors">
+                <td class="py-3 px-4">
+                  <div class="font-bold text-slate-100">2.2 Rejects invalid credentials with security notice</div>
+                  
+                </td>
+                <td class="py-3 px-4 text-slate-400 whitespace-nowrap text-xs">ui_automation.spec.js › 🔐 Admin Authentication</td>
+                <td class="py-3 px-4 text-center whitespace-nowrap">
+                  <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+                    <i class="fa-solid fa-circle-check text-emerald-400"></i>
+                    <span>WORKING</span>
+                  </span>
+                </td>
+                <td class="py-3 px-4 text-right text-slate-400 font-mono text-xs whitespace-nowrap">2.0s</td>
+              </tr>
+            
+              <tr class="hover:bg-slate-700/30 transition-colors">
+                <td class="py-3 px-4">
+                  <div class="font-bold text-slate-100">2.3 Authenticates valid admin and redirects to Management Dashboard</div>
+                  
+                </td>
+                <td class="py-3 px-4 text-slate-400 whitespace-nowrap text-xs">ui_automation.spec.js › 🔐 Admin Authentication</td>
+                <td class="py-3 px-4 text-center whitespace-nowrap">
+                  <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+                    <i class="fa-solid fa-circle-check text-emerald-400"></i>
+                    <span>WORKING</span>
+                  </span>
+                </td>
+                <td class="py-3 px-4 text-right text-slate-400 font-mono text-xs whitespace-nowrap">4.2s</td>
+              </tr>
+            
+              <tr class="hover:bg-slate-700/30 transition-colors">
+                <td class="py-3 px-4">
+                  <div class="font-bold text-slate-100">3.1 Products Tab – Lists formulations catalog with active toggle</div>
+                  
+                </td>
+                <td class="py-3 px-4 text-slate-400 whitespace-nowrap text-xs">ui_automation.spec.js › ⚙️ Admin Panel – Backoffice Operations</td>
+                <td class="py-3 px-4 text-center whitespace-nowrap">
+                  <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+                    <i class="fa-solid fa-circle-check text-emerald-400"></i>
+                    <span>WORKING</span>
+                  </span>
+                </td>
+                <td class="py-3 px-4 text-right text-slate-400 font-mono text-xs whitespace-nowrap">0.9s</td>
+              </tr>
+            
+              <tr class="hover:bg-slate-700/30 transition-colors">
+                <td class="py-3 px-4">
+                  <div class="font-bold text-slate-100">3.2 Products Tab – Add New Product modal opens and validates</div>
+                  
+                </td>
+                <td class="py-3 px-4 text-slate-400 whitespace-nowrap text-xs">ui_automation.spec.js › ⚙️ Admin Panel – Backoffice Operations</td>
+                <td class="py-3 px-4 text-center whitespace-nowrap">
+                  <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+                    <i class="fa-solid fa-circle-check text-emerald-400"></i>
+                    <span>WORKING</span>
+                  </span>
+                </td>
+                <td class="py-3 px-4 text-right text-slate-400 font-mono text-xs whitespace-nowrap">1.4s</td>
+              </tr>
+            
+              <tr class="hover:bg-slate-700/30 transition-colors">
+                <td class="py-3 px-4">
+                  <div class="font-bold text-slate-100">3.3 Products Tab – Edit formulation modal loads current product details</div>
+                  
+                </td>
+                <td class="py-3 px-4 text-slate-400 whitespace-nowrap text-xs">ui_automation.spec.js › ⚙️ Admin Panel – Backoffice Operations</td>
+                <td class="py-3 px-4 text-center whitespace-nowrap">
+                  <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+                    <i class="fa-solid fa-circle-check text-emerald-400"></i>
+                    <span>WORKING</span>
+                  </span>
+                </td>
+                <td class="py-3 px-4 text-right text-slate-400 font-mono text-xs whitespace-nowrap">1.4s</td>
+              </tr>
+            
+              <tr class="hover:bg-slate-700/30 transition-colors">
+                <td class="py-3 px-4">
+                  <div class="font-bold text-slate-100">3.4 Products Tab – Toggle formulation visibility switch</div>
+                  
+                </td>
+                <td class="py-3 px-4 text-slate-400 whitespace-nowrap text-xs">ui_automation.spec.js › ⚙️ Admin Panel – Backoffice Operations</td>
+                <td class="py-3 px-4 text-center whitespace-nowrap">
+                  <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+                    <i class="fa-solid fa-circle-check text-emerald-400"></i>
+                    <span>WORKING</span>
+                  </span>
+                </td>
+                <td class="py-3 px-4 text-right text-slate-400 font-mono text-xs whitespace-nowrap">3.3s</td>
+              </tr>
+            
+              <tr class="hover:bg-slate-700/30 transition-colors">
+                <td class="py-3 px-4">
+                  <div class="font-bold text-slate-100">3.5 Products Tab – Delete confirmation dialog safeguards data</div>
+                  
+                </td>
+                <td class="py-3 px-4 text-slate-400 whitespace-nowrap text-xs">ui_automation.spec.js › ⚙️ Admin Panel – Backoffice Operations</td>
+                <td class="py-3 px-4 text-center whitespace-nowrap">
+                  <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+                    <i class="fa-solid fa-circle-check text-emerald-400"></i>
+                    <span>WORKING</span>
+                  </span>
+                </td>
+                <td class="py-3 px-4 text-right text-slate-400 font-mono text-xs whitespace-nowrap">1.1s</td>
+              </tr>
+            
+              <tr class="hover:bg-slate-700/30 transition-colors">
+                <td class="py-3 px-4">
+                  <div class="font-bold text-slate-100">3.6 Orders Tab – Displays orders table and status metrics</div>
+                  
+                </td>
+                <td class="py-3 px-4 text-slate-400 whitespace-nowrap text-xs">ui_automation.spec.js › ⚙️ Admin Panel – Backoffice Operations</td>
+                <td class="py-3 px-4 text-center whitespace-nowrap">
+                  <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+                    <i class="fa-solid fa-circle-check text-emerald-400"></i>
+                    <span>WORKING</span>
+                  </span>
+                </td>
+                <td class="py-3 px-4 text-right text-slate-400 font-mono text-xs whitespace-nowrap">1.2s</td>
+              </tr>
+            
+              <tr class="hover:bg-slate-700/30 transition-colors">
+                <td class="py-3 px-4">
+                  <div class="font-bold text-slate-100">3.7 Orders Tab – Inline order status dropdown updates status seamlessly</div>
+                  
+                </td>
+                <td class="py-3 px-4 text-slate-400 whitespace-nowrap text-xs">ui_automation.spec.js › ⚙️ Admin Panel – Backoffice Operations</td>
+                <td class="py-3 px-4 text-center whitespace-nowrap">
+                  <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+                    <i class="fa-solid fa-circle-check text-emerald-400"></i>
+                    <span>WORKING</span>
+                  </span>
+                </td>
+                <td class="py-3 px-4 text-right text-slate-400 font-mono text-xs whitespace-nowrap">3.2s</td>
+              </tr>
+            
+              <tr class="hover:bg-slate-700/30 transition-colors">
+                <td class="py-3 px-4">
+                  <div class="font-bold text-slate-100">3.8 Orders Tab – Order Details modal displays full customer & ordered items</div>
+                  
+                </td>
+                <td class="py-3 px-4 text-slate-400 whitespace-nowrap text-xs">ui_automation.spec.js › ⚙️ Admin Panel – Backoffice Operations</td>
+                <td class="py-3 px-4 text-center whitespace-nowrap">
+                  <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+                    <i class="fa-solid fa-circle-check text-emerald-400"></i>
+                    <span>WORKING</span>
+                  </span>
+                </td>
+                <td class="py-3 px-4 text-right text-slate-400 font-mono text-xs whitespace-nowrap">1.4s</td>
+              </tr>
+            
+              <tr class="hover:bg-slate-700/30 transition-colors">
+                <td class="py-3 px-4">
+                  <div class="font-bold text-slate-100">3.9 Orders Tab – PDF Official Invoice generation & download</div>
+                  
+                </td>
+                <td class="py-3 px-4 text-slate-400 whitespace-nowrap text-xs">ui_automation.spec.js › ⚙️ Admin Panel – Backoffice Operations</td>
+                <td class="py-3 px-4 text-center whitespace-nowrap">
+                  <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+                    <i class="fa-solid fa-circle-check text-emerald-400"></i>
+                    <span>WORKING</span>
+                  </span>
+                </td>
+                <td class="py-3 px-4 text-right text-slate-400 font-mono text-xs whitespace-nowrap">2.4s</td>
+              </tr>
+            
+              <tr class="hover:bg-slate-700/30 transition-colors">
+                <td class="py-3 px-4">
+                  <div class="font-bold text-slate-100">3.10 Enquiries Tab – Displays contact inquiries and summary counters</div>
+                  
+                </td>
+                <td class="py-3 px-4 text-slate-400 whitespace-nowrap text-xs">ui_automation.spec.js › ⚙️ Admin Panel – Backoffice Operations</td>
+                <td class="py-3 px-4 text-center whitespace-nowrap">
+                  <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+                    <i class="fa-solid fa-circle-check text-emerald-400"></i>
+                    <span>WORKING</span>
+                  </span>
+                </td>
+                <td class="py-3 px-4 text-right text-slate-400 font-mono text-xs whitespace-nowrap">1.0s</td>
+              </tr>
+            
+              <tr class="hover:bg-slate-700/30 transition-colors">
+                <td class="py-3 px-4">
+                  <div class="font-bold text-slate-100">3.11 Enquiries Tab – Enquiry status inline dropdown update</div>
+                  
+                </td>
+                <td class="py-3 px-4 text-slate-400 whitespace-nowrap text-xs">ui_automation.spec.js › ⚙️ Admin Panel – Backoffice Operations</td>
+                <td class="py-3 px-4 text-center whitespace-nowrap">
+                  <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+                    <i class="fa-solid fa-circle-check text-emerald-400"></i>
+                    <span>WORKING</span>
+                  </span>
+                </td>
+                <td class="py-3 px-4 text-right text-slate-400 font-mono text-xs whitespace-nowrap">3.3s</td>
+              </tr>
+            
+              <tr class="hover:bg-slate-700/30 transition-colors">
+                <td class="py-3 px-4">
+                  <div class="font-bold text-slate-100">3.12 Enquiries Tab – Export CSV button downloads customer inquiries</div>
+                  
+                </td>
+                <td class="py-3 px-4 text-slate-400 whitespace-nowrap text-xs">ui_automation.spec.js › ⚙️ Admin Panel – Backoffice Operations</td>
+                <td class="py-3 px-4 text-center whitespace-nowrap">
+                  <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+                    <i class="fa-solid fa-circle-check text-emerald-400"></i>
+                    <span>WORKING</span>
+                  </span>
+                </td>
+                <td class="py-3 px-4 text-right text-slate-400 font-mono text-xs whitespace-nowrap">1.2s</td>
+              </tr>
+            
+              <tr class="hover:bg-slate-700/30 transition-colors">
+                <td class="py-3 px-4">
+                  <div class="font-bold text-slate-100">3.13 Analytics Tab – Comprehensive revenue & dispatch analytics metrics</div>
+                  
+                </td>
+                <td class="py-3 px-4 text-slate-400 whitespace-nowrap text-xs">ui_automation.spec.js › ⚙️ Admin Panel – Backoffice Operations</td>
+                <td class="py-3 px-4 text-center whitespace-nowrap">
+                  <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+                    <i class="fa-solid fa-circle-check text-emerald-400"></i>
+                    <span>WORKING</span>
+                  </span>
+                </td>
+                <td class="py-3 px-4 text-right text-slate-400 font-mono text-xs whitespace-nowrap">1.4s</td>
+              </tr>
+            
+              <tr class="hover:bg-slate-700/30 transition-colors">
+                <td class="py-3 px-4">
+                  <div class="font-bold text-slate-100">3.14 Admin Logout – Safely clears session and redirects</div>
+                  
+                </td>
+                <td class="py-3 px-4 text-slate-400 whitespace-nowrap text-xs">ui_automation.spec.js › ⚙️ Admin Panel – Backoffice Operations</td>
+                <td class="py-3 px-4 text-center whitespace-nowrap">
+                  <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+                    <i class="fa-solid fa-circle-check text-emerald-400"></i>
+                    <span>WORKING</span>
+                  </span>
+                </td>
+                <td class="py-3 px-4 text-right text-slate-400 font-mono text-xs whitespace-nowrap">4.9s</td>
+              </tr>
+            
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- UI Screenshot Gallery -->
+    <div class="bg-slate-800/90 border border-slate-700/80 rounded-3xl p-6 sm:p-8 backdrop-blur-md shadow-2xl">
+      <div class="flex items-center justify-between mb-6">
+        <div>
+          <h2 class="text-lg sm:text-xl font-black text-white flex items-center gap-2">
+            <i class="fa-solid fa-camera text-emerald-400"></i>
+            <span>Visual Verification Screenshots (47)</span>
+          </h2>
+          <p class="text-xs text-slate-400 mt-1">Live screen captures taken by Chromium during each test phase</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+        
+            <div class="bg-slate-900/60 rounded-2xl border border-slate-700/60 overflow-hidden group hover:border-emerald-500/50 transition-all">
+              <div class="p-3 bg-slate-950/60 border-b border-slate-800 flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-200 capitalize">home hero loaded</span>
+                <span class="text-[10px] font-mono text-emerald-400 font-bold">PASS</span>
+              </div>
+              <div class="aspect-video bg-black/40 overflow-hidden relative">
+                <img src="../tests/screenshots/01-home-hero-loaded.png" alt="home hero loaded" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
+              </div>
+            </div>
+          
+            <div class="bg-slate-900/60 rounded-2xl border border-slate-700/60 overflow-hidden group hover:border-emerald-500/50 transition-all">
+              <div class="p-3 bg-slate-950/60 border-b border-slate-800 flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-200 capitalize">home loaded</span>
+                <span class="text-[10px] font-mono text-emerald-400 font-bold">PASS</span>
+              </div>
+              <div class="aspect-video bg-black/40 overflow-hidden relative">
+                <img src="../tests/screenshots/01-home-loaded.png" alt="home loaded" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
+              </div>
+            </div>
+          
+            <div class="bg-slate-900/60 rounded-2xl border border-slate-700/60 overflow-hidden group hover:border-emerald-500/50 transition-all">
+              <div class="p-3 bg-slate-950/60 border-b border-slate-800 flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-200 capitalize">catalog products visible</span>
+                <span class="text-[10px] font-mono text-emerald-400 font-bold">PASS</span>
+              </div>
+              <div class="aspect-video bg-black/40 overflow-hidden relative">
+                <img src="../tests/screenshots/02-catalog-products-visible.png" alt="catalog products visible" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
+              </div>
+            </div>
+          
+            <div class="bg-slate-900/60 rounded-2xl border border-slate-700/60 overflow-hidden group hover:border-emerald-500/50 transition-all">
+              <div class="p-3 bg-slate-950/60 border-b border-slate-800 flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-200 capitalize">products visible</span>
+                <span class="text-[10px] font-mono text-emerald-400 font-bold">PASS</span>
+              </div>
+              <div class="aspect-video bg-black/40 overflow-hidden relative">
+                <img src="../tests/screenshots/02-products-visible.png" alt="products visible" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
+              </div>
+            </div>
+          
+            <div class="bg-slate-900/60 rounded-2xl border border-slate-700/60 overflow-hidden group hover:border-emerald-500/50 transition-all">
+              <div class="p-3 bg-slate-950/60 border-b border-slate-800 flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-200 capitalize">search results 9g</span>
+                <span class="text-[10px] font-mono text-emerald-400 font-bold">PASS</span>
+              </div>
+              <div class="aspect-video bg-black/40 overflow-hidden relative">
+                <img src="../tests/screenshots/03-search-results-9g.png" alt="search results 9g" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
+              </div>
+            </div>
+          
+            <div class="bg-slate-900/60 rounded-2xl border border-slate-700/60 overflow-hidden group hover:border-emerald-500/50 transition-all">
+              <div class="p-3 bg-slate-950/60 border-b border-slate-800 flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-200 capitalize">category filtered</span>
+                <span class="text-[10px] font-mono text-emerald-400 font-bold">PASS</span>
+              </div>
+              <div class="aspect-video bg-black/40 overflow-hidden relative">
+                <img src="../tests/screenshots/04-category-filtered.png" alt="category filtered" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
+              </div>
+            </div>
+          
+            <div class="bg-slate-900/60 rounded-2xl border border-slate-700/60 overflow-hidden group hover:border-emerald-500/50 transition-all">
+              <div class="p-3 bg-slate-950/60 border-b border-slate-800 flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-200 capitalize">product detail modal open</span>
+                <span class="text-[10px] font-mono text-emerald-400 font-bold">PASS</span>
+              </div>
+              <div class="aspect-video bg-black/40 overflow-hidden relative">
+                <img src="../tests/screenshots/05-product-detail-modal-open.png" alt="product detail modal open" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
+              </div>
+            </div>
+          
+            <div class="bg-slate-900/60 rounded-2xl border border-slate-700/60 overflow-hidden group hover:border-emerald-500/50 transition-all">
+              <div class="p-3 bg-slate-950/60 border-b border-slate-800 flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-200 capitalize">checkout modal open</span>
+                <span class="text-[10px] font-mono text-emerald-400 font-bold">PASS</span>
+              </div>
+              <div class="aspect-video bg-black/40 overflow-hidden relative">
+                <img src="../tests/screenshots/06-checkout-modal-open.png" alt="checkout modal open" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
+              </div>
+            </div>
+          
+            <div class="bg-slate-900/60 rounded-2xl border border-slate-700/60 overflow-hidden group hover:border-emerald-500/50 transition-all">
+              <div class="p-3 bg-slate-950/60 border-b border-slate-800 flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-200 capitalize">checkout form filled</span>
+                <span class="text-[10px] font-mono text-emerald-400 font-bold">PASS</span>
+              </div>
+              <div class="aspect-video bg-black/40 overflow-hidden relative">
+                <img src="../tests/screenshots/07-checkout-form-filled.png" alt="checkout form filled" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
+              </div>
+            </div>
+          
+            <div class="bg-slate-900/60 rounded-2xl border border-slate-700/60 overflow-hidden group hover:border-emerald-500/50 transition-all">
+              <div class="p-3 bg-slate-950/60 border-b border-slate-800 flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-200 capitalize">order confirmed receipt</span>
+                <span class="text-[10px] font-mono text-emerald-400 font-bold">PASS</span>
+              </div>
+              <div class="aspect-video bg-black/40 overflow-hidden relative">
+                <img src="../tests/screenshots/08-order-confirmed-receipt.png" alt="order confirmed receipt" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
+              </div>
+            </div>
+          
+            <div class="bg-slate-900/60 rounded-2xl border border-slate-700/60 overflow-hidden group hover:border-emerald-500/50 transition-all">
+              <div class="p-3 bg-slate-950/60 border-b border-slate-800 flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-200 capitalize">track order modal searched</span>
+                <span class="text-[10px] font-mono text-emerald-400 font-bold">PASS</span>
+              </div>
+              <div class="aspect-video bg-black/40 overflow-hidden relative">
+                <img src="../tests/screenshots/09-track-order-modal-searched.png" alt="track order modal searched" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
+              </div>
+            </div>
+          
+            <div class="bg-slate-900/60 rounded-2xl border border-slate-700/60 overflow-hidden group hover:border-emerald-500/50 transition-all">
+              <div class="p-3 bg-slate-950/60 border-b border-slate-800 flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-200 capitalize">contact form filled</span>
+                <span class="text-[10px] font-mono text-emerald-400 font-bold">PASS</span>
+              </div>
+              <div class="aspect-video bg-black/40 overflow-hidden relative">
+                <img src="../tests/screenshots/10-contact-form-filled.png" alt="contact form filled" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
+              </div>
+            </div>
+          
+            <div class="bg-slate-900/60 rounded-2xl border border-slate-700/60 overflow-hidden group hover:border-emerald-500/50 transition-all">
+              <div class="p-3 bg-slate-950/60 border-b border-slate-800 flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-200 capitalize">contact form success</span>
+                <span class="text-[10px] font-mono text-emerald-400 font-bold">PASS</span>
+              </div>
+              <div class="aspect-video bg-black/40 overflow-hidden relative">
+                <img src="../tests/screenshots/11-contact-form-success.png" alt="contact form success" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
+              </div>
+            </div>
+          
+            <div class="bg-slate-900/60 rounded-2xl border border-slate-700/60 overflow-hidden group hover:border-emerald-500/50 transition-all">
+              <div class="p-3 bg-slate-950/60 border-b border-slate-800 flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-200 capitalize">footer contact verified</span>
+                <span class="text-[10px] font-mono text-emerald-400 font-bold">PASS</span>
+              </div>
+              <div class="aspect-video bg-black/40 overflow-hidden relative">
+                <img src="../tests/screenshots/12-footer-contact-verified.png" alt="footer contact verified" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
+              </div>
+            </div>
+          
+            <div class="bg-slate-900/60 rounded-2xl border border-slate-700/60 overflow-hidden group hover:border-emerald-500/50 transition-all">
+              <div class="p-3 bg-slate-950/60 border-b border-slate-800 flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-200 capitalize">footer</span>
+                <span class="text-[10px] font-mono text-emerald-400 font-bold">PASS</span>
+              </div>
+              <div class="aspect-video bg-black/40 overflow-hidden relative">
+                <img src="../tests/screenshots/12-footer.png" alt="footer" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
+              </div>
+            </div>
+          
+            <div class="bg-slate-900/60 rounded-2xl border border-slate-700/60 overflow-hidden group hover:border-emerald-500/50 transition-all">
+              <div class="p-3 bg-slate-950/60 border-b border-slate-800 flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-200 capitalize">admin login page</span>
+                <span class="text-[10px] font-mono text-emerald-400 font-bold">PASS</span>
+              </div>
+              <div class="aspect-video bg-black/40 overflow-hidden relative">
+                <img src="../tests/screenshots/20-admin-login-page.png" alt="admin login page" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
+              </div>
+            </div>
+          
+            <div class="bg-slate-900/60 rounded-2xl border border-slate-700/60 overflow-hidden group hover:border-emerald-500/50 transition-all">
+              <div class="p-3 bg-slate-950/60 border-b border-slate-800 flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-200 capitalize">admin login screen</span>
+                <span class="text-[10px] font-mono text-emerald-400 font-bold">PASS</span>
+              </div>
+              <div class="aspect-video bg-black/40 overflow-hidden relative">
+                <img src="../tests/screenshots/20-admin-login-screen.png" alt="admin login screen" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
+              </div>
+            </div>
+          
+            <div class="bg-slate-900/60 rounded-2xl border border-slate-700/60 overflow-hidden group hover:border-emerald-500/50 transition-all">
+              <div class="p-3 bg-slate-950/60 border-b border-slate-800 flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-200 capitalize">admin login rejected</span>
+                <span class="text-[10px] font-mono text-emerald-400 font-bold">PASS</span>
+              </div>
+              <div class="aspect-video bg-black/40 overflow-hidden relative">
+                <img src="../tests/screenshots/21-admin-login-rejected.png" alt="admin login rejected" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
+              </div>
+            </div>
+          
+            <div class="bg-slate-900/60 rounded-2xl border border-slate-700/60 overflow-hidden group hover:border-emerald-500/50 transition-all">
+              <div class="p-3 bg-slate-950/60 border-b border-slate-800 flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-200 capitalize">admin login wrong</span>
+                <span class="text-[10px] font-mono text-emerald-400 font-bold">PASS</span>
+              </div>
+              <div class="aspect-video bg-black/40 overflow-hidden relative">
+                <img src="../tests/screenshots/21-admin-login-wrong.png" alt="admin login wrong" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
+              </div>
+            </div>
+          
+            <div class="bg-slate-900/60 rounded-2xl border border-slate-700/60 overflow-hidden group hover:border-emerald-500/50 transition-all">
+              <div class="p-3 bg-slate-950/60 border-b border-slate-800 flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-200 capitalize">admin after login</span>
+                <span class="text-[10px] font-mono text-emerald-400 font-bold">PASS</span>
+              </div>
+              <div class="aspect-video bg-black/40 overflow-hidden relative">
+                <img src="../tests/screenshots/22-admin-after-login.png" alt="admin after login" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
+              </div>
+            </div>
+          
+            <div class="bg-slate-900/60 rounded-2xl border border-slate-700/60 overflow-hidden group hover:border-emerald-500/50 transition-all">
+              <div class="p-3 bg-slate-950/60 border-b border-slate-800 flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-200 capitalize">admin authenticated dashboard</span>
+                <span class="text-[10px] font-mono text-emerald-400 font-bold">PASS</span>
+              </div>
+              <div class="aspect-video bg-black/40 overflow-hidden relative">
+                <img src="../tests/screenshots/22-admin-authenticated-dashboard.png" alt="admin authenticated dashboard" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
+              </div>
+            </div>
+          
+            <div class="bg-slate-900/60 rounded-2xl border border-slate-700/60 overflow-hidden group hover:border-emerald-500/50 transition-all">
+              <div class="p-3 bg-slate-950/60 border-b border-slate-800 flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-200 capitalize">admin dashboard</span>
+                <span class="text-[10px] font-mono text-emerald-400 font-bold">PASS</span>
+              </div>
+              <div class="aspect-video bg-black/40 overflow-hidden relative">
+                <img src="../tests/screenshots/30-admin-dashboard.png" alt="admin dashboard" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
+              </div>
+            </div>
+          
+            <div class="bg-slate-900/60 rounded-2xl border border-slate-700/60 overflow-hidden group hover:border-emerald-500/50 transition-all">
+              <div class="p-3 bg-slate-950/60 border-b border-slate-800 flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-200 capitalize">admin products catalog</span>
+                <span class="text-[10px] font-mono text-emerald-400 font-bold">PASS</span>
+              </div>
+              <div class="aspect-video bg-black/40 overflow-hidden relative">
+                <img src="../tests/screenshots/31-admin-products-catalog.png" alt="admin products catalog" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
+              </div>
+            </div>
+          
+            <div class="bg-slate-900/60 rounded-2xl border border-slate-700/60 overflow-hidden group hover:border-emerald-500/50 transition-all">
+              <div class="p-3 bg-slate-950/60 border-b border-slate-800 flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-200 capitalize">products tab</span>
+                <span class="text-[10px] font-mono text-emerald-400 font-bold">PASS</span>
+              </div>
+              <div class="aspect-video bg-black/40 overflow-hidden relative">
+                <img src="../tests/screenshots/31-products-tab.png" alt="products tab" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
+              </div>
+            </div>
+          
+            <div class="bg-slate-900/60 rounded-2xl border border-slate-700/60 overflow-hidden group hover:border-emerald-500/50 transition-all">
+              <div class="p-3 bg-slate-950/60 border-b border-slate-800 flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-200 capitalize">add product modal</span>
+                <span class="text-[10px] font-mono text-emerald-400 font-bold">PASS</span>
+              </div>
+              <div class="aspect-video bg-black/40 overflow-hidden relative">
+                <img src="../tests/screenshots/32-add-product-modal.png" alt="add product modal" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
+              </div>
+            </div>
+          
+            <div class="bg-slate-900/60 rounded-2xl border border-slate-700/60 overflow-hidden group hover:border-emerald-500/50 transition-all">
+              <div class="p-3 bg-slate-950/60 border-b border-slate-800 flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-200 capitalize">admin add product modal</span>
+                <span class="text-[10px] font-mono text-emerald-400 font-bold">PASS</span>
+              </div>
+              <div class="aspect-video bg-black/40 overflow-hidden relative">
+                <img src="../tests/screenshots/32-admin-add-product-modal.png" alt="admin add product modal" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
+              </div>
+            </div>
+          
+            <div class="bg-slate-900/60 rounded-2xl border border-slate-700/60 overflow-hidden group hover:border-emerald-500/50 transition-all">
+              <div class="p-3 bg-slate-950/60 border-b border-slate-800 flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-200 capitalize">admin edit product modal</span>
+                <span class="text-[10px] font-mono text-emerald-400 font-bold">PASS</span>
+              </div>
+              <div class="aspect-video bg-black/40 overflow-hidden relative">
+                <img src="../tests/screenshots/33-admin-edit-product-modal.png" alt="admin edit product modal" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
+              </div>
+            </div>
+          
+            <div class="bg-slate-900/60 rounded-2xl border border-slate-700/60 overflow-hidden group hover:border-emerald-500/50 transition-all">
+              <div class="p-3 bg-slate-950/60 border-b border-slate-800 flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-200 capitalize">admin toggle product status</span>
+                <span class="text-[10px] font-mono text-emerald-400 font-bold">PASS</span>
+              </div>
+              <div class="aspect-video bg-black/40 overflow-hidden relative">
+                <img src="../tests/screenshots/34-admin-toggle-product-status.png" alt="admin toggle product status" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
+              </div>
+            </div>
+          
+            <div class="bg-slate-900/60 rounded-2xl border border-slate-700/60 overflow-hidden group hover:border-emerald-500/50 transition-all">
+              <div class="p-3 bg-slate-950/60 border-b border-slate-800 flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-200 capitalize">edit product modal</span>
+                <span class="text-[10px] font-mono text-emerald-400 font-bold">PASS</span>
+              </div>
+              <div class="aspect-video bg-black/40 overflow-hidden relative">
+                <img src="../tests/screenshots/34-edit-product-modal.png" alt="edit product modal" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
+              </div>
+            </div>
+          
+            <div class="bg-slate-900/60 rounded-2xl border border-slate-700/60 overflow-hidden group hover:border-emerald-500/50 transition-all">
+              <div class="p-3 bg-slate-950/60 border-b border-slate-800 flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-200 capitalize">admin delete product dialog</span>
+                <span class="text-[10px] font-mono text-emerald-400 font-bold">PASS</span>
+              </div>
+              <div class="aspect-video bg-black/40 overflow-hidden relative">
+                <img src="../tests/screenshots/35-admin-delete-product-dialog.png" alt="admin delete product dialog" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
+              </div>
+            </div>
+          
+            <div class="bg-slate-900/60 rounded-2xl border border-slate-700/60 overflow-hidden group hover:border-emerald-500/50 transition-all">
+              <div class="p-3 bg-slate-950/60 border-b border-slate-800 flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-200 capitalize">delete confirm dialog</span>
+                <span class="text-[10px] font-mono text-emerald-400 font-bold">PASS</span>
+              </div>
+              <div class="aspect-video bg-black/40 overflow-hidden relative">
+                <img src="../tests/screenshots/35-delete-confirm-dialog.png" alt="delete confirm dialog" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
+              </div>
+            </div>
+          
+            <div class="bg-slate-900/60 rounded-2xl border border-slate-700/60 overflow-hidden group hover:border-emerald-500/50 transition-all">
+              <div class="p-3 bg-slate-950/60 border-b border-slate-800 flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-200 capitalize">admin orders table</span>
+                <span class="text-[10px] font-mono text-emerald-400 font-bold">PASS</span>
+              </div>
+              <div class="aspect-video bg-black/40 overflow-hidden relative">
+                <img src="../tests/screenshots/36-admin-orders-table.png" alt="admin orders table" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
+              </div>
+            </div>
+          
+            <div class="bg-slate-900/60 rounded-2xl border border-slate-700/60 overflow-hidden group hover:border-emerald-500/50 transition-all">
+              <div class="p-3 bg-slate-950/60 border-b border-slate-800 flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-200 capitalize">admin order status inline updated</span>
+                <span class="text-[10px] font-mono text-emerald-400 font-bold">PASS</span>
+              </div>
+              <div class="aspect-video bg-black/40 overflow-hidden relative">
+                <img src="../tests/screenshots/37-admin-order-status-inline-updated.png" alt="admin order status inline updated" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
+              </div>
+            </div>
+          
+            <div class="bg-slate-900/60 rounded-2xl border border-slate-700/60 overflow-hidden group hover:border-emerald-500/50 transition-all">
+              <div class="p-3 bg-slate-950/60 border-b border-slate-800 flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-200 capitalize">admin order details modal</span>
+                <span class="text-[10px] font-mono text-emerald-400 font-bold">PASS</span>
+              </div>
+              <div class="aspect-video bg-black/40 overflow-hidden relative">
+                <img src="../tests/screenshots/38-admin-order-details-modal.png" alt="admin order details modal" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
+              </div>
+            </div>
+          
+            <div class="bg-slate-900/60 rounded-2xl border border-slate-700/60 overflow-hidden group hover:border-emerald-500/50 transition-all">
+              <div class="p-3 bg-slate-950/60 border-b border-slate-800 flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-200 capitalize">admin order pdf triggered</span>
+                <span class="text-[10px] font-mono text-emerald-400 font-bold">PASS</span>
+              </div>
+              <div class="aspect-video bg-black/40 overflow-hidden relative">
+                <img src="../tests/screenshots/39-admin-order-pdf-triggered.png" alt="admin order pdf triggered" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
+              </div>
+            </div>
+          
+            <div class="bg-slate-900/60 rounded-2xl border border-slate-700/60 overflow-hidden group hover:border-emerald-500/50 transition-all">
+              <div class="p-3 bg-slate-950/60 border-b border-slate-800 flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-200 capitalize">admin enquiries table</span>
+                <span class="text-[10px] font-mono text-emerald-400 font-bold">PASS</span>
+              </div>
+              <div class="aspect-video bg-black/40 overflow-hidden relative">
+                <img src="../tests/screenshots/40-admin-enquiries-table.png" alt="admin enquiries table" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
+              </div>
+            </div>
+          
+            <div class="bg-slate-900/60 rounded-2xl border border-slate-700/60 overflow-hidden group hover:border-emerald-500/50 transition-all">
+              <div class="p-3 bg-slate-950/60 border-b border-slate-800 flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-200 capitalize">orders tab</span>
+                <span class="text-[10px] font-mono text-emerald-400 font-bold">PASS</span>
+              </div>
+              <div class="aspect-video bg-black/40 overflow-hidden relative">
+                <img src="../tests/screenshots/40-orders-tab.png" alt="orders tab" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
+              </div>
+            </div>
+          
+            <div class="bg-slate-900/60 rounded-2xl border border-slate-700/60 overflow-hidden group hover:border-emerald-500/50 transition-all">
+              <div class="p-3 bg-slate-950/60 border-b border-slate-800 flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-200 capitalize">admin enquiry status inline updated</span>
+                <span class="text-[10px] font-mono text-emerald-400 font-bold">PASS</span>
+              </div>
+              <div class="aspect-video bg-black/40 overflow-hidden relative">
+                <img src="../tests/screenshots/41-admin-enquiry-status-inline-updated.png" alt="admin enquiry status inline updated" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
+              </div>
+            </div>
+          
+            <div class="bg-slate-900/60 rounded-2xl border border-slate-700/60 overflow-hidden group hover:border-emerald-500/50 transition-all">
+              <div class="p-3 bg-slate-950/60 border-b border-slate-800 flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-200 capitalize">admin enquiry export csv</span>
+                <span class="text-[10px] font-mono text-emerald-400 font-bold">PASS</span>
+              </div>
+              <div class="aspect-video bg-black/40 overflow-hidden relative">
+                <img src="../tests/screenshots/42-admin-enquiry-export-csv.png" alt="admin enquiry export csv" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
+              </div>
+            </div>
+          
+            <div class="bg-slate-900/60 rounded-2xl border border-slate-700/60 overflow-hidden group hover:border-emerald-500/50 transition-all">
+              <div class="p-3 bg-slate-950/60 border-b border-slate-800 flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-200 capitalize">order details modal</span>
+                <span class="text-[10px] font-mono text-emerald-400 font-bold">PASS</span>
+              </div>
+              <div class="aspect-video bg-black/40 overflow-hidden relative">
+                <img src="../tests/screenshots/42-order-details-modal.png" alt="order details modal" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
+              </div>
+            </div>
+          
+            <div class="bg-slate-900/60 rounded-2xl border border-slate-700/60 overflow-hidden group hover:border-emerald-500/50 transition-all">
+              <div class="p-3 bg-slate-950/60 border-b border-slate-800 flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-200 capitalize">admin analytics overview</span>
+                <span class="text-[10px] font-mono text-emerald-400 font-bold">PASS</span>
+              </div>
+              <div class="aspect-video bg-black/40 overflow-hidden relative">
+                <img src="../tests/screenshots/43-admin-analytics-overview.png" alt="admin analytics overview" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
+              </div>
+            </div>
+          
+            <div class="bg-slate-900/60 rounded-2xl border border-slate-700/60 overflow-hidden group hover:border-emerald-500/50 transition-all">
+              <div class="p-3 bg-slate-950/60 border-b border-slate-800 flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-200 capitalize">order invoice</span>
+                <span class="text-[10px] font-mono text-emerald-400 font-bold">PASS</span>
+              </div>
+              <div class="aspect-video bg-black/40 overflow-hidden relative">
+                <img src="../tests/screenshots/43-order-invoice.png" alt="order invoice" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
+              </div>
+            </div>
+          
+            <div class="bg-slate-900/60 rounded-2xl border border-slate-700/60 overflow-hidden group hover:border-emerald-500/50 transition-all">
+              <div class="p-3 bg-slate-950/60 border-b border-slate-800 flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-200 capitalize">admin logged out</span>
+                <span class="text-[10px] font-mono text-emerald-400 font-bold">PASS</span>
+              </div>
+              <div class="aspect-video bg-black/40 overflow-hidden relative">
+                <img src="../tests/screenshots/44-admin-logged-out.png" alt="admin logged out" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
+              </div>
+            </div>
+          
+            <div class="bg-slate-900/60 rounded-2xl border border-slate-700/60 overflow-hidden group hover:border-emerald-500/50 transition-all">
+              <div class="p-3 bg-slate-950/60 border-b border-slate-800 flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-200 capitalize">enquiries tab</span>
+                <span class="text-[10px] font-mono text-emerald-400 font-bold">PASS</span>
+              </div>
+              <div class="aspect-video bg-black/40 overflow-hidden relative">
+                <img src="../tests/screenshots/50-enquiries-tab.png" alt="enquiries tab" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
+              </div>
+            </div>
+          
+            <div class="bg-slate-900/60 rounded-2xl border border-slate-700/60 overflow-hidden group hover:border-emerald-500/50 transition-all">
+              <div class="p-3 bg-slate-950/60 border-b border-slate-800 flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-200 capitalize">enquiry export</span>
+                <span class="text-[10px] font-mono text-emerald-400 font-bold">PASS</span>
+              </div>
+              <div class="aspect-video bg-black/40 overflow-hidden relative">
+                <img src="../tests/screenshots/53-enquiry-export.png" alt="enquiry export" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
+              </div>
+            </div>
+          
+            <div class="bg-slate-900/60 rounded-2xl border border-slate-700/60 overflow-hidden group hover:border-emerald-500/50 transition-all">
+              <div class="p-3 bg-slate-950/60 border-b border-slate-800 flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-200 capitalize">analytics tab</span>
+                <span class="text-[10px] font-mono text-emerald-400 font-bold">PASS</span>
+              </div>
+              <div class="aspect-video bg-black/40 overflow-hidden relative">
+                <img src="../tests/screenshots/60-analytics-tab.png" alt="analytics tab" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
+              </div>
+            </div>
+          
+            <div class="bg-slate-900/60 rounded-2xl border border-slate-700/60 overflow-hidden group hover:border-emerald-500/50 transition-all">
+              <div class="p-3 bg-slate-950/60 border-b border-slate-800 flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-200 capitalize">after logout</span>
+                <span class="text-[10px] font-mono text-emerald-400 font-bold">PASS</span>
+              </div>
+              <div class="aspect-video bg-black/40 overflow-hidden relative">
+                <img src="../tests/screenshots/70-after-logout.png" alt="after logout" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
+              </div>
+            </div>
+          
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>

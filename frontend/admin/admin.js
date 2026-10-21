@@ -967,39 +967,24 @@ function generateInvoiceHtml(order) {
 </html>`;
 }
 
-window.downloadOrderInvoice = function(orderId) {
+window.downloadOrderInvoice = function(orderId) { /* download PDF */
   const o = ordersList.find((item) => item.orderId === orderId || item.id === orderId);
   if (!o) {
-    showToast('Order record not found', 'error');
+    showToast("Order record not found", "error");
     return;
   }
-
   try {
-    const html = generateInvoiceHtml(o);
-    // 1. Try opening print window
-    const printWindow = window.open('', '_blank');
-    if (printWindow) {
-      printWindow.document.open();
-      printWindow.document.write(html);
-      printWindow.document.close();
-      showToast(`Invoice #${orderId} opened for printing!`);
-    } else {
-      // 2. Direct download fallback
-      const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `Invoice-${orderId}.html`;
-      document.body.appendChild(a);
-      a.click();
-      setTimeout(() => {
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-      }, 500);
-      showToast(`Invoice #${orderId} downloaded successfully!`);
-    }
+    const id = o.orderId || o.id || orderId;
+    const downloadUrl = `/api/orders//invoice/download`;
+    const a = document.createElement("a");
+    a.href = downloadUrl;
+    a.download = `HealthNutra_Invoice_.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => document.body.removeChild(a), 300);
+    showToast(`Downloading official PDF invoice for #...`);
   } catch (err) {
-    showToast('Error generating invoice: ' + err.message, 'error');
+    showToast("Error downloading invoice: " + err.message, "error");
   }
 };
 

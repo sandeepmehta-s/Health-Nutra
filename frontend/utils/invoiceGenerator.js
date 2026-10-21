@@ -467,35 +467,33 @@ export function downloadOrderInvoicePDF(order) {
 </html>
   `;
 
-  // Open invoice in new window and trigger instant print / save PDF
+  // 1-Click Direct Binary PDF Download via API endpoint
+  try {
+    const downloadUrl = `/api/orders//invoice/download`;
+    const a = document.createElement("a");
+    a.href = downloadUrl;
+    a.download = `HealthNutra_Invoice_.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => document.body.removeChild(a), 300);
+    return;
+  } catch (err) {
+    console.warn("Fallback to browser print:", err.message);
+  }
+
+  // Fallback: Open invoice in new window
   const printWindow = window.open("", "_blank");
   if (printWindow) {
     printWindow.document.open();
     printWindow.document.write(invoiceHTML);
     printWindow.document.close();
-    // Auto-focus and prompt print dialog after content loads
-    setTimeout(() => {
-      printWindow.focus();
-      printWindow.print();
-    }, 400);
-  } else {
-    // If popup blocked, create an iframe or fallback download
-    const blob = new Blob([invoiceHTML], { type: "text/html" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `Invoice-${orderId}.html`;
-    a.click();
-    URL.revokeObjectURL(url);
+    setTimeout(() => { printWindow.focus(); printWindow.print(); }, 400);
   }
 }
 
-// Global browser registration
 if (typeof window !== "undefined") {
   window.downloadOrderInvoicePDF = downloadOrderInvoicePDF;
 }
-
 if (typeof exports !== "undefined") {
   exports.downloadOrderInvoicePDF = downloadOrderInvoicePDF;
 }
-

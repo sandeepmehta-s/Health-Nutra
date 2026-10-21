@@ -128,6 +128,7 @@ export async function sendOrderNotifications(order) {
   const adminEmail = process.env.ADMIN_EMAIL || process.env.VITE_ADMIN_EMAIL || "healthnutra16@gmail.com";
   const siteUrl = getProductionBaseUrl();
   const invoiceUrl = `${siteUrl}/api/orders/${order.orderId}/invoice`;
+  const invoiceDownloadUrl = `${siteUrl}/api/orders/${order.orderId}/invoice/download`;
 
   // Format Items table
   const items = order.items && Array.isArray(order.items) ? order.items : [];
@@ -199,10 +200,10 @@ export async function sendOrderNotifications(order) {
             </div>
           </div>
 
-          <!-- Action Buttons: Download PDF Invoice & Live Tracking -->
+          <!-- Action Buttons: One-Click Auto-Download PDF Invoice & Live Tracking -->
           <div style="text-align: center; margin: 24px 0 16px 0;">
-            <a href="${invoiceUrl}" target="_blank" style="display: inline-block; background: #166534; color: #ffffff; padding: 12px 24px; border-radius: 10px; text-decoration: none; font-size: 13px; font-weight: bold; margin: 4px; box-shadow: 0 2px 4px rgba(22, 101, 52, 0.2);">
-              📄 Download & Print Official PDF Invoice
+            <a href="${invoiceDownloadUrl}" target="_blank" style="display: inline-block; background: #166534; color: #ffffff; padding: 12px 24px; border-radius: 10px; text-decoration: none; font-size: 13px; font-weight: bold; margin: 4px; box-shadow: 0 2px 4px rgba(22, 101, 52, 0.2);">
+              ⬇️ One-Click Auto Download PDF Invoice
             </a>
             <a href="${siteUrl}/" target="_blank" style="display: inline-block; background: #f8fafc; color: #334155; padding: 12px 20px; border-radius: 10px; text-decoration: none; font-size: 13px; font-weight: bold; border: 1px solid #cbd5e1; margin: 4px;">
               🚚 Track Live Shipment
@@ -241,7 +242,7 @@ export async function sendOrderNotifications(order) {
       </table>
       <div style="margin: 20px 0; text-align: center;">
         <a href="${siteUrl}/admin" style="display: inline-block; background: #166534; color: #ffffff; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-size: 13px; font-weight: bold; margin: 4px;">View in Admin Portal</a>
-        <a href="${invoiceUrl}" target="_blank" style="display: inline-block; background: #f8fafc; color: #334155; padding: 10px 18px; border-radius: 8px; text-decoration: none; font-size: 13px; font-weight: bold; border: 1px solid #cbd5e1; margin: 4px;">Print Tax Invoice</a>
+        <a href="${invoiceDownloadUrl}" target="_blank" style="display: inline-block; background: #f8fafc; color: #334155; padding: 10px 18px; border-radius: 8px; text-decoration: none; font-size: 13px; font-weight: bold; border: 1px solid #cbd5e1; margin: 4px;">⬇️ Download PDF Invoice</a>
       </div>
       <div style="margin-top: 24px; padding-top: 16px; border-top: 1px solid #e2e8f0; font-size: 11px; color: #94a3b8; text-align: center;">
         Health Nutra Order Management • ${siteUrl}

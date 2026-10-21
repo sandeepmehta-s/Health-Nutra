@@ -12,6 +12,7 @@ import {
 import { cache } from "../services/cacheService.js";
 import { orderRateLimiter, contactRateLimiter, trackingRateLimiter } from "../middleware/rateLimiter.js";
 import { sendOrderNotifications, sendEnquiryNotification } from "../services/emailService.js";
+import { generateInvoicePdfBuffer } from "../services/pdfService.js";
 
 const router = express.Router();
 
@@ -309,7 +310,34 @@ router.get(["/orders/:id", "/orders/track/:id"], trackingRateLimiter, async (req
   }
 });
 
-// GET /api/orders/:id/invoice - Render official Tax Invoice for Customer & Print-to-PDF
+// GET /api/orders/:id/invoice/download (or /invoice.pdf) - One-Click Direct Binary PDF Download
+router.get(["/orders/:id/invoice/download", "/orders/:id/invoice.pdf"], async (req, res) => {
+  try {
+    const rawId = (req.params.id || "").trim();
+    if (!rawId) {
+      return res.status(400).json({ success: false, message: "Order ID is required." });
+    }
+
+    const order = await getOrderById(rawId);
+    if (!order) {
+      return res.status(404).json({ success: false, message: "Order not found. Please verify your Order Reference ID." });
+    }
+
+    const orderId = order.orderId || order.id || rawId;
+    const pdfBuffer = await generateInvoicePdfBuffer(order);
+
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", `attachment; filename="HealthNutra_Invoice_${orderId}.pdf"`);
+    res.setHeader("Content-Length", pdfBuffer.length);
+    res.setHeader("Cache-Control", "no-cache");
+    return res.end(pdfBuffer);
+  } catch (err) {
+    console.error("[PDF Generation Error]", err);
+    res.status(500).json({ success: false, message: "Failed to generate PDF invoice: " + err.message });
+  }
+});
+
+// GET /api/orders/:id/invoice - Render official Tax Invoice for Customer & One-Click PDF Download
 router.get("/orders/:id/invoice", async (req, res) => {
   try {
     const rawId = (req.params.id || "").trim();
@@ -323,6 +351,23 @@ router.get("/orders/:id/invoice", async (req, res) => {
     }
 
     const orderId = order.orderId || order.id || rawId;
+
+    // Check if client explicitly requested binary download via query flag
+    const wantsDownload =
+      req.query.download === "pdf" ||
+      req.query.download === "1" ||
+      req.query.download === "true" ||
+      req.query.format === "pdf";
+
+    if (wantsDownload) {
+      const pdfBuffer = await generateInvoicePdfBuffer(order);
+      res.setHeader("Content-Type", "application/pdf");
+      res.setHeader("Content-Disposition", `attachment; filename="HealthNutra_Invoice_${orderId}.pdf"`);
+      res.setHeader("Content-Length", pdfBuffer.length);
+      res.setHeader("Cache-Control", "no-cache");
+      return res.end(pdfBuffer);
+    }
+
     const createdAt = order.createdAt
       ? new Date(order.createdAt).toLocaleDateString("en-IN", {
           day: "2-digit",
@@ -378,8 +423,12 @@ router.get("/orders/:id/invoice", async (req, res) => {
     .total-row { font-size: 16px; font-weight: 900; color: #166534; }
     .footer { margin-top: 32px; padding-top: 20px; border-top: 1px solid #e2e8f0; text-align: center; font-size: 11px; color: #64748b; line-height: 1.6; }
     .actions-bar { display: flex; justify-content: space-between; align-items: center; max-width: 750px; margin: 0 auto 16px auto; }
-    .print-btn { background: #166534; color: white; padding: 10px 22px; border-radius: 10px; border: none; font-weight: bold; cursor: pointer; font-size: 13px; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 2px 4px rgba(22, 101, 52, 0.2); }
+    .download-btn { background: #166534; color: white; padding: 10px 22px; border-radius: 10px; border: none; font-weight: bold; cursor: pointer; font-size: 13px; display: inline-flex; align-items: center; gap: 8px; text-decoration: none; box-shadow: 0 2px 4px rgba(22, 101, 52, 0.2); transition: background 0.15s ease; }
+    .download-btn:hover { background: #14532d; }
+    .print-btn { background: #f1f5f9; color: #334155; padding: 10px 18px; border-radius: 10px; border: 1px solid #cbd5e1; font-weight: bold; cursor: pointer; font-size: 13px; display: inline-flex; align-items: center; gap: 6px; }
+    .print-btn:hover { background: #e2e8f0; }
     .back-btn { color: #64748b; text-decoration: none; font-size: 13px; font-weight: 600; }
+    .download-toast { display: none; background: #dcfce7; border: 1px solid #86efac; color: #166534; padding: 10px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; margin-bottom: 12px; text-align: center; }
     @media print {
       body { background: white; padding: 0; }
       .invoice-card { border: none; box-shadow: none; padding: 0; }
@@ -390,7 +439,16 @@ router.get("/orders/:id/invoice", async (req, res) => {
 <body>
   <div class="actions-bar">
     <a href="https://healthnutra.co.in" class="back-btn">← Back to Health Nutra</a>
-    <button class="print-btn" onclick="window.print()">🖨️ Print / Save as PDF</button>
+    <div style="display: flex; gap: 10px; align-items: center;">
+      <a href="/api/orders/${orderId}/invoice/download" class="download-btn" id="autoDownloadBtn" download>
+        <span>⬇️ One-Click Auto Download PDF</span>
+      </a>
+      <button class="print-btn" onclick="window.print()">🖨️ Print Preview</button>
+    </div>
+  </div>
+
+  <div id="downloadNotice" class="download-toast">
+    ✅ Your official Health Nutra invoice PDF download has started!
   </div>
 
   <div class="invoice-card">
@@ -466,6 +524,20 @@ router.get("/orders/:id/invoice", async (req, res) => {
       <p>Customer Support: <a href="tel:+917024308660" style="color: #166534; font-weight: bold; text-decoration: none;">+91-7024308660</a> | <a href="mailto:healthnutra16@gmail.com" style="color: #166534; font-weight: bold; text-decoration: none;">healthnutra16@gmail.com</a></p>
     </div>
   </div>
+
+  <script>
+    // Handle Auto-Download trigger if requested via ?auto=true or ?auto=1
+    (function() {
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('auto') === 'true' || urlParams.get('auto') === '1' || urlParams.get('download') === '1') {
+        const notice = document.getElementById('downloadNotice');
+        if (notice) notice.style.display = 'block';
+        setTimeout(function() {
+          window.location.href = '/api/orders/${orderId}/invoice/download';
+        }, 300);
+      }
+    })();
+  </script>
 </body>
 </html>`;
 
