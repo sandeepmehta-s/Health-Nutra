@@ -31,11 +31,19 @@ function App() {
     return <ProductsPage />;
   }
 
+  const cleanPath = currentPath.toLowerCase().replace(/\/$/, "");
+
   if (
-    currentPath.startsWith("/product/") ||
-    currentPath === "/product" ||
-    currentPath === "/product/" ||
-    (currentPath.startsWith("/products/") && currentPath !== "/products/")
+    cleanPath === "/omega" ||
+    cleanPath === "/omega-3" ||
+    cleanPath === "/omega3" ||
+    cleanPath === "/9g" ||
+    cleanPath === "/10q" ||
+    cleanPath === "/green-tea" ||
+    cleanPath === "/greentea" ||
+    cleanPath.startsWith("/product/") ||
+    cleanPath === "/product" ||
+    (cleanPath.startsWith("/products/") && cleanPath !== "/products")
   ) {
     return <ProductDetailPage />;
   }

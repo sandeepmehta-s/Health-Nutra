@@ -957,7 +957,15 @@ function ProductDetailPage() {
                     <span className="text-xs text-slate-400 line-through">₹{relProd.mrp}</span>
                   </div>
                   <a
-                    href={`/product/${relProd.id}`}
+                    href={
+                      relProd.id === "1"
+                        ? "/9g"
+                        : relProd.id === "2"
+                        ? "/10q"
+                        : relProd.id === "3"
+                        ? "/omega"
+                        : "/green-tea"
+                    }
                     className="block text-center w-full py-2 rounded-xl text-xs font-bold text-white bg-[#166534] hover:bg-[#14532d] transition-colors"
                   >
                     View Product

@@ -33,7 +33,15 @@ function ProductCard({
     return `/${product.image}`;
   }, [product.image, dummyFallback]);
 
-  const productUrl = `/product/${product.id || product.slug || "3"}`;
+  const productUrl = React.useMemo(() => {
+    const n = (product?.name || "").toLowerCase();
+    const c = (product?.category || "").toLowerCase();
+    if (n.includes("omega") || c.includes("omega")) return "/omega";
+    if (n.includes("9g")) return "/9g";
+    if (n.includes("10q") || c.includes("syrup")) return "/10q";
+    if (n.includes("tea") || c.includes("green")) return "/green-tea";
+    return `/product/${product?.id || "omega"}`;
+  }, [product]);
 
   const handleCardClick = () => {
     if (onViewDetails) {

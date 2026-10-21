@@ -267,7 +267,13 @@ function ProductsPage() {
                 product={product}
                 isTopMatch={searchQuery.trim().length > 0 && idx === 0}
                 onViewDetails={(prod) => {
-                  window.location.href = `/product/${prod.id || prod.slug || "3"}`;
+                  const n = (prod?.name || "").toLowerCase();
+                  const c = (prod?.category || "").toLowerCase();
+                  if (n.includes("omega") || c.includes("omega")) window.location.href = "/omega";
+                  else if (n.includes("9g")) window.location.href = "/9g";
+                  else if (n.includes("10q") || c.includes("syrup")) window.location.href = "/10q";
+                  else if (n.includes("tea") || c.includes("green")) window.location.href = "/green-tea";
+                  else window.location.href = `/product/${prod.id || "omega"}`;
                 }}
                 onOrderNow={(prod) => setCheckoutProduct(prod)}
               />
