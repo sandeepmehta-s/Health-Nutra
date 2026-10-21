@@ -49,6 +49,26 @@ function App() {
     return <ContactUsPage />;
   }
 
+  if (
+    currentPath === "/privacy-policy" ||
+    currentPath === "/privacy-policy/" ||
+    currentPath === "/privacy" ||
+    currentPath === "/privacy/"
+  ) {
+    return <PrivacyPolicyPage />;
+  }
+
+  if (
+    currentPath === "/terms-and-conditions" ||
+    currentPath === "/terms-and-conditions/" ||
+    currentPath === "/terms" ||
+    currentPath === "/terms/" ||
+    currentPath === "/terms-of-supply" ||
+    currentPath === "/terms-of-supply/"
+  ) {
+    return <TermsPage />;
+  }
+
   return <HomePage />;
 }
 

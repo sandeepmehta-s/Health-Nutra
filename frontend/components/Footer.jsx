@@ -215,21 +215,19 @@ function Footer() {
           </div>
 
           <div className="flex items-center gap-4">
-            <button
-              type="button"
-              onClick={() => setLegalModal("privacy")}
+            <a
+              href="/privacy-policy"
               className="hover:text-white transition-colors cursor-pointer"
             >
               Privacy Policy
-            </button>
+            </a>
             <span>•</span>
-            <button
-              type="button"
-              onClick={() => setLegalModal("terms")}
+            <a
+              href="/terms-and-conditions"
               className="hover:text-white transition-colors cursor-pointer"
             >
-              Terms of Supply
-            </button>
+              Terms & Conditions
+            </a>
             <span>•</span>
             <a
               href="/admin"

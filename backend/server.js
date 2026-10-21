@@ -234,6 +234,16 @@ app.get(
     "/contact-us/",
     "/contact",
     "/contact/",
+    "/privacy-policy",
+    "/privacy-policy/",
+    "/privacy",
+    "/privacy/",
+    "/terms-and-conditions",
+    "/terms-and-conditions/",
+    "/terms",
+    "/terms/",
+    "/terms-of-supply",
+    "/terms-of-supply/",
   ],
   (req, res) => {
     res.sendFile(path.join(frontendDir, "index.html"));
