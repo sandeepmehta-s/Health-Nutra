@@ -57,8 +57,13 @@ describe("Regression Tests: Public Storefront & Asset Integrity", () => {
       assert.ok(prod.id, "Product must have an id");
       assert.ok(prod.name, "Product must have a name");
       assert.ok(prod.category, "Product must have a category");
-      assert.ok(prod.price > 0, "Product must have positive price");
-      assert.equal(prod.status, "active", "All returned products must be active");
+      if (prod.pricePending) {
+        assert.equal(prod.price, null, "Pending products must not expose placeholder prices");
+        assert.equal(prod.mrp, null, "Pending products must not expose placeholder MRPs");
+      } else {
+        assert.ok(prod.price > 0, "Priced product must have positive price");
+        assert.equal(prod.status, "active", "Priced product must be active");
+      }
       assert.ok(prod.image, "Product must have an image path");
     }
   });
@@ -69,7 +74,7 @@ describe("Regression Tests: Public Storefront & Asset Integrity", () => {
     const data = await res.json();
     assert.equal(data.success, true);
     assert.ok(Array.isArray(data.data));
-    const required = ["All", "Multivitamin", "Syrup", "Omega-3", "Green Tea"];
+    const required = ["All", "Multivitamin", "Syrup"];
     for (const req of required) {
       assert.ok(data.data.includes(req), `Categories must include ${req}`);
     }

@@ -39,7 +39,7 @@ const STARTER_ORDERS = [
     city: "Ahmedabad",
     pincode: "380009",
     items: [
-      { productId: "2", name: "Health Nutra 10Q Syrup", price: 210, quantity: 2, unit: "200ml", image: "/uploads/10q.png" },
+      { productId: "2", name: "Health Nutra Q10+ Syrup", price: 210, quantity: 2, unit: "200ml", image: "/uploads/10q.png" },
     ],
     totalAmount: 420,
     paymentMethod: "UPI / Online",
@@ -71,46 +71,65 @@ const STARTER_PRODUCTS = [
   {
     name: "Health Nutra 9G",
     category: "Multivitamin",
-    shortDescription: "Complete daily nutrition with vitamins & minerals.",
+    shortDescription: "Multivitamin and multimineral tablets with omega-3 from flaxseed oil, lycopene, botanical extracts, amino acids, vitamins, minerals and trace elements.",
     fullDescription:
-      "Multivitamin, multimineral & antioxidant tablets formulated with 9 essential vitality blends. 10 x 10 tablets. Take one tablet daily after meals or as advised by your healthcare professional.",
+      "Health Nutra 9G is a multivitamin, multimineral and antioxidant tablet formulation. The package lists omega-3 fatty acids from flaxseed oil, lycopene, L-carnitine L-tartrate, green tea and grape seed extracts, ginkgo biloba, ginseng, garlic and ginger extracts, green coffee bean, glycyrrhiza glabra, guggul, essential amino acids, cyanocobalamin, vitamins, minerals and trace elements. The packaging presents it for energy and stamina, immunity, brain and heart health, antioxidant support and overall wellness. Follow the directions on the pack.",
     price: 235,
+    mrp: 235,
     unit: "Strip",
     image: "/uploads/9g.png",
     status: "active",
   },
   {
-    name: "Health Nutra 10Q Syrup",
+    name: "Health Nutra Q10+ Syrup",
     category: "Syrup",
-    shortDescription: "Energy booster syrup with CoQ10 & antioxidants for daily vitality.",
+    shortDescription: "200 ml sugar-free mango-flavoured multivitamin and multimineral syrup with lycopene and amino acids.",
     fullDescription:
-      "200ml multivitamin, CoQ10 & antioxidant syrup. Helps combat fatigue, support cardiac health, and revitalize natural stamina. Shake well before use.",
+      "Health Nutra Q10+ is a 200 ml sugar-free mango-flavoured multivitamin and multimineral syrup. The package lists Coenzyme Q10, L-lysine and cyanocobalamin with lycopene and amino acids. The packaging presents it for energy, growth, immunity, brain function and overall wellness. Shake well and follow the directions on the pack.",
     price: 210,
+    mrp: 210,
     unit: "200ml",
     image: "/uploads/10q.png",
     status: "active",
   },
   {
-    name: "Omega-3 Capsules",
-    category: "Omega-3",
-    shortDescription: "Supports heart, brain, joint, and cardiovascular wellness.",
+    name: "Health Nutra Liv+ Syrup",
+    category: "Liver Care",
+    shortDescription: "200 ml sugar-free mixed-fruit liver, enzyme and appetizer syrup with natural herbs.",
     fullDescription:
-      "Ultra-strength molecularly distilled fish oil softgels providing 1000mg EPA/DHA. Supports clear focus, cardiovascular circulation, and joint flexibility.",
-    price: 499,
-    unit: "Strip",
-    image: "/uploads/omega3.png",
-    status: "active",
+      "Health Nutra Liv+ is a 200 ml sugar-free, mixed-fruit liver, enzyme and appetizer syrup. The packaging describes it as an advanced liver-care formula and presents it for supporting healthy liver function, appetite and digestion, enzyme activity, and general wellness. Enriched with natural herbs. Follow the directions on the pack.",
+    price: 1,
+    mrp: 1,
+    unit: "200ml",
+    image: "/images/livplus.jpeg",
+    status: "hidden",
+    pricePending: true,
   },
   {
-    name: "Green Tea Extract",
-    category: "Green Tea",
-    shortDescription: "Standardised 50% EGCG capsules for metabolism & antioxidant support.",
+    name: "Health Nutra NariA+ Syrup",
+    category: "Women's Wellness",
+    shortDescription: "200 ml sugar-free Ayurvedic women's wellness syrup with 1800 mg Ashoka root extract.",
     fullDescription:
-      "Standardised green tea botanical extract rich in natural polyphenols and 50% EGCG. Promotes healthy metabolic rate, gentle weight balance, and antioxidant protection.",
-    price: 299,
-    unit: "Box",
-    image: "/uploads/greentea.png",
-    status: "active",
+      "Health Nutra NariA+ is a 200 ml sugar-free, mixed-fruit Ayurvedic wellness syrup featuring 1800 mg Ashoka root extract. The packaging presents it for women's wellness, hormonal balance, strength and energy, healthy menstruation, and overall wellbeing. Follow the directions on the pack.",
+    price: 1,
+    mrp: 1,
+    unit: "200ml",
+    image: "/images/naria-plus.jpeg",
+    status: "hidden",
+    pricePending: true,
+  },
+  {
+    name: "Health Nutra Lipron+ Syrup",
+    category: "Iron Supplement",
+    shortDescription: "200 ml sugar-free mixed-fruit syrup with liposomal ferric pyrophosphate, folic acid, cyanocobalamin and L-lysine.",
+    fullDescription:
+      "Health Nutra Lipron+ is a 200 ml sugar-free, mixed-fruit syrup containing liposomal ferric pyrophosphate, folic acid, cyanocobalamin and L-lysine. The packaging highlights iron absorption using liposomal technology, red blood cell formation, fatigue and weakness, and overall wellbeing. Follow the directions on the pack.",
+    price: 1,
+    mrp: 1,
+    unit: "200ml",
+    image: "/images/lipron-plus.jpeg",
+    status: "hidden",
+    pricePending: true,
   },
 ];
 
@@ -141,7 +160,7 @@ const STARTER_ENQUIRIES = [
   },
 ];
 
-const STARTER_NAMES = ["Health Nutra 9G", "Health Nutra 10Q Syrup", "Omega-3 Capsules", "Green Tea Extract"];
+const STARTER_NAMES = ["Health Nutra 9G", "Health Nutra Q10+ Syrup", "Health Nutra Liv+ Syrup", "Health Nutra NariA+ Syrup", "Health Nutra Lipron+ Syrup"];
 
 /**
  * Pure MongoDB Initialization
@@ -183,7 +202,7 @@ async function seedMongo() {
     const u = (process.env.ADMIN_USERNAME || "healthnutra16@gmail.com").trim().toLowerCase();
     const p = process.env.ADMIN_PASSWORD || "2000@HNutra";
 
-    let existingAdmin = await Admin.findOne({ username: u });
+    let existingAdmin = await Admin.findOne({ username: u }).select("+password");
     if (!existingAdmin) {
       const hashed = await bcrypt.hash(p, 10);
       await Admin.create({ username: u, password: hashed, name: "Health Nutra Administrator" });
@@ -198,7 +217,7 @@ async function seedMongo() {
     }
 
     // Also ensure fallback admin account exists for tests
-    let testAdmin = await Admin.findOne({ username: "admin" });
+    let testAdmin = await Admin.findOne({ username: "admin" }).select("+password");
     if (!testAdmin) {
       const hashed = await bcrypt.hash("admin123", 10);
       await Admin.create({ username: "admin", password: hashed, name: "Health Nutra Administrator" });
@@ -250,9 +269,12 @@ function formatProduct(p) {
     shortDescription: p.shortDescription,
     fullDescription: p.fullDescription || "",
     price: Number(p.price),
+    mrp: Number(p.mrp ?? p.price),
     unit: p.unit || "Strip",
     image: p.image || "/uploads/9g.png",
+    images: Array.isArray(p.images) ? p.images.filter(Boolean).slice(0, 5) : [],
     status: p.status || "active",
+    pricePending: Boolean(p.pricePending),
     createdAt: p.createdAt,
     updatedAt: p.updatedAt,
   };
@@ -301,7 +323,7 @@ function formatEnquiry(e) {
 // Product Repository Methods
 // -------------------------------------------------------------
 export async function getActiveProducts(category = null) {
-  const filter = { status: "active" };
+  const filter = { $or: [{ status: "active" }, { pricePending: true }] };
   if (category && category !== "All") {
     filter.category = category;
   }
@@ -311,13 +333,20 @@ export async function getActiveProducts(category = null) {
   if (products.length === 0 && (!category || category === "All")) {
     try {
       await Product.insertMany(STARTER_PRODUCTS);
-      products = await Product.find({ status: "active" });
+      products = await Product.find({ $or: [{ status: "active" }, { pricePending: true }] });
     } catch (e) {
       console.warn("[Database] Product self-heal notice:", e.message);
     }
   }
 
-  return products.map(formatProduct);
+  return products.map((product) => {
+    const formatted = formatProduct(product);
+    if (formatted.pricePending) {
+      formatted.price = null;
+      formatted.mrp = null;
+    }
+    return formatted;
+  });
 }
 
 export async function getProductById(id) {
@@ -415,10 +444,10 @@ export async function deleteProduct(id) {
 }
 
 export async function getDistinctCategories() {
-  const cats = await Product.distinct("category", { status: "active" });
-  const coreCategories = ["Multivitamin", "Syrup", "Omega-3", "Green Tea"];
-  const set = new Set(["All", ...cats.filter(Boolean), ...coreCategories]);
-  return Array.from(set);
+  const cats = await Product.distinct("category", {
+    $or: [{ status: "active" }, { pricePending: true }],
+  });
+  return ["All", ...cats.filter(Boolean)];
 }
 
 // -------------------------------------------------------------
@@ -426,13 +455,12 @@ export async function getDistinctCategories() {
 // -------------------------------------------------------------
 export async function findAdminByUsername(username) {
   const clean = username.trim().toLowerCase();
-  const a = await Admin.findOne({ username: clean });
+  const a = await Admin.findOne({ username: clean }).select("+password");
   if (!a) return null;
   return {
     id: a._id.toString(),
     username: a.username,
     name: a.name,
-    password: a.password,
     comparePassword: (candidate) => a.comparePassword(candidate),
   };
 }

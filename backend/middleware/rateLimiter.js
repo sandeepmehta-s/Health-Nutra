@@ -4,7 +4,7 @@ const isTestEnv = () => process.env.NODE_ENV === "test";
 
 export const loginRateLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 30, // 30 requests per window
+  limit: 5, // 5 login attempts per 15-minute window
   standardHeaders: true,
   legacyHeaders: false,
   skip: isTestEnv,

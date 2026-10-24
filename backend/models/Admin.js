@@ -13,6 +13,7 @@ const adminSchema = new mongoose.Schema(
     password: {
       type: String,
       required: [true, "Password is required"],
+      select: false,
     },
     name: {
       type: String,
@@ -23,6 +24,19 @@ const adminSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
+
+adminSchema.set("toJSON", {
+  transform(_doc, ret) {
+    delete ret.password;
+    return ret;
+  },
+});
+adminSchema.set("toObject", {
+  transform(_doc, ret) {
+    delete ret.password;
+    return ret;
+  },
+});
 
 // Hash password before saving if modified
 adminSchema.pre("save", async function () {

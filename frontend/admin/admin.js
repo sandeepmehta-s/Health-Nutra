@@ -79,6 +79,8 @@ const imgUploadContainer = document.getElementById('imgUploadContainer');
 const imgUrlContainer = document.getElementById('imgUrlContainer');
 const prodImageInput = document.getElementById('prodImage');
 const prodImageUrlInput = document.getElementById('prodImageUrl');
+const prodMrpInput = document.getElementById('prodMrp');
+const prodImagesInput = document.getElementById('prodImages');
 const imagePreviewContainer = document.getElementById('imagePreviewContainer');
 const imagePreview = document.getElementById('imagePreview');
 const imagePreviewText = document.getElementById('imagePreviewText');
@@ -427,7 +429,10 @@ function renderProductsTable(products) {
 
         <!-- Price -->
         <td class="py-3.5 px-4 whitespace-nowrap">
-          <span class="font-black text-slate-900 text-sm">₹${p.price}</span>
+          <div class="text-xs">
+            <div class="font-black text-slate-900">₹${p.mrp ?? p.price ?? 0}</div>
+            <div class="text-[10px] text-slate-500 line-through">₹${p.price ?? 0}</div>
+          </div>
         </td>
 
         <!-- Unit -->
@@ -522,9 +527,11 @@ function openProductModal(product = null) {
     document.getElementById('prodCategory').value = product.category;
     document.getElementById('prodUnit').value = product.unit || 'Strip';
     document.getElementById('prodPrice').value = product.price;
+    document.getElementById('prodMrp').value = product.mrp ?? product.price ?? '';
     document.getElementById('prodStatus').value = product.status || 'active';
     document.getElementById('prodShortDesc').value = product.shortDescription || '';
     document.getElementById('prodFullDesc').value = product.fullDescription || '';
+    document.getElementById('prodImages').value = Array.isArray(product.images) ? product.images.join(', ') : (product.image ? product.image : '');
 
     if (product.image) {
       imagePreview.src = product.image;
@@ -542,6 +549,8 @@ function openProductModal(product = null) {
     modalTitle.innerHTML = `<i data-lucide="package-plus" class="w-5 h-5 text-brand-700"></i><span>Add New Product</span>`;
     saveBtnText.textContent = 'Save Product';
     document.getElementById('productId').value = '';
+    document.getElementById('prodMrp').value = '';
+    document.getElementById('prodImages').value = '';
     document.getElementById('prodStatus').value = 'active';
     setImageMode('upload');
   }
@@ -562,13 +571,26 @@ async function handleProductSubmit(e) {
   const isEditing = Boolean(id);
 
   const formData = new FormData();
+  const sellingPrice = document.getElementById('prodPrice').value.trim();
+  const mrpValue = document.getElementById('prodMrp').value.trim();
+  const imageGallery = document.getElementById('prodImages').value
+    .split(/[\n,]+/)
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .slice(0, 5);
+
   formData.append('name', document.getElementById('prodName').value.trim());
   formData.append('category', document.getElementById('prodCategory').value.trim());
   formData.append('unit', document.getElementById('prodUnit').value.trim());
-  formData.append('price', document.getElementById('prodPrice').value.trim());
+  formData.append('price', sellingPrice);
+  formData.append('mrp', mrpValue || sellingPrice);
   formData.append('status', document.getElementById('prodStatus').value);
   formData.append('shortDescription', document.getElementById('prodShortDesc').value.trim());
   formData.append('fullDescription', document.getElementById('prodFullDesc').value.trim());
+
+  if (imageGallery.length) {
+    formData.append('images', JSON.stringify(imageGallery));
+  }
 
   // Attach Image: File or URL
   if (imageInputMode === 'upload' && prodImageInput.files[0]) {

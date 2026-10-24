@@ -25,8 +25,13 @@ const productSchema = new mongoose.Schema(
     },
     price: {
       type: Number,
-      required: [true, "Price is required"],
-      min: [0.01, "Price must be a positive number"],
+      required: [true, "Selling price is required"],
+      min: [0.01, "Selling price must be a positive number"],
+    },
+    mrp: {
+      type: Number,
+      required: [true, "MRP is required"],
+      min: [0.01, "MRP must be a positive number"],
     },
     unit: {
       type: String,
@@ -37,10 +42,25 @@ const productSchema = new mongoose.Schema(
       type: String,
       default: "/uploads/9g.png",
     },
+    images: {
+      type: [String],
+      default: [],
+      validate: {
+        validator: function (arr) {
+          return !arr || arr.length <= 5;
+        },
+        message: "A product can have at most 5 images.",
+      },
+    },
     status: {
       type: String,
       enum: ["active", "hidden"],
       default: "active",
+      index: true,
+    },
+    pricePending: {
+      type: Boolean,
+      default: false,
       index: true,
     },
   },

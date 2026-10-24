@@ -25,10 +25,12 @@ function AdminPage() {
     category: "Multivitamin",
     unit: "Strip",
     price: "",
+    mrp: "",
     shortDescription: "",
     fullDescription: "",
     status: "active",
     imageUrl: "",
+    galleryImages: "",
   });
   const [productImageFile, setProductImageFile] = React.useState(null);
   const [imageInputMode, setImageInputMode] = React.useState("url"); // 'url' | 'file'
@@ -148,10 +150,12 @@ function AdminPage() {
       category: "Multivitamin",
       unit: "Strip",
       price: "",
+      mrp: "",
       shortDescription: "",
       fullDescription: "",
       status: "active",
       imageUrl: "",
+      galleryImages: "",
     });
     setProductImageFile(null);
     setImageInputMode("url");
@@ -167,10 +171,12 @@ function AdminPage() {
       category: prod.category || "Multivitamin",
       unit: prod.unit || "Strip",
       price: prod.price || "",
+      mrp: prod.mrp || prod.price || "",
       shortDescription: prod.shortDescription || "",
       fullDescription: prod.fullDescription || "",
       status: prod.status || "active",
       imageUrl: prod.image || "",
+      galleryImages: Array.isArray(prod.images) ? prod.images.join(", ") : "",
     });
     setProductImageFile(null);
     setImageInputMode(prod.image && prod.image.startsWith("http") ? "url" : "url");
@@ -183,23 +189,31 @@ function AdminPage() {
     e.preventDefault();
     setModalError("");
 
-    if (!productForm.name.trim() || !productForm.price) {
-      setModalError("Please provide product name and price.");
+    if (!productForm.name.trim() || !productForm.price || !productForm.mrp) {
+      setModalError("Please provide product name, selling price, and MRP.");
       return;
     }
 
     setModalSubmitting(true);
     try {
       let res;
+      const galleryUrls = productForm.galleryImages
+        .split(/[\n,]+/)
+        .map((entry) => entry.trim())
+        .filter(Boolean)
+        .slice(0, 5);
+
       if (imageInputMode === "file" && productImageFile) {
         const formData = new FormData();
         formData.append("name", productForm.name);
         formData.append("category", productForm.category);
         formData.append("unit", productForm.unit);
         formData.append("price", productForm.price);
+        formData.append("mrp", productForm.mrp);
         formData.append("shortDescription", productForm.shortDescription);
         formData.append("fullDescription", productForm.fullDescription);
         formData.append("status", productForm.status);
+        if (galleryUrls.length) formData.append("images", JSON.stringify(galleryUrls));
         formData.append("image", productImageFile);
 
         if (editingProduct) {
@@ -213,10 +227,12 @@ function AdminPage() {
           category: productForm.category,
           unit: productForm.unit,
           price: productForm.price,
+          mrp: productForm.mrp,
           shortDescription: productForm.shortDescription,
           fullDescription: productForm.fullDescription,
-          status: productForm.status,
+          status: productForm.status === "inactive" ? "hidden" : productForm.status,
           imageUrl: productForm.imageUrl,
+          images: galleryUrls,
         };
 
         if (editingProduct) {
@@ -1168,7 +1184,7 @@ function AdminPage() {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-[11px] font-black uppercase tracking-wider text-slate-600 mb-1">
-                    Price in ₹ *
+                    Selling Price in ₹ *
                   </label>
                   <input
                     type="number"
@@ -1182,17 +1198,31 @@ function AdminPage() {
 
                 <div>
                   <label className="block text-[11px] font-black uppercase tracking-wider text-slate-600 mb-1">
-                    Initial Visibility *
+                    MRP in ₹ *
                   </label>
-                  <select
-                    value={productForm.status}
-                    onChange={(e) => setProductForm({ ...productForm, status: e.target.value })}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-brand-600 bg-white"
-                  >
-                    <option value="active">Active (Visible Publicly)</option>
-                    <option value="inactive">Inactive (Hidden)</option>
-                  </select>
+                  <input
+                    type="number"
+                    required
+                    value={productForm.mrp}
+                    onChange={(e) => setProductForm({ ...productForm, mrp: e.target.value })}
+                    placeholder="e.g. 320"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-brand-600"
+                  />
                 </div>
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-black uppercase tracking-wider text-slate-600 mb-1">
+                  Initial Visibility *
+                </label>
+                <select
+                  value={productForm.status}
+                  onChange={(e) => setProductForm({ ...productForm, status: e.target.value })}
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-brand-600 bg-white"
+                >
+                  <option value="active">Active (Visible Publicly)</option>
+                  <option value="inactive">Inactive (Hidden)</option>
+                </select>
               </div>
 
               {/* Image Input Options: URL vs File Upload */}
@@ -1245,6 +1275,20 @@ function AdminPage() {
                     <p className="text-[10px] text-slate-400 mt-1">JPG, PNG, WebP up to 5MB</p>
                   </div>
                 )}
+
+                <div>
+                  <label className="block text-[11px] font-black uppercase tracking-wider text-slate-600 mb-1">
+                    Additional gallery images (up to 5)
+                  </label>
+                  <textarea
+                    rows={3}
+                    value={productForm.galleryImages}
+                    onChange={(e) => setProductForm({ ...productForm, galleryImages: e.target.value })}
+                    placeholder="https://example.com/a.jpg, https://example.com/b.jpg, /uploads/c.png"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-brand-600"
+                  />
+                  <p className="text-[10px] text-slate-400 mt-1">Comma or line separated; leave blank to keep the main image only.</p>
+                </div>
               </div>
 
               {/* Short Summary */}

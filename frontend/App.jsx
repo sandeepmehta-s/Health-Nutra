@@ -34,13 +34,12 @@ function App() {
   const cleanPath = currentPath.toLowerCase().replace(/\/$/, "");
 
   if (
-    cleanPath === "/omega" ||
-    cleanPath === "/omega-3" ||
-    cleanPath === "/omega3" ||
     cleanPath === "/9g" ||
     cleanPath === "/10q" ||
-    cleanPath === "/green-tea" ||
-    cleanPath === "/greentea" ||
+    cleanPath === "/q10-plus" ||
+    cleanPath === "/liv-plus" ||
+    cleanPath === "/naria-plus" ||
+    cleanPath === "/lipron-plus" ||
     cleanPath.startsWith("/product/") ||
     cleanPath === "/product" ||
     (cleanPath.startsWith("/products/") && cleanPath !== "/products")

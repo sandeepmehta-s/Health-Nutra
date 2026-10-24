@@ -4,13 +4,11 @@
  */
 
 function SearchFilter({
-  categories = ["All", "Multivitamin", "Omega-3", "Green Tea"],
+  categories = ["All", "Multivitamin"],
   selectedCategory = "All",
   onSelectCategory,
 }) {
-  const displayCategories = React.useMemo(() => {
-    return ["All", "Multivitamin", "Omega-3", "Green Tea"];
-  }, []);
+  const displayCategories = categories;
 
   return (
     <div className="py-2">

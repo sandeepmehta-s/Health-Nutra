@@ -39,8 +39,13 @@ describe("Unit Tests: Database Service & Core Logic", () => {
     assert.ok(sample.id || sample._id, "Product should have an id");
     assert.ok(typeof sample.name === "string" && sample.name.length > 0, "Product must have a name");
     assert.ok(typeof sample.category === "string", "Product must have a category");
-    assert.ok(typeof sample.price === "number" && sample.price > 0, "Product price must be a positive number");
-    assert.equal(sample.status, "active", "Product status should be active");
+    if (sample.pricePending) {
+      assert.equal(sample.price, null, "Pending product must not expose a placeholder price");
+      assert.equal(sample.mrp, null, "Pending product must not expose a placeholder MRP");
+    } else {
+      assert.ok(typeof sample.price === "number" && sample.price > 0, "Product price must be a positive number");
+      assert.equal(sample.status, "active", "Priced product status should be active");
+    }
     assert.ok(sample.image && sample.image.length > 0, "Product must have an image path");
   });
 
@@ -76,8 +81,9 @@ describe("Unit Tests: Database Service & Core Logic", () => {
     assert.ok(categories.includes("All"), "Must include All");
     assert.ok(categories.includes("Multivitamin"), "Must include Multivitamin");
     assert.ok(categories.includes("Syrup"), "Must include Syrup");
-    assert.ok(categories.includes("Omega-3"), "Must include Omega-3");
-    assert.ok(categories.includes("Green Tea"), "Must include Green Tea");
+    assert.ok(categories.includes("Liver Care"), "Must include current Liver Care category");
+    assert.ok(categories.includes("Women's Wellness"), "Must include current Women's Wellness category");
+    assert.ok(categories.includes("Iron Supplement"), "Must include current Iron Supplement category");
   });
 
   test("DB Service - Admin authentication and password verification", async () => {

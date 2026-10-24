@@ -23,9 +23,9 @@ const FORMULATION_DATABASE = {
     stockStatus: "In Stock",
     sku: "HN-TAB-9G-100",
     shortDescription:
-      "Synergistic blend of 9 vital botanical extracts, essential multivitamins, minerals, and potent antioxidants designed for all-day stamina, metabolic vigor, and immunity defense.",
+      "Multivitamin and multimineral tablets with omega-3 from flaxseed oil, lycopene, botanical extracts, amino acids, vitamins, minerals and trace elements.",
     fullDescription:
-      "Health Nutra 9G is an advanced clinical-grade formulation combining Ginseng, Ginkgo Biloba, Green Tea Extract, Grape Seed Extract, Garlic, Guggul, Ginger, Green Coffee Bean, and Glycyrrhiza. Each coated tablet delivers complete micronutrient coverage adhering strictly to WHO-GMP standards.",
+      "Health Nutra 9G is a multivitamin, multimineral and antioxidant tablet formulation. The package lists omega-3 fatty acids from flaxseed oil, lycopene, L-carnitine L-tartrate, green tea and grape seed extracts, ginkgo biloba, ginseng, garlic and ginger extracts, green coffee bean, glycyrrhiza glabra, guggul, essential amino acids, cyanocobalamin, vitamins, minerals and trace elements. The packaging presents it for energy and stamina, immunity, brain and heart health, antioxidant support and overall wellness. Follow the directions on the pack.",
     highlights: [
       "9 Essential Vitality Extracts (Ginseng, Ginkgo Biloba, Grape Seed & more)",
       "Supports daily cellular energy, immune barrier & cognitive alertness",
@@ -55,8 +55,8 @@ const FORMULATION_DATABASE = {
   "2": {
     id: "2",
     slug: "10q",
-    name: "Health Nutra 10Q CoQ10 Revitalizing Syrup (200ml)",
-    shortName: "Health Nutra 10Q Syrup",
+    name: "Health Nutra Q10+ Multivitamin & Multimineral Syrup (200ml)",
+    shortName: "Health Nutra Q10+ Syrup",
     category: "Multivitamin",
     refId: "HN-10Q-SYR-452010",
     mrp: 295,
@@ -69,9 +69,9 @@ const FORMULATION_DATABASE = {
     stockStatus: "In Stock",
     sku: "HN-SYR-10Q-200",
     shortDescription:
-      "Fast-absorbing clinical vitality syrup enriched with Coenzyme Q10, Lycopene, essential B-vitamins, and L-Lysine to combat chronic lethargy and revitalize natural metabolism.",
+      "200 ml sugar-free mango-flavoured multivitamin and multimineral syrup with lycopene and amino acids.",
     fullDescription:
-      "Health Nutra 10Q Syrup is formulated for quick bio-absorption. Featuring active Coenzyme Q10 and bio-available Lycopene, it assists in cardiovascular stamina, muscle recovery, and post-illness rejuvenation.",
+      "Health Nutra Q10+ is a 200 ml sugar-free mango-flavoured multivitamin and multimineral syrup. The package lists Coenzyme Q10, L-lysine and cyanocobalamin with lycopene and amino acids. The packaging presents it for energy, growth, immunity, brain function and overall wellness. Shake well and follow the directions on the pack.",
     highlights: [
       "Infused with Coenzyme Q10 (CoQ10) for cellular ATP production",
       "High-potency Lycopene & B-Complex vitamins for heart & vascular health",
@@ -99,87 +99,106 @@ const FORMULATION_DATABASE = {
 
   "3": {
     id: "3",
-    slug: "omega3",
-    name: "Health Nutra Omega-3 Ultra Strength Fish Oil Softgels (1000mg)",
-    shortName: "Omega-3 Capsules",
-    category: "Omega-3",
-    refId: "HN-6ad8e320fe7a95dc9f36f5cd",
-    mrp: 699,
-    price: 499,
-    unit: "60 Softgels Bottle",
-    image: "/images/omega3.png",
-    rating: 4.9,
-    reviewCount: 426,
-    monthlyDelivered: "2,100+",
-    stockStatus: "In Stock",
-    sku: "HN-SFT-OMG-1000",
+    slug: "liv-plus",
+    name: "Health Nutra Liv+ Liver, Enzyme & Appetizer Syrup (200 ml)",
+    shortName: "Health Nutra Liv+ Syrup",
+    category: "Liver Care",
+    refId: "HN-LIV-200",
+    mrp: 1,
+    price: 1,
+    unit: "200 ml Bottle",
+    image: "/images/livplus.jpeg",
+    rating: 0,
+    reviewCount: 0,
+    monthlyDelivered: "",
+    stockStatus: "Price pending",
+    sku: "HN-LIV-200",
+    pricePending: true,
     shortDescription:
-      "Ultra-pure molecularly distilled marine Omega-3 softgels supplying 1000mg fish oil with 180mg EPA and 120mg DHA. Engineered for cardiovascular health, joint lubrication, and sharp cognitive function.",
+      "Sugar-free 200 ml mixed-fruit liver, enzyme and appetizer syrup with natural herbs.",
     fullDescription:
-      "Health Nutra Omega-3 Capsules undergo multi-stage molecular distillation to eliminate heavy metals, mercury, and PCBs. With optimal enteric coating to prevent fishy burps, this daily essential supports healthy lipid profiles and flexible joints.",
+      "Health Nutra Liv+ is a sugar-free, mixed-fruit liver, enzyme and appetizer syrup. The package describes it as an advanced liver-care formula enriched with natural herbs, and highlights liver function, appetite and digestion, enzyme activity, detoxification and general wellness. Follow the directions on the pack.",
     highlights: [
-      "1000mg Pure Cold-Water Fish Oil per softgel",
-      "Optimal 180mg EPA & 120mg DHA ratio for heart and brain focus",
-      "Molecularly distilled: Zero mercury, heavy metals, or toxic contaminants",
-      "Enteric-coated softgels with zero fishy aftertaste or reflux",
-      "Supports joint flexibility, healthy cholesterol balance & glowing skin",
+      "Liver, enzyme and appetizer syrup",
+      "Sugar-free with mixed-fruit flavour",
+      "Enriched with natural herbs",
+      "Package highlights liver function, appetite and digestion",
     ],
-    packOptions: [
-      { count: 1, label: "1 Bottle (60 Softgels)", price: 499, mrp: 699, discount: "29% OFF" },
-      { count: 2, label: "Pack of 2 (2 Months Supply)", price: 899, mrp: 1398, discount: "36% OFF", bestValue: true },
-      { count: 3, label: "Pack of 3 (Quarterly Care)", price: 1249, mrp: 2097, discount: "40% OFF" },
-    ],
-    supplementFacts: [
-      { nutrient: "Purified Fish Oil Concentrate", amount: "1000 mg", rda: "**" },
-      { nutrient: "Eicosapentaenoic Acid (EPA)", amount: "180 mg", rda: "**" },
-      { nutrient: "Docosahexaenoic Acid (DHA)", amount: "120 mg", rda: "**" },
-      { nutrient: "Total Omega-3 Fatty Acids", amount: "350 mg", rda: "**" },
-      { nutrient: "Vitamin E (d-alpha tocopherol)", amount: "10 IU", rda: "50%" },
-    ],
-    dosage: "Take 1 to 2 softgels daily with water preferably after lunch or dinner, or as prescribed.",
-    storage: "Store in a cool, dry place. Keep container tightly closed away from direct heat and children.",
+    packOptions: [],
+    supplementFacts: [],
+    dosage: "Use as directed by a healthcare professional.",
+    storage: "Store as directed on the product packaging.",
   },
 
   "4": {
     id: "4",
-    slug: "greentea",
-    name: "Health Nutra Green Tea Botanical Extract Capsules (50% EGCG)",
-    shortName: "Green Tea Extract",
-    category: "Green Tea",
-    refId: "HN-GT-EXT-452010",
-    mrp: 450,
-    price: 299,
-    unit: "60 Capsules Box",
-    image: "/images/greentea.png",
-    rating: 4.7,
-    reviewCount: 164,
-    monthlyDelivered: "840+",
-    stockStatus: "In Stock",
-    sku: "HN-CAP-GRN-500",
+    slug: "naria-plus",
+    name: "Health Nutra NariA+ Ayurvedic Women's Wellness Syrup (200 ml)",
+    shortName: "Health Nutra NariA+ Syrup",
+    category: "Women's Wellness",
+    refId: "HN-NARIA-200",
+    mrp: 1,
+    price: 1,
+    unit: "200 ml Bottle",
+    image: "/images/naria-plus.jpeg",
+    rating: 0,
+    reviewCount: 0,
+    monthlyDelivered: "",
+    stockStatus: "Price pending",
+    sku: "HN-NARIA-200",
+    pricePending: true,
     shortDescription:
-      "Standardised Camellia sinensis extract loaded with active catechins and 50% EGCG. Accelerates healthy metabolic calorie burning, detoxifies cells, and promotes natural weight balance.",
+      "Sugar-free Ayurvedic women's wellness syrup featuring 1800 mg Ashoka root extract.",
     fullDescription:
-      "Health Nutra Green Tea Extract delivers the polyphenol power of over 6 cups of freshly brewed green tea in a single standardized capsule. Designed for fitness enthusiasts and individuals seeking natural antioxidant defense.",
+      "Health Nutra NariA+ is a 200 ml sugar-free Ayurvedic uterine tonic and women's wellness syrup featuring 1800 mg Ashoka root extract. The packaging presents it for hormonal balance, strength and energy, healthy menstruation, and overall wellbeing. Follow the directions on the pack.",
     highlights: [
-      "Standardised to 50% Epigallocatechin Gallate (EGCG) & 98% Polyphenols",
-      "Stimulates thermogenesis and healthy metabolic calorie expenditure",
-      "Potent free-radical scavenger supporting clean cellular detoxification",
-      "Gentle natural clean energy boost without high-caffeine jitters",
-      "100% Pure vegetable capsules, gluten-free and non-GMO",
+      "1800 mg Ashoka root extract",
+      "Sugar-free, mixed-fruit flavour",
+      "Ayurvedic uterine tonic",
+      "Package highlights women's health and wellbeing",
     ],
-    packOptions: [
-      { count: 1, label: "1 Box (60 Capsules)", price: 299, mrp: 450, discount: "34% OFF" },
-      { count: 2, label: "Pack of 2 (Metabolism Kickstart)", price: 549, mrp: 900, discount: "39% OFF", bestValue: true },
-      { count: 3, label: "Pack of 3 (90-Day Fit Journey)", price: 779, mrp: 1350, discount: "42% OFF" },
+    packOptions: [],
+    supplementFacts: [{ nutrient: "Ashoka Root Extract", amount: "1800 mg", rda: "**" }],
+    dosage: "Use as directed by a healthcare professional.",
+    storage: "Store as directed on the product packaging.",
+  },
+
+  "5": {
+    id: "5",
+    slug: "lipron-plus",
+    name: "Health Nutra Lipron+ Liposomal Iron Syrup (200 ml)",
+    shortName: "Health Nutra Lipron+ Syrup",
+    category: "Iron Supplement",
+    refId: "HN-LIPRON-200",
+    mrp: 1,
+    price: 1,
+    unit: "200 ml Bottle",
+    image: "/images/lipron-plus.jpeg",
+    rating: 0,
+    reviewCount: 0,
+    monthlyDelivered: "",
+    stockStatus: "Price pending",
+    sku: "HN-LIPRON-200",
+    pricePending: true,
+    shortDescription:
+      "Sugar-free 200 ml syrup with liposomal ferric pyrophosphate, folic acid, cyanocobalamin and L-lysine.",
+    fullDescription:
+      "Health Nutra Lipron+ is a sugar-free, mixed-fruit syrup containing ferric pyrophosphate (liposomal), folic acid, cyanocobalamin and L-lysine. The packaging highlights iron absorption using liposomal technology, red blood cell formation, fatigue and weakness, and overall wellbeing. Follow the directions on the pack.",
+    highlights: [
+      "Liposomal ferric pyrophosphate",
+      "Folic acid, cyanocobalamin and L-lysine",
+      "Sugar-free with mixed-fruit flavour",
+      "Package highlights iron absorption and red blood cell formation",
     ],
+    packOptions: [],
     supplementFacts: [
-      { nutrient: "Green Tea Extract (Camellia sinensis)", amount: "500 mg", rda: "**" },
-      { nutrient: "Epigallocatechin Gallate (EGCG)", amount: "250 mg (50%)", rda: "**" },
-      { nutrient: "Total Polyphenols", amount: "490 mg (98%)", rda: "**" },
-      { nutrient: "Natural Bio-Caffeine (Gentle)", amount: "< 15 mg", rda: "**" },
+      { nutrient: "Ferric Pyrophosphate (Liposomal)", amount: "See product label", rda: "**" },
+      { nutrient: "Folic Acid", amount: "See product label", rda: "**" },
+      { nutrient: "Cyanocobalamin", amount: "See product label", rda: "**" },
+      { nutrient: "L-Lysine", amount: "See product label", rda: "**" },
     ],
-    dosage: "Take 1 capsule once or twice daily 30 minutes before meals, or as advised by your healthcare expert.",
-    storage: "Store in a cool dry area away from humidity and heat. Keep bottle sealed.",
+    dosage: "Use as directed by a healthcare professional.",
+    storage: "Store as directed on the product packaging.",
   },
 };
 
@@ -231,10 +250,11 @@ function ProductDetailPage() {
   const [checkoutProduct, setCheckoutProduct] = React.useState(null);
   const [trackModalOpen, setTrackModalOpen] = React.useState(false);
   const [trackOrderId, setTrackOrderId] = React.useState("");
+  const [catalogProduct, setCatalogProduct] = React.useState(null);
 
   // Determine active product from URL path or query parameter
-  const product = React.useMemo(() => {
-    let lookupKey = "3"; // default to Omega-3 if unspecified
+  const routeProduct = React.useMemo(() => {
+    let lookupKey = "1";
 
     // 1. Check query parameter (?id=... or ?slug=...)
     try {
@@ -253,9 +273,10 @@ function ProductDetailPage() {
     // 2. Check path (/product/3, /product/omega3, etc.)
     const path = window.location.pathname.toLowerCase();
     if (path.includes("9g")) lookupKey = "1";
-    else if (path.includes("10q")) lookupKey = "2";
-    else if (path.includes("omega")) lookupKey = "3";
-    else if (path.includes("tea") || path.includes("green")) lookupKey = "4";
+    else if (path.includes("q10") || path.includes("10q")) lookupKey = "2";
+    else if (path.includes("liv")) lookupKey = "3";
+    else if (path.includes("naria")) lookupKey = "4";
+    else if (path.includes("lipron")) lookupKey = "5";
     else {
       // Check numeric id at end of path
       const segments = path.split("/").filter(Boolean);
@@ -265,10 +286,56 @@ function ProductDetailPage() {
       }
     }
 
-    return FORMULATION_DATABASE[lookupKey] || FORMULATION_DATABASE["3"];
+    return FORMULATION_DATABASE[lookupKey] || FORMULATION_DATABASE["1"];
   }, []);
 
-  const currentPack = product.packOptions[selectedPackIdx] || product.packOptions[0];
+  React.useEffect(() => {
+    let cancelled = false;
+
+    async function loadCatalogProduct() {
+      try {
+        const result = await window.apiHelper?.getProducts();
+        const match = result?.data?.find((item) =>
+          item.name.toLowerCase().includes(routeProduct.shortName.toLowerCase().replace(" syrup", ""))
+        );
+        if (!cancelled && match) {
+          const price = Number(match.price);
+          const mrp = Number(match.mrp || match.price);
+          const discount = mrp > price ? `${Math.round(((mrp - price) / mrp) * 100)}% OFF` : "";
+          setCatalogProduct({
+            ...routeProduct,
+            id: match.id,
+            name: match.name,
+            shortName: match.name,
+            category: match.category,
+            pricePending: Boolean(match.pricePending),
+            price,
+            mrp,
+            unit: match.unit,
+            image: match.image,
+            shortDescription: match.shortDescription,
+            fullDescription: match.fullDescription,
+            packOptions: match.pricePending ? [] : [{ count: 1, label: match.unit, price, mrp, discount }],
+          });
+        }
+      } catch (error) {
+        console.warn("Product detail notice; using local product copy:", error);
+      }
+    }
+
+    loadCatalogProduct();
+    return () => {
+      cancelled = true;
+    };
+  }, [routeProduct]);
+
+  const product = catalogProduct || routeProduct;
+
+  const currentPack = product.packOptions[selectedPackIdx] || product.packOptions[0] || {
+    label: product.unit,
+    price: 0,
+    mrp: 0,
+  };
   const activePrice = currentPack.price;
   const totalPrice = activePrice * quantity;
 
@@ -294,6 +361,7 @@ function ProductDetailPage() {
   };
 
   const handleOpenCheckout = () => {
+    if (product.pricePending) return;
     const orderPayload = {
       ...product,
       id: product.id,
@@ -312,7 +380,7 @@ function ProductDetailPage() {
 
   // Other formulations for "Customers Also Considered"
   const relatedProducts = React.useMemo(() => {
-    return Object.values(FORMULATION_DATABASE).filter((p) => p.id !== product.id);
+    return Object.values(FORMULATION_DATABASE).filter((p) => p.id !== product.id && !p.pricePending);
   }, [product.id]);
 
   return (
@@ -371,17 +439,17 @@ function ProductDetailPage() {
                   <Icon name="leaf" className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                   <span>{product.category}</span>
                 </span>
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-200 shadow-2xs">
+                {!product.pricePending && <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-200 shadow-2xs">
                   ★ WHO-GMP Certified
-                </span>
+                </span>}
               </div>
 
               {/* Discount Percentage Badge (Top Right) */}
-              <div className="absolute top-3 right-3 sm:top-5 sm:right-5 z-10">
+              {!product.pricePending && currentPack.discount && <div className="absolute top-3 right-3 sm:top-5 sm:right-5 z-10">
                 <span className="px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg sm:rounded-xl text-[11px] sm:text-xs font-black bg-[#F97316] text-white shadow-sm">
-                  {currentPack.discount || "29% OFF"}
+                  {currentPack.discount}
                 </span>
-              </div>
+              </div>}
 
               {/* Center Main Bottle Image */}
               <img
@@ -449,7 +517,7 @@ function ProductDetailPage() {
               </h1>
 
               {/* Rating Strip */}
-              <div className="flex items-center flex-wrap gap-2 pt-0.5">
+              {product.rating > 0 && <div className="flex items-center flex-wrap gap-2 pt-0.5">
                 <div className="flex items-center gap-1 bg-emerald-700 text-white px-2 py-0.5 rounded-md text-[11px] sm:text-xs font-black shadow-2xs">
                   <span>★ {product.rating}</span>
                 </div>
@@ -460,11 +528,15 @@ function ProductDetailPage() {
                 <span className="text-xs font-bold text-[#F97316]">
                   🔥 {product.monthlyDelivered} Delivered
                 </span>
-              </div>
+              </div>}
             </div>
 
             {/* Special Price & MRP Strikethrough Box */}
-            <div className="bg-emerald-50/70 rounded-2xl border border-emerald-200/80 p-3.5 sm:p-5 flex items-baseline justify-between flex-wrap gap-3">
+            {product.pricePending ? (
+              <div className="rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm font-semibold text-amber-900">
+                Price and MRP will appear here after they are set in Admin.
+              </div>
+            ) : <div className="bg-emerald-50/70 rounded-2xl border border-emerald-200/80 p-3.5 sm:p-5 flex items-baseline justify-between flex-wrap gap-3">
               <div>
                 <div className="flex items-baseline gap-2.5 sm:gap-3">
                   <span className="text-2xl sm:text-4xl font-black text-[#166534]">
@@ -486,7 +558,7 @@ function ProductDetailPage() {
                 <span className="w-2 h-2 rounded-full bg-emerald-600 animate-pulse"></span>
                 <span>{product.stockStatus}</span>
               </div>
-            </div>
+            </div>}
 
             {/* Clinical Highlights Bullet Points */}
             <div className="space-y-1.5 sm:space-y-2">
@@ -506,7 +578,7 @@ function ProductDetailPage() {
             </div>
 
             {/* Pack Size / Variant Selector (3 Horizontal Sleek Cards) */}
-            <div className="space-y-2 pt-1">
+            {!product.pricePending && <div className="space-y-2 pt-1">
               <div className="flex items-center justify-between text-xs font-black uppercase tracking-wider text-slate-700">
                 <span>Select Pack Size</span>
                 <span className="text-emerald-700 font-bold text-[11px]">Best Savings</span>
@@ -548,10 +620,10 @@ function ProductDetailPage() {
                   );
                 })}
               </div>
-            </div>
+            </div>}
 
             {/* Quantity Selector + Total Subtotal */}
-            <div className="flex items-center justify-between p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-white border border-slate-200">
+            {!product.pricePending && <div className="flex items-center justify-between p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-white border border-slate-200">
               <div className="space-y-0.5">
                 <div className="text-xs font-black uppercase tracking-wider text-slate-600">Quantity</div>
                 <div className="text-[11px] text-slate-500 font-medium truncate max-w-[150px] sm:max-w-none">
@@ -586,10 +658,10 @@ function ProductDetailPage() {
                   <div className="text-base sm:text-xl font-black text-[#166534]">₹{totalPrice}</div>
                 </div>
               </div>
-            </div>
+            </div>}
 
             {/* Pincode & Delivery Availability Checker */}
-            <div className="bg-slate-50 rounded-xl sm:rounded-2xl border border-slate-200 p-3 sm:p-4 space-y-2">
+            {!product.pricePending && <div className="bg-slate-50 rounded-xl sm:rounded-2xl border border-slate-200 p-3 sm:p-4 space-y-2">
               <div className="flex items-center justify-between text-xs font-bold text-slate-700">
                 <span className="flex items-center gap-1.5">
                   <Icon name="map-pin" className="w-3.5 h-3.5 text-[#166534]" />
@@ -631,10 +703,10 @@ function ProductDetailPage() {
                   <span>{pincodeStatus.msg}</span>
                 </div>
               )}
-            </div>
+            </div>}
 
             {/* Primary Action Buttons (Desktop Buy Box) */}
-            <div className="space-y-2.5 pt-1">
+            {!product.pricePending && <div className="space-y-2.5 pt-1">
               <button
                 type="button"
                 onClick={handleOpenCheckout}
@@ -658,7 +730,7 @@ function ProductDetailPage() {
                 <Icon name="message-circle" className="w-4 h-4 text-emerald-600" />
                 <span>Enquire Bulk Supply / Dealership on WhatsApp</span>
               </a>
-            </div>
+            </div>}
 
           </div>
 
@@ -989,7 +1061,7 @@ function ProductDetailPage() {
       </main>
 
       {/* Mobile Floating Sticky Buy Bar (Visible on phones only) */}
-      <div className="fixed bottom-0 inset-x-0 bg-white/95 backdrop-blur-md border-t border-slate-200/90 p-3 z-40 lg:hidden shadow-[0_-8px_25px_rgba(0,0,0,0.1)] flex items-center justify-between gap-3">
+      {!product.pricePending && <div className="fixed bottom-0 inset-x-0 bg-white/95 backdrop-blur-md border-t border-slate-200/90 p-3 z-40 lg:hidden shadow-[0_-8px_25px_rgba(0,0,0,0.1)] flex items-center justify-between gap-3">
         <div className="pl-1">
           <div className="flex items-baseline gap-1.5 leading-none">
             <span className="text-xl font-black text-[#166534]">₹{totalPrice}</span>
@@ -1011,7 +1083,7 @@ function ProductDetailPage() {
           <Icon name="shopping-bag" className="w-4 h-4" />
           <span>Buy Now (COD)</span>
         </button>
-      </div>
+      </div>}
 
       {/* Footer */}
       <Footer />

@@ -43,6 +43,36 @@ function sanitize(str) {
   return str.trim();
 }
 
+function normalizeImageList(value) {
+  if (!value) return [];
+
+  let arr = [];
+  if (Array.isArray(value)) {
+    arr = value;
+  } else if (typeof value === "string") {
+    const raw = value.trim();
+    if (!raw) return [];
+    if (raw.startsWith("[") || raw.startsWith("{")) {
+      try {
+        const parsed = JSON.parse(raw);
+        arr = Array.isArray(parsed) ? parsed : [parsed];
+      } catch {
+        arr = raw.split(",");
+      }
+    } else {
+      arr = raw.split(/[\n,]+/);
+    }
+  }
+
+  const clean = arr
+    .map((item) => sanitize(String(item)))
+    .filter(Boolean)
+    .filter((item) => !item.includes("\u0000"))
+    .slice(0, 5);
+
+  return [...new Set(clean)];
+}
+
 // -------------------------------------------------------------
 // Authentication Endpoints
 // -------------------------------------------------------------
@@ -127,7 +157,7 @@ router.post("/login", loginRateLimiter, async (req, res) => {
   } catch (err) {
     res.status(500).json({
       success: false,
-      message: "Server login error: " + err.message,
+      message: "Unable to sign in right now. Please try again later.",
     });
   }
 });
@@ -214,7 +244,7 @@ router.post(
   },
   async (req, res) => {
     try {
-      const { name, category, shortDescription, fullDescription, price, unit, status, imageUrl } = req.body;
+      const { name, category, shortDescription, fullDescription, price, mrp, unit, status, imageUrl, images } = req.body;
 
       if (!name || !sanitize(name)) {
         return res.status(400).json({ success: false, message: "Product name is required." });
@@ -222,7 +252,12 @@ router.post(
 
       const numPrice = Number(price);
       if (isNaN(numPrice) || numPrice <= 0) {
-        return res.status(400).json({ success: false, message: "Price must be a positive number greater than 0." });
+        return res.status(400).json({ success: false, message: "Selling price must be a positive number greater than 0." });
+      }
+
+      const numMrp = Number(mrp ?? price);
+      if (isNaN(numMrp) || numMrp <= 0) {
+        return res.status(400).json({ success: false, message: "MRP must be a positive number greater than 0." });
       }
 
       if (!shortDescription || !sanitize(shortDescription)) {
@@ -257,14 +292,21 @@ router.post(
         imagePath = req.body.existingImage;
       }
 
+      const imageGallery = normalizeImageList(images);
+      if (imageGallery.length) {
+        imageGallery[0] = imageGallery[0] || imagePath;
+      }
+
       const saved = await createProduct({
         name: sanitize(name),
         category: sanitize(category) || "General",
         shortDescription: sanitize(shortDescription),
         fullDescription: sanitize(fullDescription) || "",
         price: numPrice,
+        mrp: numMrp,
         unit: sanitize(unit) || "Strip",
         image: imagePath,
+        images: imageGallery.length ? imageGallery : [imagePath],
         status: status === "hidden" ? "hidden" : "active",
       });
 
@@ -300,7 +342,7 @@ router.put(
   },
   async (req, res) => {
     try {
-      const { name, category, shortDescription, fullDescription, price, unit, status, imageUrl } = req.body;
+      const { name, category, shortDescription, fullDescription, price, mrp, unit, status, imageUrl, images } = req.body;
 
       const updateData = {};
       if (name) updateData.name = sanitize(name);
@@ -313,9 +355,22 @@ router.put(
       if (price !== undefined) {
         const numPrice = Number(price);
         if (isNaN(numPrice) || numPrice <= 0) {
-          return res.status(400).json({ success: false, message: "Price must be a positive number greater than 0." });
+          return res.status(400).json({ success: false, message: "Selling price must be a positive number greater than 0." });
         }
         updateData.price = numPrice;
+      }
+
+      if (mrp !== undefined) {
+        const numMrp = Number(mrp);
+        if (isNaN(numMrp) || numMrp <= 0) {
+          return res.status(400).json({ success: false, message: "MRP must be a positive number greater than 0." });
+        }
+        updateData.mrp = numMrp;
+      }
+
+      if (price !== undefined && mrp !== undefined && updateData.price > 1 && updateData.mrp > 1) {
+        updateData.pricePending = false;
+        if (!status) updateData.status = "active";
       }
 
       if (req.file) {
@@ -342,6 +397,14 @@ router.put(
         updateData.image = sanitize(imageUrl);
       } else if (req.body.existingImage) {
         updateData.image = req.body.existingImage;
+      }
+
+      if (images !== undefined) {
+        const imageGallery = normalizeImageList(images);
+        updateData.images = imageGallery.length ? imageGallery : [];
+        if (updateData.image && !updateData.images.includes(updateData.image)) {
+          updateData.images = [updateData.image, ...updateData.images].slice(0, 5);
+        }
       }
 
       const updated = await updateProduct(req.params.id, updateData);

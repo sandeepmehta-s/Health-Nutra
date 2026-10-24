@@ -15,8 +15,11 @@ function ProductCard({
   const dummyFallback = React.useMemo(() => {
     const n = (product.name || "").toLowerCase();
     const c = (product.category || "").toLowerCase();
-    if (n.includes("9g") || c.includes("multivitamin")) return "/images/9g.png";
-    if (n.includes("10q") || c.includes("syrup")) return "/images/10q.png";
+    if (n.includes("9g")) return "/images/9g.png";
+    if (n.includes("q10") || n.includes("10q")) return "/images/10q.png";
+    if (n.includes("liv+")) return "/images/livplus.jpeg";
+    if (n.includes("naria+")) return "/images/naria-plus.jpeg";
+    if (n.includes("lipron+")) return "/images/lipron-plus.jpeg";
     if (n.includes("omega")) return "/images/omega3.png";
     if (n.includes("tea") || c.includes("green")) return "/images/greentea.png";
     return "/images/10q.png";
@@ -36,6 +39,10 @@ function ProductCard({
   const productUrl = React.useMemo(() => {
     const n = (product?.name || "").toLowerCase();
     const c = (product?.category || "").toLowerCase();
+    if (n.includes("liv+")) return "/liv-plus";
+    if (n.includes("naria+")) return "/naria-plus";
+    if (n.includes("lipron+")) return "/lipron-plus";
+    if (n.includes("q10+") || n.includes("10q")) return "/q10-plus";
     if (n.includes("omega") || c.includes("omega")) return "/omega";
     if (n.includes("9g")) return "/9g";
     if (n.includes("10q") || c.includes("syrup")) return "/10q";
@@ -104,12 +111,14 @@ function ProductCard({
 
         {/* Price & Unit */}
         <div className="my-2">
-          <span className="text-lg font-black text-[#166534]">
-            ₹{product.price}
-          </span>
-          <span className="text-xs font-normal text-slate-500 ml-1">
-            / {product.unit || "Unit"}
-          </span>
+          {product.pricePending ? (
+            <span className="text-sm font-bold text-amber-700">Price pending</span>
+          ) : (
+            <>
+              <span className="text-lg font-black text-[#166534]">₹{product.price}</span>
+              <span className="text-xs font-normal text-slate-500 ml-1">/ {product.unit || "Unit"}</span>
+            </>
+          )}
         </div>
 
         {/* View Details Action Button */}
