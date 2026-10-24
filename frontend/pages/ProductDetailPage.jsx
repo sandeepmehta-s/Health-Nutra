@@ -350,7 +350,7 @@ function ProductDetailPage() {
         </div>
       </div>
 
-      <main className="flex-grow max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-12 space-y-8 sm:space-y-12 pb-28 lg:pb-12">
+      <main className="w-full min-w-0 flex-grow max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-12 space-y-8 sm:space-y-12 pb-28 lg:pb-12">
         
         {/* ========================================================= */}
         {/* TOP SECTION: 2-COLUMN REAL E-COMMERCE PRODUCT LAYOUT */}
@@ -360,7 +360,7 @@ function ProductDetailPage() {
           {/* ------------------------------------------------------- */}
           {/* LEFT COLUMN: Large Showcase Image Gallery & Trust Perks */}
           {/* ------------------------------------------------------- */}
-          <div className="lg:col-span-6 space-y-4 sm:space-y-5">
+          <div className="min-w-0 lg:col-span-6 space-y-4 sm:space-y-5">
             
             {/* Primary Main Image Showcase Card */}
             <div className="relative bg-white rounded-2xl sm:rounded-3xl border border-slate-200 p-4 sm:p-12 shadow-sm flex items-center justify-center overflow-hidden min-h-[250px] sm:min-h-[460px] group">
@@ -434,14 +434,14 @@ function ProductDetailPage() {
           {/* ------------------------------------------------------- */}
           {/* RIGHT COLUMN: E-Commerce Buy Box, Pack Selector, Pricing */}
           {/* ------------------------------------------------------- */}
-          <div className="lg:col-span-6 space-y-5 sm:space-y-6">
+          <div className="min-w-0 lg:col-span-6 space-y-5 sm:space-y-6">
             
             {/* Title, Brand, Rating & Reference */}
             <div className="space-y-1.5 sm:space-y-2">
-              <div className="flex items-center gap-1.5 text-[10px] sm:text-xs font-bold text-slate-400 uppercase tracking-wider">
+              <div className="flex flex-wrap items-center gap-1.5 text-[10px] sm:text-xs font-bold text-slate-400 uppercase tracking-wider">
                 <span>HEALTH NUTRA™ CLINICAL</span>
                 <span>•</span>
-                <span className="font-mono text-slate-500">{product.refId}</span>
+                <span className="min-w-0 break-all font-mono text-slate-500 sm:break-normal">{product.refId}</span>
               </div>
 
               <h1 className="text-xl sm:text-3xl font-black text-slate-900 tracking-tight leading-snug">
@@ -638,11 +638,11 @@ function ProductDetailPage() {
               <button
                 type="button"
                 onClick={handleOpenCheckout}
-                className="w-full py-3.5 sm:py-4 px-5 rounded-2xl text-sm sm:text-base font-black text-white bg-[#166534] hover:bg-[#14532d] shadow-lg shadow-emerald-900/20 transition-all flex items-center justify-center gap-2.5 cursor-pointer transform hover:-translate-y-0.5 active:scale-98"
+                className="w-full min-w-0 py-3.5 sm:py-4 px-3 sm:px-5 rounded-2xl text-sm sm:text-base font-black text-white bg-[#166534] hover:bg-[#14532d] shadow-lg shadow-emerald-900/20 transition-all flex items-center justify-center gap-2 cursor-pointer transform hover:-translate-y-0.5 active:scale-98"
               >
-                <Icon name="shopping-bag" className="w-4 h-4 sm:w-5 sm:h-5" />
-                <span>Buy Now • Cash on Delivery (COD)</span>
-                <span className="ml-auto text-xs sm:text-sm bg-white/20 px-2.5 py-1 rounded-lg">
+                <Icon name="shopping-bag" className="w-4 h-4 sm:w-5 sm:h-5 shrink-0" />
+                <span className="min-w-0 text-center leading-snug">Buy Now • Cash on Delivery (COD)</span>
+                <span className="ml-auto shrink-0 text-xs sm:text-sm bg-white/20 px-2.5 py-1 rounded-lg">
                   ₹{totalPrice}
                 </span>
               </button>
@@ -850,9 +850,9 @@ function ProductDetailPage() {
               <div className="space-y-4">
                 {SAMPLE_REVIEWS.map((rev) => (
                   <div key={rev.id} className="p-5 rounded-2xl border border-slate-200/90 bg-white space-y-2.5 shadow-2xs">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <span className="font-black text-sm text-slate-900">{rev.author}</span>
+                    <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                      <div className="flex min-w-0 flex-wrap items-center gap-2">
+                        <span className="break-words font-black text-sm text-slate-900">{rev.author}</span>
                         {rev.verified && (
                           <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-800 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">
                             ✓ Verified Buyer
@@ -925,7 +925,7 @@ function ProductDetailPage() {
         {/* RELATED / RECOMMENDED FORMULATIONS SECTION */}
         {/* ========================================================= */}
         <section className="space-y-6 pt-4">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h3 className="text-xl sm:text-2xl font-black text-slate-900">
                 You May Also Need
@@ -936,7 +936,7 @@ function ProductDetailPage() {
             </div>
             <a
               href="/products"
-              className="text-xs font-bold text-[#166534] hover:underline"
+              className="self-start text-xs font-bold text-[#166534] hover:underline sm:self-auto"
             >
               View Full Catalog →
             </a>
