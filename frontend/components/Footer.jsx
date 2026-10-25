@@ -35,7 +35,7 @@ function Footer() {
             </div>
 
             <p className="text-xs sm:text-sm text-emerald-100/90 font-medium leading-relaxed max-w-sm">
-              Nurturing Health, Enriching Life.<br />
+              Nourishing Life Naturally.<br />
               Premium Nutraceutical Products<br />
               for a Better Tomorrow.
             </p>

@@ -3,9 +3,9 @@ function Hero({ onExploreClick }) {
     <section id="hero" className="w-full overflow-hidden bg-[#edf7e8]">
       <div className="mx-auto grid w-[94%] max-w-[1536px] grid-cols-1 items-center gap-8 px-4 py-9 sm:px-6 sm:py-12 lg:grid-cols-2 lg:gap-12 lg:px-2 lg:py-16">
         <div className="min-w-0">
-          <h1 className="text-4xl font-black leading-[1.08] text-[#166534] sm:text-5xl lg:text-[56px]">
+          <h1 className="text-3xl xs:text-4xl sm:text-5xl lg:text-[56px] font-black leading-[1.1] text-[#166534]">
             <span className="block">NURTURING HEALTH</span>
-            <span className="block text-[#f97316]">ENRICHING LIFE</span>
+            <span className="block text-[#f97316]">NOURISHING LIFE NATURALLY</span>
           </h1>
           <div className="mt-5 h-1 w-14 rounded-full bg-[#166534]" />
           <p className="mt-5 max-w-lg text-base font-bold leading-snug text-slate-800 sm:text-lg">

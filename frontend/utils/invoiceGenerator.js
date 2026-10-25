@@ -343,7 +343,7 @@ export function downloadOrderInvoicePDF(order) {
         </div>
         <div>
           <div class="brand-title">HEALTH <span>NUTRA</span>™</div>
-          <div class="brand-tagline">Nurturing Health, Enriching Life • WHO-GMP Certified</div>
+          <div class="brand-tagline">Nourishing Life Naturally • WHO-GMP Certified</div>
         </div>
       </div>
       <div class="invoice-badge-box">
