@@ -188,6 +188,21 @@ app.get(["/admin", "/admin/"], requireAuth, (req, res) => {
   res.sendFile(path.join(frontendDir, "admin", "admin.html"));
 });
 
+// Favicon icon for Google Search indexing & browser tabs
+app.get(["/favicon.ico", "/favicon.png"], (req, res) => {
+  const icoPath = path.join(frontendDir, "favicon.ico");
+  if (fs.existsSync(icoPath)) {
+    res.setHeader("Content-Type", "image/x-icon");
+    return res.sendFile(icoPath);
+  }
+  const logoPath = path.join(imagesDir, "logo.jpg");
+  if (fs.existsSync(logoPath)) {
+    res.setHeader("Content-Type", "image/jpeg");
+    return res.sendFile(logoPath);
+  }
+  res.status(204).end();
+});
+
 // Root public landing page
 app.get("/", (req, res) => {
   res.sendFile(path.join(frontendDir, "index.html"));

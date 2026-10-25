@@ -374,7 +374,8 @@ function HomePage() {
 
           </div>
 
-          {/* Bottom Half: OUR LEADERSHIP (Matching Mockup) */}
+          {/* Bottom Half: OUR LEADERSHIP (COMMENTED OUT) */}
+          {false && (
           <div id="team" className="space-y-8 pt-6 border-t border-slate-100 scroll-mt-24">
             
             <div className="text-center">
@@ -491,6 +492,7 @@ function HomePage() {
             </div>
 
           </div>
+          )}
 
         </div>
       </section>

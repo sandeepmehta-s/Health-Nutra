@@ -126,6 +126,8 @@ function AboutUsPage() {
         {/* ========================================================= */}
         {/* BOTTOM SECTION: OUR LEADERSHIP (Matching Mockup) */}
         {/* ========================================================= */}
+        {/* OUR LEADERSHIP SECTION COMMENTED OUT */}
+        {false && (
         <section id="leadership" className="scroll-mt-24 space-y-8">
           
           {/* Header */}
@@ -249,6 +251,7 @@ function AboutUsPage() {
           </div>
 
         </section>
+        )}
 
         {/* ========================================================= */}
         {/* INTERACTIVE ENQUIRY FORM */}
