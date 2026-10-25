@@ -40,12 +40,12 @@ function Navbar({ onOpenSearch, onOpenTrackOrder, orderCount = 0, initialSearchQ
           <a href="/" className="flex items-center gap-2.5 sm:gap-3 group shrink-0">
             <div className="w-9 h-9 sm:w-12 sm:h-12 rounded-full border border-amber-400/80 shadow-xs flex items-center justify-center overflow-hidden bg-white group-hover:scale-105 transition-transform">
               <img
-                src={(typeof window !== "undefined" && window?.apiHelper?.config?.brand?.logoUrl) || "https://res.cloudinary.com/usqwgkl7/image/upload/v1792576055/logo.jpg"}
+                src="/images/logo-circle.png"
                 alt="Health Nutra"
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover rounded-full"
                 onError={(e) => {
-                  e.target.style.display = "none";
-                  if (e.target.nextElementSibling) e.target.nextElementSibling.style.display = "block";
+                  e.target.onerror = null;
+                  e.target.src = "https://res.cloudinary.com/usqwgkl7/image/upload/v1792576055/logo.jpg";
                 }}
               />
               <Icon name="leaf" className="w-5 h-5 text-emerald-700 hidden" />

@@ -18,12 +18,12 @@ function Footer() {
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 rounded-full border-2 border-amber-400 bg-white p-0.5 flex items-center justify-center shrink-0 overflow-hidden shadow-xs">
                 <img
-                  src={(typeof window !== "undefined" && window?.apiHelper?.config?.brand?.logoUrl) || "https://res.cloudinary.com/usqwgkl7/image/upload/v1792576055/logo.jpg"}
+                  src="/images/logo-circle.png"
                   alt="Health Nutra"
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover rounded-full"
                   onError={(e) => {
-                    e.target.style.display = "none";
-                    if (e.target.nextElementSibling) e.target.nextElementSibling.style.display = "block";
+                    e.target.onerror = null;
+                    e.target.src = "https://res.cloudinary.com/usqwgkl7/image/upload/v1792576055/logo.jpg";
                   }}
                 />
                 <Icon name="leaf" className="w-5 h-5 text-[#166534] hidden" />

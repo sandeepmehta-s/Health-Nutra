@@ -338,8 +338,8 @@ export function downloadOrderInvoicePDF(order) {
     <!-- Top Header -->
     <div class="invoice-header">
       <div style="display: flex; align-items: center; gap: 16px;">
-        <div style="width: 58px; height: 58px; background: #ffffff; border-radius: 16px; padding: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0;">
-          <img src="https://res.cloudinary.com/usqwgkl7/image/upload/v1792576055/logo.jpg" alt="Health Nutra Logo" style="width: 100%; height: 100%; object-fit: contain;" />
+        <div style="width: 58px; height: 58px; background: #ffffff; border-radius: 50%; padding: 2px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0;">
+          <img src="/images/logo-circle.png" onerror="this.onerror=null;this.src='https://res.cloudinary.com/usqwgkl7/image/upload/v1792576055/logo.jpg';" alt="Health Nutra Logo" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" />
         </div>
         <div>
           <div class="brand-title">HEALTH <span>NUTRA</span>™</div>

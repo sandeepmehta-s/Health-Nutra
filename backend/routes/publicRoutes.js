@@ -454,7 +454,7 @@ router.get("/orders/:id/invoice", async (req, res) => {
   <div class="invoice-card">
     <div class="header">
       <div class="logo-box">
-        <img src="https://res.cloudinary.com/usqwgkl7/image/upload/v1792576055/logo.jpg" alt="Health Nutra" class="logo-img" />
+        <img src="/images/logo-circle.png" onerror="this.onerror=null;this.src='https://res.cloudinary.com/usqwgkl7/image/upload/v1792576055/logo.jpg';" alt="Health Nutra" class="logo-img" />
         <div>
           <h1 class="brand-title">HEALTH NUTRA™</h1>
           <p class="brand-sub">Nutraceutical & Botanical Formulations</p>
