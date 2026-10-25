@@ -59,7 +59,7 @@ function LoginPage() {
             <div className="text-2xl font-black text-white tracking-tight leading-none">
               HEALTH <span className="text-accent-500">NUTRA</span>
             </div>
-            <span className="text-[10px] font-black uppercase tracking-widest text-emerald-400">Pharmaceutical Admin</span>
+            <span className="text-[10px] font-black uppercase tracking-widest text-emerald-400">Nutraceutical Admin</span>
           </div>
         </a>
 

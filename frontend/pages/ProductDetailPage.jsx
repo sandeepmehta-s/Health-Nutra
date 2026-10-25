@@ -963,7 +963,7 @@ function ProductDetailPage() {
                 <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-1.5">
                   <div className="font-black text-slate-900">How is my order shipped?</div>
                   <p className="text-slate-600 font-medium leading-relaxed">
-                    Orders are packed in pharmaceutical tamper-evident sealed packaging and dispatched via premium courier services (BlueDart / Delhivery / DTDC) directly from our Indore central facility.
+                    Orders are packed in nutraceutical tamper-evident sealed packaging and dispatched via premium courier services (BlueDart / Delhivery / DTDC) directly from our Indore central facility.
                   </p>
                 </div>
 

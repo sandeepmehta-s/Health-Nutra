@@ -8,7 +8,7 @@ const __dirname = path.dirname(__filename);
 
 /**
  * Health Nutra - Official Order Tax Invoice PDF Generator
- * Generates an executive, pharmaceutical-grade PDF invoice buffer.
+ * Generates an executive, nutraceutical-grade PDF invoice buffer.
  *
  * @param {Object} order - Full order object from MongoDB / memory store
  * @returns {Promise<Buffer>} - Resolves to the binary PDF buffer
@@ -23,7 +23,7 @@ export async function generateInvoicePdfBuffer(order) {
           Title: `Tax Invoice #${order.orderId || order.id || "HN-ORD"}`,
           Author: "Health Nutra",
           Subject: "Official Tax Invoice & Receipt",
-          Keywords: "Health Nutra, Invoice, Pharmaceutical, Nutraceutical",
+          Keywords: "Health Nutra, Invoice, Nutraceutical, Botanical Formulations",
           CreationDate: new Date(order.createdAt || Date.now()),
         },
       });
@@ -101,7 +101,7 @@ export async function generateInvoicePdfBuffer(order) {
         .fillColor("#64748b")
         .font("Helvetica")
         .fontSize(8.5)
-        .text("PHARMACEUTICAL & BOTANICAL FORMULATIONS", titleX, 78);
+        .text("NUTRACEUTICAL & BOTANICAL FORMULATIONS", titleX, 78);
 
       // Invoice Badge (Right aligned)
       doc
@@ -281,7 +281,7 @@ export async function generateInvoicePdfBuffer(order) {
         .font("Helvetica")
         .fontSize(7.5)
         .text(
-          "Manufactured & Marketed under WHO-GMP & ISO 9001:2015 certified pharmaceutical processes.\nEvery batch undergoes rigorous HPLC analytical testing for purity, potency, and dissolution.",
+          "Manufactured & Marketed under WHO-GMP & ISO 9001:2015 certified nutraceutical processes.\nEvery batch undergoes rigorous HPLC analytical testing for purity, potency, and dissolution.",
           50,
           certBoxY + 20,
           { width: 495, lineGap: 2 }

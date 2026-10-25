@@ -1,6 +1,6 @@
 /**
  * Health Nutra - Official Order Invoice & PDF Receipt Generator
- * Generates a clean, pharmaceutical-grade printable PDF invoice with order status,
+ * Generates a clean, nutraceutical-grade printable PDF invoice with order status,
  * customer information, item breakdown, WHO-GMP certification seal, and barcodes.
  */
 
@@ -428,7 +428,7 @@ export function downloadOrderInvoicePDF(order) {
             <span style="font-weight: 700; color: #0f172a;">₹${totalAmount}</span>
           </div>
           <div class="totals-row">
-            <span>Pharmaceutical Taxes (GST 0%):</span>
+            <span>Nutraceutical Taxes (GST 0%):</span>
             <span style="font-weight: 700; color: #0f172a;">₹0.00</span>
           </div>
           <div class="totals-row">
