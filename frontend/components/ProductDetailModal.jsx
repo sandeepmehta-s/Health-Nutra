@@ -85,8 +85,16 @@ function ProductDetailModal({
 
             {/* Quick Details */}
             <div className="md:col-span-7 space-y-3">
-              <div className="text-2xl font-black text-brand-700">
-                ₹{product.price}{" "}
+              <div className="flex items-baseline gap-2 flex-wrap">
+                <span className="text-2xl font-black text-[#166534]">₹{product.price}</span>
+                {product.mrp && product.mrp > product.price && (
+                  <span className="text-sm font-semibold text-slate-400 line-through">₹{product.mrp}</span>
+                )}
+                {product.mrp && product.mrp > product.price && (
+                  <span className="text-xs font-black text-orange-600 bg-orange-100 px-2 py-0.5 rounded-md">
+                    {Math.round(((product.mrp - product.price) / product.mrp) * 100)}% OFF
+                  </span>
+                )}
                 <span className="text-sm font-semibold text-slate-500">per {product.unit || "Unit"}</span>
               </div>
 

@@ -115,7 +115,8 @@ function ProductCard({
             <span className="text-sm font-bold text-amber-700">Price pending</span>
           ) : (
             <>
-              <span className="text-lg font-black text-[#166534]">₹{product.price}</span>
+              <span className="text-xs font-bold text-slate-500 uppercase tracking-wide mr-1.5">MRP</span>
+              <span className="text-lg font-black text-[#166534]">₹{product.mrp || product.price}</span>
               <span className="text-xs font-normal text-slate-500 ml-1">/ {product.unit || "Unit"}</span>
             </>
           )}
